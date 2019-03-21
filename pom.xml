@@ -4,6 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <name>demo</name>
+    <packaging>war</packaging>
     <description>Demo project for Spring Boot</description>
 
     <groupId>com.dudu</groupId>
@@ -53,6 +54,7 @@
     </dependencies>
 
     <build>
+        <finalName>demo</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
