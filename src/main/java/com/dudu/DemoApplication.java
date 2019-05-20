@@ -2,16 +2,13 @@ package com.dudu;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * @author 大橙子
  */
-@SpringBootApplication(exclude = {
-        DataSourceAutoConfiguration.class
-})
+@SpringBootApplication
 public class DemoApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
