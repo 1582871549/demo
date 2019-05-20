@@ -9,12 +9,22 @@
  */
 package com.dudu.service.impl;
 
-import com.dudu.common.configuration.bean.MyProperties;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.dudu.common.exception.BusinessException;
+import com.dudu.dao.UserMapper;
+import com.dudu.entity.dto.UserDTO;
 import com.dudu.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,38 +35,88 @@ import java.util.List;
  * @create 2019/3/21
  * @since 1.0.0
  */
+@Transactional(transactionManager = "dataSourceTransactionManager", rollbackFor = Exception.class)
+@Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private MyProperties myProperties;
+    private UserMapper userMapper;
 
-    private static List<String> list;
-    private static List<String> listError;
-    private static List<String> nameError;
-
-    static {
-        System.out.println("静态代码块   ----------");
-        list = new ArrayList<>();
-        listError = new ArrayList<>();
-        nameError = new ArrayList<>();
+    @Override
+    public int insertUser(UserDTO userDTO) {
+        return 0;
     }
 
     @Override
-    public List<String> listUser(String name) {
-
-        if (list == null) {
-            listError.add("list为空");
-            return listError;
-        }
-
-        if (StringUtils.isBlank(name)) {
-            nameError.add("name为null或为空");
-            return nameError;
-        }
-
-        list.add(name);
-
-        return list;
+    public List<UserDTO> listUser() {
+        return null;
     }
 
+    @Override
+    public UserDTO getUserById(String userId) {
+        return null;
+    }
+
+    @Override
+    public UserDTO getUserByUsername(String username) {
+        return null;
+    }
+
+    @Override
+    public IPage<UserDTO> listUserByPage(IPage<UserDTO> page, Wrapper<UserDTO> queryWrapper) {
+        return null;
+    }
+
+    @Override
+    public int updateUser(UserDTO userDTO) {
+        return 0;
+    }
+
+    @Override
+    public int deleteUserById(String userId) {
+        return 0;
+    }
+
+    @Override
+    public int deleteUserBatchByIds(List<String> idList) {
+        return 0;
+    }
+
+    @Override
+    public void login(UserDTO userDTO) {
+        String username = userDTO.getUsername();
+        String password = userDTO.getPassword();
+
+        // 检查空值
+        if (StringUtils.isBlank(username)) {
+            throw new BusinessException("username can't be empty");
+        }
+        if (StringUtils.isBlank(password)) {
+            throw new BusinessException("password can't be empty");
+        }
+
+        // 检查用户状态
+        if (userMapper.getUserLocked(username)) {
+            throw new BusinessException("该用户已锁定");
+        }
+
+        // 1、获取Subject实例对象
+        Subject currentUser = SecurityUtils.getSubject();
+
+        // 2、判断当前用户是否登录
+        if (!currentUser.isAuthenticated()) {
+            // 3、将用户名和密码封装到UsernamePasswordToken
+            UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+
+            // 4、认证
+            try {
+                currentUser.login(token);// 传到MyAuthorizingRealm类中的方法进行认证
+                Session session = currentUser.getSession();
+                session.setAttribute("username", username);
+            } catch (AuthenticationException e) {
+                throw new BusinessException("密码或用户名错误");
+            }
+        }
+
+    }
 }

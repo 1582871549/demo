@@ -9,10 +9,8 @@
  */
 package com.dudu.common.configuration;
 
-import com.dudu.common.configuration.config.SchoolConfig;
-import com.dudu.common.configuration.example.SchoolService;
-import com.dudu.common.configuration.example.impl.PrimarySchoolServiceImpl;
-import org.springframework.context.annotation.Bean;
+import com.dudu.common.configuration.config.DataSourceConfig;
+import com.dudu.common.configuration.config.ShiroConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -26,20 +24,8 @@ import org.springframework.context.annotation.Import;
  */
 
 @Configuration
-@Import(SchoolConfig.class)
+@Import(value = {DataSourceConfig.class, ShiroConfig.class})
 public class CustomAutoConfiguration {
 
-    @Bean
-    public PrimarySchoolServiceImpl primarySchoolServiceImpl(SchoolService schoolService) {
 
-        /**
-         * 这里会注入SchoolService类型的bean
-         * 这里注入的这个bean是SchoolConfig.class中的SchoolService类型的bean
-         */
-        PrimarySchoolServiceImpl primarySchoolService = new PrimarySchoolServiceImpl(schoolService);
-
-        primarySchoolService.paly();
-
-        return primarySchoolService;
-    }
 }

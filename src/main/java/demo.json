@@ -1,0 +1,10 @@
+{
+  "hobbies": [
+    "hiking",
+    "swimming"
+  ],
+  "sex": "male",
+  "name": "John",
+  "locked": true,
+  "age": 22
+}
