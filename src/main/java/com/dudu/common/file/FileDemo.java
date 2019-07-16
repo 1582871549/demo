@@ -9,9 +9,20 @@
  */
 package com.dudu.common.file;
 
+import com.dudu.common.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
+import org.jacoco.core.data.ExecutionData;
+import org.jacoco.core.data.ExecutionDataReader;
+import org.jacoco.core.data.ExecutionDataStore;
+import org.jacoco.core.data.ExecutionDataWriter;
+import org.jacoco.core.runtime.RemoteControlReader;
+import org.jacoco.core.runtime.RemoteControlWriter;
+import org.jacoco.core.tools.ExecFileLoader;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Collection;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -32,19 +43,83 @@ public class FileDemo {
 
     public static void main(String[] args) throws IOException {
 
-        // "-6470234121391229264" -> "ExecutionData[name=org/apache/tomcat/util/bcel/classfile/AnnotationEntry, id=a6351c58ecdd36b0]"
+        String destFile = "D:\\Soft_Package\\coverage\\demo-1.0\\jacoco-client1.exec";
+        String address = "127.0.0.1";
+        int port = 4399;
 
-        long a = -6470234121391229264L;
+        boolean b = new File("D:\\bbb\\").exists();
+        System.out.println(b);
+    }
 
-        System.out.println(a);
+    public void save(String path) {
 
-        // FileDemo demo = new FileDemo();
-        //
-        // // demo.bbb("");
-        // File file = new File(path + File.separatorChar);
-        //
-        // System.out.println(file.exists());
+        try {
 
+            File file = new File(path, "");
+            save(file, true);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void save(final File file, final boolean append) throws IOException {
+
+        // 如果拥有父目录、则创建父目录。没有则返回null
+        final File folder = file.getParentFile();
+        if (folder != null) {
+            folder.mkdirs();
+        }
+
+        // 创建文件输出流，以写入由指定的file。
+        // 如果第二个参数为true, 那么字节将被写入文件的末尾而不是开头。
+        final FileOutputStream fileStream = new FileOutputStream(file, append);
+        // 避免来自其他进程的并发写入
+        fileStream.getChannel().lock();
+        // 将数据写入指定的缓冲输出流
+        final OutputStream bufferedStream = new BufferedOutputStream(fileStream);
+
+        Socket socket = null;
+
+        try {
+
+            final ExecutionDataWriter localWriter = new ExecutionDataWriter(bufferedStream);
+
+            socket = new Socket(InetAddress.getByName(""), 1);
+
+            ExecFileLoader loader = new ExecFileLoader();
+
+            loader.load(socket.getInputStream());
+
+            ExecutionDataStore dataStore = loader.getExecutionDataStore();
+
+            System.out.println(dataStore);
+
+            // 写
+            RemoteControlWriter writer = new RemoteControlWriter(socket.getOutputStream());
+            // 读 ExecutionDataReader
+            RemoteControlReader reader = new RemoteControlReader(socket.getInputStream());
+
+            reader.setSessionInfoVisitor(localWriter);
+            reader.setExecutionDataVisitor(localWriter);
+
+            // 读取 reader 中的数据到localWriter中
+            boolean read = reader.read();
+
+            // 是否重置服务器探针信息
+            writer.visitDumpCommand(true, true);
+
+            if (!read) {
+                System.out.println("socket 连接异常");
+            }
+
+
+        } catch (IOException e) {
+            System.out.println("系统异常!");
+        } finally {
+            socket.close();
+            bufferedStream.close();
+        }
     }
 
     public void aaa () throws IOException {

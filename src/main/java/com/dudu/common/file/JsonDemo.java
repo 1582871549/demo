@@ -31,6 +31,18 @@ public class JsonDemo {
 
     public static void main(String args[]) throws IOException {
 
+        String value = "[{\"tomcatPath\":\"sdfs/tomcat1\",\"port\":\"6666\",\"ip\":\"123.123.123\",\"projectSrc\":\"com.*\"}," +
+                "{\"tomcatPath\":\"sdfs/tomcat2\",\"port\":\"7777\",\"ip\":\"456.456.456\",\"projectSrc\":\"com.*\"}," +
+                "{\"tomcatPath\":\"sdfs/tomcat3\",\"port\":\"8888\",\"ip\":\"789.789.789\",\"projectSrc\":\"com.*\"}]";
+
+        JSONArray jsonArray = JSONArray.fromObject(value);
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = JSONObject.fromObject(o);
+
+            System.out.println(jsonObject.getString("ip") + "----" + jsonObject.getInt("port"));
+        }
+
+
         // analysisJsonFile();
     }
 
