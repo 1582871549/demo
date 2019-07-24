@@ -87,6 +87,7 @@ public final class JGitHelper {
         Map<String, Map<String, List<String>>> classMap = helper.getIncrementalMethod(remoteBranch, true);
 
         List<String> classList = new ArrayList<>(11);
+
         Map<String, List<String>> methodMap = new HashMap<>(16);
 
         for (Map.Entry<String, Map<String, List<String>>> classEntry : classMap.entrySet()) {

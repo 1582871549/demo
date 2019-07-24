@@ -24,7 +24,8 @@ public class JGitBean {
 
     private String className;
     /**
-     * old分支中增量方法的行号
+     * key:   本地分支差异行信息
+     * value: 远程分支差异行信息 “差异开始行, 差异行数”
      */
     private Map<String, String> line;
 

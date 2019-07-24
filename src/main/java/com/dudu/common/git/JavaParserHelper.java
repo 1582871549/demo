@@ -65,7 +65,6 @@ public class JavaParserHelper {
             JavaParser javaParser = new JavaParser();
 
             ParseResult<CompilationUnit> parseResult = javaParser.parse(file);
-
             // 所有注释
             Optional<CommentsCollection> commentsCollection = parseResult.getCommentsCollection();
 
@@ -80,24 +79,21 @@ public class JavaParserHelper {
             String className = type.getNameAsString();
 
             List<MethodDeclaration> methodList = type.getMethods();
-
+            // 收集差异方法中的差异行信息
             List<Integer> ends = new ArrayList<>(11);
-
+            // 遍历该类所有方法, 取出方法的范围对本地分支的差异代码行lineA进行差异方法匹配
             for (MethodDeclaration method : methodList) {
-
                 // 每个方法的范围(起始行, 结束行)
                 Range range = method.getRange().get();
+                // 存放每个方法的差异行信息
                 List<String> methodLines = new ArrayList<>(11);
-
-                // 匹配方法 key为旧分支类中的方法对应行集合, 只通过旧行来匹配方法名称。具体的行数由value差异行在新分支中获取
+                // 匹配方法, 只通过本地分支差异行来匹配方法名称. key: 本地分支差异行, value: 远程分支差异行
                 for (Map.Entry<String, String> entry : bean.getLine().entrySet()) {
-
+                    // 每个差异块尾行
                     int endA = Integer.parseInt(entry.getKey());
-
                     if (endA >= range.begin.line && endA <= range.end.line) {
 
                         ends.add(endA);
-
                         methodLines.add(entry.getValue());
                         // key: 方法名称, value: "远程分支差异行, 连续行数", ...
                         incrementalMethod.put(method.getNameAsString(), methodLines);
@@ -108,7 +104,7 @@ public class JavaParserHelper {
             List<String> otherLines = new ArrayList<>(11);
 
             for (Map.Entry<String, String> entry : bean.getLine().entrySet()) {
-
+                // 排除掉所有方法内的差异行信息, 其余的差异行信息写入[otherLine] key
                 if (!ends.contains(Integer.parseInt(entry.getKey()))) {
                     otherLines.add(entry.getValue());
                 }
