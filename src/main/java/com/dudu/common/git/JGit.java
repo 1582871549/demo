@@ -1,6 +1,6 @@
 /**
  * FileName: JGit
- * Author:   大橙子
+ * Author:   dujianwei
  * Date:     2019/7/16 9:49
  * Description:
  * History:
@@ -37,9 +37,9 @@ import java.util.List;
 
 /**
  * 〈一句话功能简述〉<br> 
- * 〈〉
+ * jgit操作类
  *
- * @author 大橙子
+ * @author dujianwei
  * @create 2019/7/16
  * @since 1.0.0
  */
@@ -53,8 +53,6 @@ public final class JGit {
     private String localRepository;
     private final List<JGitBean> gitBeanList;
 
-    private static volatile JGit instance = null;
-
     /**
      * 创建一个JGit实例
      *
@@ -64,7 +62,7 @@ public final class JGit {
      * @param password 密码
      * @param repositoryDirName 本地仓库名称
      */
-    private JGit(String gitUrl, String branchName, String username, String password, String repositoryDirName) {
+    public JGit(String gitUrl, String branchName, String username, String password, String repositoryDirName) {
         this.gitUrl = gitUrl;
         this.localBranch = branchName;
         this.username = username;
@@ -74,30 +72,9 @@ public final class JGit {
     }
 
     /**
-     * 双检锁单例
-     *
-     * @param gitUrl git仓库路径
-     * @param branchName 分支名称
-     * @param username 用户名
-     * @param password 密码
-     * @param repositoryDirName 本地仓库名称
-     * @return JGit实例
-     */
-    public static JGit getInstance(String gitUrl, String branchName, String username, String password, String repositoryDirName) {
-        if (instance == null) {
-            synchronized (JGit.class) {
-                if (instance == null) {
-                    instance = new JGit(gitUrl, branchName, username, password, repositoryDirName);
-                }
-            }
-        }
-        return instance;
-    }
-
-    /**
      * 克隆一个git存储库
      */
-    public void cloneRepository() throws GitAPIException, IOException {
+    public String cloneRepository() throws GitAPIException, IOException {
         // 为克隆的存储库准备一个临时文件夹
         File tempFolder = File.createTempFile(repositoryDirName, "");
 
@@ -118,8 +95,8 @@ public final class JGit {
 
             // 将存储库路径赋予全局变量, 方便后续删除
             this.localRepository = tempFolder.getPath();
-
         }
+        return this.localRepository;
     }
 
     /**
@@ -190,20 +167,19 @@ public final class JGit {
                             //获取文件差异位置
                             for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
 
-                                // 注入自定义类
-                                JGitBean bean = new JGitBean();
-                                List<Integer> line = new ArrayList<>(11);
-                                bean.setClassName(diff.getNewPath());
-                                bean.setLine(line);
+                                JGitBean bean = new JGitBean(diff.getNewPath());
+                                gitBeanList.add(bean);
 
                                 for (Edit edit : hunk.toEditList()) {
                                     // 状态只有为替换或新增时才去记录 (增量)
                                     if (edit.getType() == Edit.Type.INSERT || edit.getType() == Edit.Type.REPLACE) {
+
+                                        int lineCount = edit.getEndB() - edit.getBeginB();
+                                        String lineInfo = lineCount == 1 ? edit.getBeginB() + ",1" : edit.getBeginB() + "," + lineCount;
                                         // 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
-                                        line.add(edit.getEndA());
+                                        bean.getLine().put(String.valueOf(edit.getEndA()), lineInfo);
                                     }
                                 }
-                                gitBeanList.add(bean);
                             }
                         }
                     }
@@ -229,8 +205,6 @@ public final class JGit {
             CanonicalTreeParser treeParser = new CanonicalTreeParser();
             try (ObjectReader reader = repository.newObjectReader()) {
                 treeParser.reset(reader, tree.getId());
-            } catch (IOException e) {
-                e.printStackTrace();
             }
             walk.dispose();
             return treeParser;

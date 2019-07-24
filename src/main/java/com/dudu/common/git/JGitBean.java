@@ -9,7 +9,8 @@
  */
 package com.dudu.common.git;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -22,22 +23,22 @@ import java.util.List;
 public class JGitBean {
 
     private String className;
-    private List<Integer> line;
+    /**
+     * old分支中增量方法的行号
+     */
+    private Map<String, String> line;
+
+    public JGitBean(String className) {
+        this.className = className;
+        this.line = new HashMap<>(16);
+    }
 
     public String getClassName() {
         return className;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public List<Integer> getLine() {
+    public Map<String, String> getLine() {
         return line;
-    }
-
-    public void setLine(List<Integer> line) {
-        this.line = line;
     }
 
     @Override

@@ -19,7 +19,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.diff.*;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.patch.HunkHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -59,7 +58,7 @@ public class GitDemo {
         this.repositoryDirName = repositoryDirName;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, GitAPIException {
         String gitPath = "https://github.com/1582871549/jacoco.git";
         String branchName = "master";
         String branchName2 = "dev";
@@ -69,7 +68,7 @@ public class GitDemo {
 
         GitDemo demo = new GitDemo(gitPath, branchName, username, password, repositoryDirName);
 
-        // demo.cloneRepository();
+        demo.cloneRepository();
 
         System.out.println();
         System.out.println();
@@ -296,17 +295,24 @@ public class GitDemo {
                         System.out.println("=================================start==============================");
 
                         //获取文件差异位置，从而统计差异的行数，如增加行数，减少行数
-                        FileHeader fileHeader = formatter.toFileHeader(diff);
-                        List<HunkHeader> hunks = (List<HunkHeader>) fileHeader.getHunks();
-                        for(HunkHeader hunkHeader:hunks){
-                            EditList editList = hunkHeader.toEditList();
-                            for(Edit edit : editList){
 
-                                System.out.println(edit.getType() + "   " + edit.getLengthA());
+                        if (diff.getChangeType() == DiffEntry.ChangeType.ADD || diff.getChangeType() == DiffEntry.ChangeType.MODIFY) {
+                            //获取文件差异位置
+                            for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
+                                for (Edit edit : hunk.toEditList()) {
+                                    // 状态只有为替换或新增时才去记录 (增量)
+                                    if (edit.getType() == Edit.Type.INSERT || edit.getType() == Edit.Type.REPLACE) {
 
-                                System.out.println("beginA:   " + edit.getBeginA() + "   endA:   " + edit.getEndA());
-                                System.out.println("beginB:   " + edit.getBeginB() + "   endB:   " + edit.getEndB());
+                                        int lineCount = edit.getEndB() - edit.getBeginB();
 
+                                        String lineInfo = lineCount == 1 ? edit.getBeginB() + ",1" : edit.getBeginB() + "," + lineCount;
+
+
+                                        // System.out.println("beginA:   " + edit.getBeginA() + "   endA:   " + edit.getEndA());
+                                        System.out.println("beginB:   " + edit.getBeginB() + "   endB:   " + edit.getEndB()
+                                                + "      --- " + String.valueOf(edit.getEndB()-edit.getBeginB()));
+                                    }
+                                }
                             }
                         }
 
