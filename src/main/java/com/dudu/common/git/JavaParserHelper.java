@@ -34,14 +34,6 @@ import java.util.*;
  */
 public class JavaParserHelper {
 
-    private String localRepository;
-    private Map<String, Map<String, List<String>>> incrementalClass;
-
-    public JavaParserHelper(String localRepository) {
-        this.localRepository = localRepository;
-        this.incrementalClass = new HashMap<>(16);
-    }
-
     /**
      * 根据diff行号匹配抽象语法树中的方法
      * @TODO 需要优化的地方
@@ -50,9 +42,10 @@ public class JavaParserHelper {
      *
      * @param beanList 差异类信息集合
      */
-    public void matchMethod(List<JGitBean> beanList) throws FileNotFoundException {
+    public static Map<String, Map<String, List<String>>> matchMethod(List<JGitBean> beanList, String localRepository) throws FileNotFoundException {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
+        Map<String, Map<String, List<String>>> incrementalClass = new HashMap<>(16);
 
         for (JGitBean bean : beanList) {
 
@@ -123,9 +116,6 @@ public class JavaParserHelper {
             incrementalClass.put(javaPath, incrementalMethod);
             buffer.delete(0, buffer.length());
         }
-    }
-
-    public Map<String, Map<String, List<String>>> getIncrementalClass() {
         return incrementalClass;
     }
 }

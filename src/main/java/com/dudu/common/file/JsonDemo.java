@@ -31,16 +31,38 @@ public class JsonDemo {
 
     public static void main(String args[]) throws IOException {
 
-        String value = "[{\"tomcatPath\":\"sdfs/tomcat1\",\"port\":\"6666\",\"ip\":\"123.123.123\",\"projectSrc\":\"com.*\"}," +
-                "{\"tomcatPath\":\"sdfs/tomcat2\",\"port\":\"7777\",\"ip\":\"456.456.456\",\"projectSrc\":\"com.*\"}," +
-                "{\"tomcatPath\":\"sdfs/tomcat3\",\"port\":\"8888\",\"ip\":\"789.789.789\",\"projectSrc\":\"com.*\"}]";
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName("张三");
+        userDTO.setPassword("123456");
 
-        JSONArray jsonArray = JSONArray.fromObject(value);
-        for (Object o : jsonArray) {
-            JSONObject jsonObject = JSONObject.fromObject(o);
+        JSONArray array = JSONArray.fromObject(userDTO);
 
-            System.out.println(jsonObject.getString("ip") + "----" + jsonObject.getInt("port"));
+        userDTO.setPhone("222222222");
+        array.add(userDTO);
+
+        String s = array.toString();
+
+        System.out.println(s);
+
+        JSONArray array2 = JSONArray.fromObject(s);
+
+        for (Object o : array2) {
+            UserDTO user = (UserDTO) JSONObject.toBean(JSONObject.fromObject(o), UserDTO.class);
+
+            System.out.println(user);
         }
+
+
+        // String value = "[{\"tomcatPath\":\"sdfs/tomcat1\",\"port\":\"6666\",\"ip\":\"123.123.123\",\"projectSrc\":\"com.*\"}," +
+        //         "{\"tomcatPath\":\"sdfs/tomcat2\",\"port\":\"7777\",\"ip\":\"456.456.456\",\"projectSrc\":\"com.*\"}," +
+        //         "{\"tomcatPath\":\"sdfs/tomcat3\",\"port\":\"8888\",\"ip\":\"789.789.789\",\"projectSrc\":\"com.*\"}]";
+        //
+        // JSONArray jsonArray = JSONArray.fromObject(value);
+        // for (Object o : jsonArray) {
+        //     JSONObject jsonObject = JSONObject.fromObject(o);
+        //
+        //     System.out.println(jsonObject.getString("ip") + "----" + jsonObject.getInt("port"));
+        // }
 
 
         // analysisJsonFile();

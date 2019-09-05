@@ -2,7 +2,9 @@ package com.dudu.common.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;  
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil {
@@ -291,5 +293,10 @@ public class DateUtil {
         System.out.println("resultDateStr : " + resultDateStr + "      resultDateTimeStr : " + resultDateTimeStr);
 
         System.out.println("当前日期 : " + DateUtil.getDateStr() + "      当前日期时间 : " + DateUtil.getDateTimeStr());
+
+        // Instant 代替 Date，
+        // LocalDateTime 代替 Calendar，
+        // DateTimeFormatter 代替 SimpleDateFormat，官方给出的解释：simple beautiful strong immutable thread-safe
+
     }
 }

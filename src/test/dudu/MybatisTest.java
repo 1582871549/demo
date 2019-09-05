@@ -14,12 +14,20 @@ import com.dudu.common.util.DateUtil;
 import com.dudu.dao.RoleMapper;
 import com.dudu.entity.po.RolePO;
 import com.dudu.entity.po.UserPO;
+import com.sun.jndi.toolkit.url.Uri;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 /**
@@ -66,5 +74,32 @@ public class MybatisTest {
         //     System.out.println(rolePO);
         // }
         System.out.println("-----------------------------------");
+    }
+
+    @Test
+    public void file(){
+
+        RolePO rolePO = new RolePO();
+        rolePO.setRoleId("2222");
+        rolePO.setComment("2222");
+        rolePO.setRoleName("2222");
+        rolePO.setLocked(true);
+        int insert = roleMapper.insert(rolePO);
+        System.out.println(insert);
+
+    }
+
+    @Test
+    public void util() throws IOException {
+
+        IOUtils.closeQuietly(); //关闭一个IO流、socket、或者selector且不抛出异常，通常放在finally块
+        IOUtils.toString(new byte[12], "utf-8"); //转换IO流、 Uri、byte[]为 String
+
+        FileUtils.deleteDirectory(new File(""));
+
+        StringUtils.isBlank("");
+
+
+
     }
 }

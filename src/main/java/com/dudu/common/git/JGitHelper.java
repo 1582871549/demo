@@ -3,10 +3,7 @@ package com.dudu.common.git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -18,7 +15,6 @@ import java.util.Map;
 public final class JGitHelper {
 
     private JGit git;
-    private JavaParserHelper parser;
 
     /**
      * 通过构造器初始化jGit实例
@@ -29,48 +25,107 @@ public final class JGitHelper {
      * @param password 密码
      * @param repositoryDirName 本地仓库名称
      */
-    public JGitHelper(String gitUrl, String branchName, String username, String password, String repositoryDirName) {
+    public JGitHelper(String gitUrl,
+                      String branchName,
+                      String username,
+                      String password,
+                      String repositoryDirName) {
         this.git = new JGit(gitUrl, branchName, username, password, repositoryDirName);
     }
 
     /**
-     * 获取增量方法
+     * 获取分支增量方法
      *  @param remoteBranch
      *                  远程分支
      * @param isDelete
      *                  是否删除存储库
+     *                  <code>true</code>, 使用完后删除该存储库
      */
-    private void getIncremental(String remoteBranch, boolean isDelete) throws GitAPIException, IOException {
+    private Map<String, Map<String, List<String>>> getBranchIncremental(String remoteBranch,
+                                                                        boolean isDelete)
+            throws GitAPIException, IOException {
 
         String localRepository = git.cloneRepository();
 
         List<JGitBean> beanList = git.diffBranch(remoteBranch);
 
-        this.parser = new JavaParserHelper(localRepository);
-
-        this.parser.matchMethod(beanList);
+        Map<String, Map<String, List<String>>> incrementalClass = JavaParserHelper.matchMethod(beanList, localRepository);
 
         if (isDelete) {
             git.delRepository();
         }
+
+        return incrementalClass;
     }
 
     /**
-     * 获取增量方法
+     * 获取分支增量方法
      *
      * @param remoteBranch
      *                  远程分支
      * @param isDelete
      *                  是否删除存储库
      *                  <code>true</code>, 使用完后删除该存储库
+     *
+     * @return 分支增量方法集合
      */
-    public Map<String, Map<String, List<String>>> getIncrementalMethod(String remoteBranch, boolean isDelete) {
+    public Map<String, Map<String, List<String>>> getBranchIncrementalMethod(String remoteBranch,
+                                                                             boolean isDelete) {
         try {
-            getIncremental(remoteBranch, isDelete);
+            return getBranchIncremental(remoteBranch, isDelete);
         } catch (GitAPIException | IOException e) {
             e.printStackTrace();
         }
-        return parser.getIncrementalClass();
+        return new HashMap<>(0);
+    }
+
+    /**
+     *
+     * @param remoteTag1 远程tag1名称
+     * @param remoteTag2 远程tag2名称
+     * @param isDelete
+     *                  是否删除存储库
+     *                  <code>true</code>, 使用完后删除该存储库
+     *
+     * @return tag增量方法集合
+     */
+    private Map<String, Map<String, List<String>>> getTagIncremental(String remoteTag1,
+                                                                     String remoteTag2,
+                                                                     boolean isDelete)
+            throws GitAPIException, IOException {
+
+        String localRepository = git.cloneRepository();
+
+        List<JGitBean> beanList = git.diffTag(remoteTag1, remoteTag2);
+
+        Map<String, Map<String, List<String>>> incrementalClass = JavaParserHelper.matchMethod(beanList, localRepository);
+
+        if (isDelete) {
+            git.delRepository();
+        }
+
+        return incrementalClass;
+    }
+
+    /**
+     *
+     * @param remoteTag1 远程tag1名称
+     * @param remoteTag2 远程tag2名称
+     * @param isDelete
+     *                  是否删除存储库
+     *                  <code>true</code>, 使用完后删除该存储库
+     *
+     * @return tag增量方法集合
+     */
+    public Map<String, Map<String, List<String>>> getTagIncrementalMethod(String remoteTag1,
+                                                                          String remoteTag2,
+                                                                          boolean isDelete) {
+        try {
+            return getTagIncremental(remoteTag1, remoteTag2, isDelete);
+        } catch (GitAPIException | IOException e) {
+            e.printStackTrace();
+        }
+        return new HashMap<>(0);
     }
 
     public static void main(String[] args) {
@@ -81,10 +136,13 @@ public final class JGitHelper {
         String repositoryDirName = "gitRepository";
 
         String remoteBranch = "dev";
+        String a = "v.1.0";
+        String b = "v.1.1";
 
         JGitHelper helper = new JGitHelper(gitUrl, branchName, username, password, repositoryDirName);
 
-        Map<String, Map<String, List<String>>> classMap = helper.getIncrementalMethod(remoteBranch, true);
+        // Map<String, Map<String, List<String>>> classMap = helper.getBranchIncrementalMethod(remoteBranch, true);
+        Map<String, Map<String, List<String>>> classMap = helper.getTagIncrementalMethod(a, b, true);
 
         List<String> classList = new ArrayList<>(11);
 

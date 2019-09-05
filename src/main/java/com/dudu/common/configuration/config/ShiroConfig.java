@@ -9,7 +9,6 @@
  */
 package com.dudu.common.configuration.config;
 
-import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
 import com.dudu.common.exception.CustomShiroExceptionResolver;
 import com.dudu.common.shiro.realm.UserRealm;
 import com.dudu.web.filter.CustomFilter;
@@ -358,10 +357,9 @@ public class ShiroConfig {
      *
      * @return shiroDialect
      */
-    @Bean(name = "shiroDialect")
-    public ShiroDialect shiroDialect() {
-        return new ShiroDialect();
-    }
-
+    // @Bean(name = "shiroDialect")
+    // public ShiroDialect shiroDialect() {
+    //     return new ShiroDialect();
+    // }
 
 }

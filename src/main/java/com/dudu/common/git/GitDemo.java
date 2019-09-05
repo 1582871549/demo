@@ -23,6 +23,7 @@ import org.eclipse.jgit.patch.HunkHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -43,16 +44,16 @@ import java.util.List;
 @Slf4j
 public class GitDemo {
 
-    private final String gitPath;
-    private final String branchName;
+    private final String gitUrl;
+    private final String localBranch;
     private final String username;
     private final String password;
     private final String repositoryDirName;
-    private String localRepository = "C:\\Users\\大橙子\\AppData\\Local\\Temp\\gitRepository6919285836525817515";
+    private String localRepository = "C:\\Users\\大橙子\\AppData\\Local\\Temp\\gitRepository6977493259078172857";
 
-    public GitDemo(String gitPath, String branchName, String username, String password, String repositoryDirName) {
-        this.gitPath = gitPath;
-        this.branchName = branchName;
+    public GitDemo(String gitUrl, String localBranch, String username, String password, String repositoryDirName) {
+        this.gitUrl = gitUrl;
+        this.localBranch = localBranch;
         this.username = username;
         this.password = password;
         this.repositoryDirName = repositoryDirName;
@@ -68,21 +69,33 @@ public class GitDemo {
 
         GitDemo demo = new GitDemo(gitPath, branchName, username, password, repositoryDirName);
 
-        demo.cloneRepository();
+        // String s = demo.cloneRepository();
 
-        System.out.println();
-        System.out.println();
-        System.out.println("--------------------");
-        System.out.println();
-
-        // demo.ListTag();
+        System.out.println("=======================================");
 
         // demo.listBranche();
 
-        demo.ShowBranchDiff(branchName, branchName2);
+        System.out.println("=======================================");
 
-        // demo.blame("org.jacoco.core\\src\\org\\jacoco\\core\\analysis\\Analyzer.java");
+        demo.ListTag();
 
+        demo.diffTag("v.1.0", "v.1.1");
+
+        // demo.diffBranch(branchName2);
+    }
+
+    /**
+     * 打开指定位置中的git存储库
+     * <p>
+     *     如果目录不存在,不会抛出异常. 也不会输出任何存储库信息
+     * </p>
+     *
+     * @return 存储库实例
+     */
+    public Repository openRepository() throws IOException {
+        return new FileRepositoryBuilder()
+                .setGitDir(new File(localRepository, ".git"))
+                .build();
     }
 
     /**
@@ -91,7 +104,7 @@ public class GitDemo {
      * @throws IOException
      * @throws GitAPIException
      */
-    private void cloneRepository() throws IOException, GitAPIException {
+    private String cloneRepository() throws IOException, GitAPIException {
 
         // 为克隆的存储库准备一个临时文件夹
         File tempFolder = File.createTempFile(repositoryDirName, "");
@@ -102,37 +115,20 @@ public class GitDemo {
         }
 
         // then clone
-        System.out.println("Cloning from " + gitPath + " to " + tempFolder + ", branch : " +branchName);
+        System.out.println("Cloning from " + gitUrl + " to " + tempFolder + ", branch : " + localBranch);
+
         try (Git result = Git.cloneRepository()
-                .setURI(gitPath)
-                .setBranch(branchName)
+                .setURI(gitUrl)
+                .setBranch(localBranch)
                 .setDirectory(tempFolder)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
                 // .setProgressMonitor(new SimpleProgressMonitor())
                 .call()) {
-            // Note: the call() returns an opened repository already which needs to be closed to avoid file handle leaks!
+
             System.out.println("Having repository: " + result.getRepository().getDirectory());
 
-            this.localRepository = tempFolder.getPath();
-
-            List<Ref> branchList = result.branchList().call();
-
-            for (Ref branch : branchList) {
-                System.out.println("Branch: " + branch + " " + branch.getName() + " " + branch.getObjectId().getName());
-            }
-
-            System.out.println("Now including remote branches:");
-
-            branchList = result.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
-            for (Ref branch : branchList) {
-                System.out.println("Branch: " + branch + " " + branch.getName() + " " + branch.getObjectId().getName());
-            }
-
-
+            return this.localRepository = tempFolder.getPath();
         }
-
-        // clean up here to not keep using more and more disk-space for these samples
-        // FileUtils.deleteDirectory(tempFolder);
     }
 
     /**
@@ -143,17 +139,19 @@ public class GitDemo {
      */
     public void listBranche() throws IOException, GitAPIException {
 
-        try (Repository repository = RepositoryHelper.openRepository(this.localRepository)) {
-            System.out.println("Listing local branches:");
+        try (Repository repository = openRepository()) {
             try (Git git = new Git(repository)) {
-                List<Ref> branchs = git.branchList().call();
-                for (Ref branch : branchs) {
+
+                List<Ref> branchList = git.branchList().call();
+
+                for (Ref branch : branchList) {
                     System.out.println("Branch: " + branch + " " + branch.getName() + " " + branch.getObjectId().getName());
                 }
 
                 System.out.println("Now including remote branches:");
-                branchs = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
-                for (Ref branch : branchs) {
+
+                branchList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+                for (Ref branch : branchList) {
                     System.out.println("Branch: " + branch + " " + branch.getName() + " " + branch.getObjectId().getName());
                 }
             }
@@ -168,9 +166,11 @@ public class GitDemo {
      * @throws GitAPIException
      */
     public void ListTag() throws IOException, GitAPIException {
-        try (Repository repository = RepositoryHelper.openRepository(localRepository)) {
+        try (Repository repository = openRepository()) {
             try (Git git = new Git(repository)) {
+
                 List<Ref> tagList = git.tagList().call();
+
                 for (Ref tag : tagList) {
                     System.out.println("Tag: " + tag + " " + tag.getName() + " " + tag.getObjectId().getName());
 
@@ -194,44 +194,17 @@ public class GitDemo {
         }
     }
 
-    public void blame(String filePath) {
-        try (Repository repository = RepositoryHelper.openRepository(localRepository)) {
-            try (Git git = new Git(repository)) {
-                BlameResult result = git.blame().setFilePath(filePath).setTextComparator(RawTextComparator.WS_IGNORE_ALL).call();
-
-                RawText rawText = result.getResultContents();
-
-                for (int i = 0; i < rawText.size(); i++) {
-                    final PersonIdent sourceAuthor = result.getSourceAuthor(i);
-                    final RevCommit sourceCommit = result.getSourceCommit(i);
-
-                    System.out.println(sourceAuthor.getName() + " === ");
-
-                    System.out.println(sourceAuthor.getName() + (sourceCommit != null ? "/" + sourceCommit.getCommitTime() + "/" + sourceCommit.getName() : "") + ": " + rawText.getString(i));
-                }
-
-
-            } catch (GitAPIException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     /**
      * 显示分支之间的差异
      *
      * @param remoteBranch 远程分支
-     * @param localBranch 本地分支
      *
      * @throws IOException
      * @throws GitAPIException
      */
-    public void ShowBranchDiff(String localBranch, String remoteBranch) {
+    public void diffBranch(String remoteBranch) {
 
-        try (Repository repository = RepositoryHelper.openRepository(localRepository)) {
+        try (Repository repository = openRepository()) {
             try (Git git = new Git(repository)) {
 
                 String localBranchName = "refs/heads/" + localBranch;
@@ -246,8 +219,8 @@ public class GitDemo {
                 }
 
                 // DIFF在TreeIterator上工作，我们为这两个分支准备了两个
-                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, localBranchName);
-                AbstractTreeIterator newTreeParser = prepareTreeParser(repository, remoteBranchName);
+                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, repository.exactRef(localBranchName));
+                AbstractTreeIterator newTreeParser = prepareTreeParser(repository, repository.exactRef(remoteBranchName));
 
                 // then the procelain diff-command returns a list of diff entries
                 // 然后procelain diff-命令返回一个diff条目列表。
@@ -274,49 +247,24 @@ public class GitDemo {
                         //打印文件差异具体内容
                         formatter.format(diff);
 
-                        // System.out.println(out.toString("UTF-8"));
+                        System.out.println(out.toString("UTF-8"));
 
-                        String fileName = StringUtils.replace(diff.getNewPath(), "/", ".");
-
-                        System.out.println(fileName);
-
-                        File diffFile = new File("D:\\aaa" + File.separator + fileName);
-
-                        createDiffFile(diffFile);
-
-                        try (FileOutputStream fos = new FileOutputStream(diffFile)) {
-                            try (BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-                                bos.write(out.toByteArray());
-                            }
-                        }
-
-                        // System.out.println("Diff: " + diff.getChangeType() + ": " + (diff.getOldPath().equals(diff.getNewPath()) ? diff.getNewPath() : diff.getOldPath() + " -> " + diff.getNewPath()));
+                        System.out.println("Diff: " + diff.getChangeType() + ": " + (diff.getOldPath().equals(diff.getNewPath()) ? diff.getNewPath() : diff.getOldPath() + " -> " + diff.getNewPath()));
                         out.reset();
+
                         System.out.println("=================================start==============================");
 
                         //获取文件差异位置，从而统计差异的行数，如增加行数，减少行数
 
-                        if (diff.getChangeType() == DiffEntry.ChangeType.ADD || diff.getChangeType() == DiffEntry.ChangeType.MODIFY) {
                             //获取文件差异位置
                             for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
                                 for (Edit edit : hunk.toEditList()) {
-                                    // 状态只有为替换或新增时才去记录 (增量)
-                                    if (edit.getType() == Edit.Type.INSERT || edit.getType() == Edit.Type.REPLACE) {
-
-                                        int lineCount = edit.getEndB() - edit.getBeginB();
-
-                                        String lineInfo = lineCount == 1 ? edit.getBeginB() + ",1" : edit.getBeginB() + "," + lineCount;
-
-
-                                        // System.out.println("beginA:   " + edit.getBeginA() + "   endA:   " + edit.getEndA());
-                                        System.out.println("beginB:   " + edit.getBeginB() + "   endB:   " + edit.getEndB()
-                                                + "      --- " + String.valueOf(edit.getEndB()-edit.getBeginB()));
-                                    }
+                                    System.out.println("beginA:   " + edit.getBeginA() + "   endA:   " + edit.getEndA());
+                                    System.out.println("beginB:   " + edit.getBeginB() + "   endB:   " + edit.getEndB());
                                 }
                             }
-                        }
 
-                        System.out.println("------------------------------end-----------------------------");
+                        System.out.println("==================================end===============================");
                     }
                 }
             } catch (GitAPIException e) {
@@ -327,27 +275,86 @@ public class GitDemo {
         }
     }
 
-    /**
-     * 根据指定路径生成新文件
-     *
-     * @param diffFile 差异文件路径
-     * @throws IOException
-     */
-    private void createDiffFile(File diffFile) throws IOException {
-        if (!diffFile.createNewFile()) {
-            // 如果文件存在则进行删除
-            if(!diffFile.delete()) {
-                throw new IOException("Could not delete new diff file " + diffFile);
-            } else {
-                createDiffFile(diffFile);
+    public void diffTag(String remoteTag1, String remoteTag2) throws IOException, GitAPIException {
+        try (Repository repository = openRepository()) {
+            try (Git git = new Git(repository)) {
+
+                String tag1Name = "refs/tags/" + remoteTag1;
+                String tag2Name = "refs/tags/" + remoteTag2;
+
+                int i = 0;
+                ObjectId tag1Id = null;
+                ObjectId tag2Id = null;
+
+                for (Ref ref : git.tagList().call()) {
+                    if (tag1Name.equals(ref.getName())) {
+                        i++;
+                        tag1Id = ref.getObjectId();
+                    }
+                    if (tag2Name.equals(ref.getName())) {
+                        i++;
+                        tag2Id = ref.getObjectId();
+                    }
+                }
+
+                if (i != 2) {
+                    return;
+                }
+
+                try (RevWalk walk = new RevWalk(repository)) {
+                    RevCommit commit1 = walk.parseCommit(tag1Id);
+                    RevCommit commit2 = walk.parseCommit(tag2Id);
+
+                    // DIFF在TreeIterator上工作，我们为这两个分支准备了两个
+                    AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, commit1);
+                    AbstractTreeIterator newTreeParser = prepareTreeParser(repository, commit2);
+
+                    // then the procelain diff-command returns a list of diff entries
+                    // 然后procelain diff-命令返回一个diff条目列表。
+                    List<DiffEntry> diffs = git.diff()
+                            .setOldTree(oldTreeParser)
+                            .setNewTree(newTreeParser)
+                            .setPathFilter(PathSuffixFilter.create(".java"))
+                            .call();
+
+                    System.out.println("================================");
+
+                    try (DiffFormatter formatter = new DiffFormatter(System.out)) {
+
+                        // 设置比较器 忽略全部空白字符
+                        formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
+                        formatter.setRepository(repository);
+
+                        // 每一个diffEntry都是第个文件版本之间的变动差异
+                        for (DiffEntry diff : diffs) {
+
+                            //打印文件差异具体内容
+                            formatter.format(diff);
+
+                            System.out.println("=================================start==============================");
+
+                            //获取文件差异位置，从而统计差异的行数，如增加行数，减少行数
+
+                            //获取文件差异位置
+                            for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
+                                for (Edit edit : hunk.toEditList()) {
+                                    System.out.println("beginA:   " + edit.getBeginA() + "   endA:   " + edit.getEndA());
+                                    System.out.println("beginB:   " + edit.getBeginB() + "   endB:   " + edit.getEndB());
+                                }
+                            }
+
+                            System.out.println("==================================end===============================");
+                        }
+                    }
+                    walk.dispose();
+                }
             }
         }
     }
 
-    private static AbstractTreeIterator prepareTreeParser(Repository repository, String branchName) throws IOException {
+    private static AbstractTreeIterator prepareTreeParser(Repository repository, Ref branchRef) throws IOException {
         // from the commit we can build the tree which allows us to construct the TreeParser
         // 通过提交，我们可以构建树，它允许我们构建TreeParser
-        Ref branchRef = repository.exactRef(branchName);
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit commit = walk.parseCommit(branchRef.getObjectId());
             RevTree tree = walk.parseTree(commit.getTree().getId());
@@ -356,90 +363,27 @@ public class GitDemo {
             try (ObjectReader reader = repository.newObjectReader()) {
                 treeParser.reset(reader, tree.getId());
             }
-
             walk.dispose();
-
             return treeParser;
         }
     }
 
-    // 统计指定版本代码总行数
-    public long getAllFileLines(RevCommit commit) throws IOException {
+    private static AbstractTreeIterator prepareTreeParser(Repository repository, RevCommit objectId) throws IOException {
+        // from the commit we can build the tree which allows us to construct the TreeParser
+        //noinspection Duplicates
+        try (RevWalk walk = new RevWalk(repository)) {
+            RevCommit commit = walk.parseCommit(objectId);
+            RevTree tree = walk.parseTree(commit.getTree().getId());
 
-        try (Repository repository = RepositoryHelper.openRepository(localRepository)) {
-            try (TreeWalk treeWalk = new TreeWalk(repository)) {
-                long size = 0;
-                treeWalk.addTree(commit.getTree());
-                treeWalk.setRecursive(true);
-                MutableObjectId id = new MutableObjectId();
-                while(treeWalk.next()){
-                    treeWalk.getObjectId(id, 0);
-                    String filePath = treeWalk.getPathString();
-                    // if(filePathFilter.accept(new ChangeFile(filePath))){
-                    //     int lines =countAddLine(BlobUtils.getContent(repository, id.toObjectId()));
-                    //     size +=lines;
-                    // }
-                }
-                return size;
+            CanonicalTreeParser treeParser = new CanonicalTreeParser();
+            try (ObjectReader reader = repository.newObjectReader()) {
+                treeParser.reset(reader, tree.getId());
             }
+            walk.dispose();
+            return treeParser;
         }
     }
 
-    /** 统计非空白行数
-     * @param content
-     * @return
-     */
-    public int countAddLine(String content){
-        char[] chars = content.toCharArray();
-        int sum = 0;
-        boolean notSpace = false;
-        for(char ch: chars){
-            if(ch =='\n' && notSpace){
-                sum++;
-                notSpace = false;
-            }else if(ch > ' '){
-                notSpace = true;
-            }
-        }
-        //最后一行没有换行时，如果有非空白字符，则+1
-        if(notSpace){
-            sum++;
-        }
-        return sum;
-    }
-
-    /**
-     * 获取差异代码并切割到方法粒度
-     *
-     * 主要流程
-     *      获取基线提交与被测提交之间的差异代码，然后过滤一些需要排除的文件（比如非 Java 文件、测试文件等等），
-     *      对剩余文件进行解析，将变更代码解析到方法纬度
-     *
-     * @param diffs 差异集合
-     */
-    private void findDiffClasses(List<DiffEntry> diffs) {
-
-        // 遍历差异列表集合
-        for (DiffEntry diff : diffs) {
-
-            DiffEntry.ChangeType changeType = diff.getChangeType();
-
-            if (changeType == DiffEntry.ChangeType.ADD || changeType == DiffEntry.ChangeType.MODIFY){
-
-                //     // 比对俩个版本 得出变化的方法set
-                //     HashSet<String> changedMethods = MethodDiff.methodDiffInClass(oldPath, newPath);
-                //     analyzeRequest.setMethodnames(changedMethods);
-                // }
-                //
-                // classPath = gitDir + File.separator + diffEntry.getNewPath()
-                //         .replace("src/main/java", "target/classes")
-                //         .replace(".java", ".class");
-                //
-                // analyzeRequest.setClassesPath(classPath);
-                // diffClasses.add(analyzeRequest);
-            }
-        }
-    }
 
     private void showStatus() throws GitAPIException, IOException {
         Git git = Git.open(new File("D:\\source-code\\temp-1\\.git"));
