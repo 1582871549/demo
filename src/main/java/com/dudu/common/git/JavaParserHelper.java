@@ -41,24 +41,32 @@ public class JavaParserHelper {
      *          2、忽略差异行是方法的匹配
      *
      * @param beanList 差异类信息集合
+     * @param localRepository 本地存储库路径
      */
-    public static Map<String, Map<String, List<String>>> matchMethod(List<JGitBean> beanList, String localRepository) throws FileNotFoundException {
+    public static Map<String, List<String>> matchMethod(List<JGitBean> beanList, String localRepository) throws FileNotFoundException {
 
         StringBuilder buffer = new StringBuilder();
-        Map<String, Map<String, List<String>>> incrementalClass = new HashMap<>(16);
+        Map<String, List<String>> incrementalClass = new HashMap<>(16);
 
+        // 遍历差异类信息
         for (JGitBean bean : beanList) {
 
-            Map<String, List<String>> incrementalMethod = new HashMap<>(16);
+            List<String> incrementalMethod = new ArrayList<>();
 
-            File file = new File(localRepository, bean.getClassName());
-            if (!file.exists()) {
+            File diffClass = new File(localRepository, bean.getClassName());
+
+            if (!diffClass.exists()) {
                 continue;
             }
             JavaParser javaParser = new JavaParser();
 
-            ParseResult<CompilationUnit> parseResult = javaParser.parse(file);
-            // 所有注释
+            ParseResult<CompilationUnit> parseResult = javaParser.parse(diffClass);
+
+            /*
+             * 获取当前类文件的所有注释
+             *
+             * 存在差异注释导致的
+             */
             Optional<CommentsCollection> commentsCollection = parseResult.getCommentsCollection();
 
             Optional<CompilationUnit> result = parseResult.getResult();
@@ -72,48 +80,39 @@ public class JavaParserHelper {
             String className = type.getNameAsString();
 
             List<MethodDeclaration> methodList = type.getMethods();
-            // 收集差异方法中的差异行信息
-            List<Integer> ends = new ArrayList<>(11);
+
             // 遍历该类所有方法, 取出方法的范围对本地分支的差异代码行lineA进行差异方法匹配
             for (MethodDeclaration method : methodList) {
+
                 // 每个方法的范围(起始行, 结束行)
                 Range range = method.getRange().get();
-                // 存放每个方法的差异行信息
-                List<String> methodLines = new ArrayList<>(11);
-                // 匹配方法, 只通过本地分支差异行来匹配方法名称. key: 本地分支差异行, value: 远程分支差异行
-                for (Map.Entry<String, String> entry : bean.getLine().entrySet()) {
-                    // 每个差异块尾行
-                    int endA = Integer.parseInt(entry.getKey());
-                    if (endA >= range.begin.line && endA <= range.end.line) {
 
-                        ends.add(endA);
-                        methodLines.add(entry.getValue());
-                        // key: 方法名称, value: "远程分支差异行, 连续行数", ...
-                        incrementalMethod.put(method.getNameAsString(), methodLines);
+                // 方法名称
+                String methodName = method.getNameAsString();
+
+                // 遍历每个差异代码块的结束行
+                for (Integer diffLine : bean.getLineB()) {
+
+                    // 结束行匹配方法范围则记录当前的方法名称
+                    if (diffLine >= range.begin.line && diffLine <= range.end.line) {
+
+                        // 记录匹配方法
+                        incrementalMethod.add(methodName);
+
+                        // 每个方法只记录一次, 防止重复数据
+                        break;
                     }
                 }
             }
 
-            List<String> otherLines = new ArrayList<>(11);
-
-            for (Map.Entry<String, String> entry : bean.getLine().entrySet()) {
-                // 排除掉所有方法内的差异行信息, 其余的差异行信息写入[otherLine] key
-                if (!ends.contains(Integer.parseInt(entry.getKey()))) {
-                    otherLines.add(entry.getValue());
-                }
-            }
-            if (otherLines.size() > 0) {
-                incrementalMethod.put("[otherLine]", otherLines);
-            }
-
             String replace = packageName.replace(".", "/");
 
-            String javaPath = buffer.append(replace)
+            String classPath = buffer.append(replace)
                     .append("/")
                     .append(className)
                     .toString();
 
-            incrementalClass.put(javaPath, incrementalMethod);
+            incrementalClass.put(classPath, incrementalMethod);
             buffer.delete(0, buffer.length());
         }
         return incrementalClass;

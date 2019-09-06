@@ -14,6 +14,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
@@ -49,60 +51,76 @@ import java.util.UUID;
  */
 public final class JGit {
 
+    private static final String REPO_PRE = "repository";
+
     private final String gitUrl;
-    private final String localBranch;
     private final String username;
     private final String password;
-    private final String localRepository;
+    private final String localPath;
     private final List<JGitBean> gitBeanList;
 
-    private final String REPO_PRE = "repository";
+    private File repository;
 
     /**
      * 创建一个JGit实例
      *
      * @param gitUrl git仓库路径
-     * @param branchName 分支名称
      * @param username 用户名
      * @param password 密码
-     * @param localRepository 本地仓库路径
+     * @param localPath 本地路径
      */
-    public JGit(String gitUrl, String branchName, String username, String password, String localRepository) {
+    public JGit(String gitUrl, String username, String password, String localPath) {
         this.gitUrl = gitUrl;
-        this.localBranch = branchName;
         this.username = username;
         this.password = password;
-        this.localRepository = localRepository;
+        this.localPath = localPath;
         this.gitBeanList = new ArrayList<>(11);
     }
 
     /**
-     * 克隆一个git存储库
+     * 创建git存储库文件夹
+     *
+     * @param branch 分支名称
+     * @return 返回当前存储库的路径
      */
-    public void cloneRepository() throws GitAPIException, IOException {
+    public String createRepository(String branch) throws IOException {
 
         // 拼接一个随机文件名
         final String repositoryName = REPO_PRE + UUID.randomUUID().toString();
 
         // 为克隆的存储库准备一个文件夹
-        final File repository = new File(localRepository, repositoryName);
+        repository = new File(localPath, repositoryName);
 
         // 如果该文件夹存在则进行删除、避免克隆存储库时文件夹重复
         if(!repository.delete()) {
             throw new IOException("Could not delete localRepository folder : " + repository.getPath());
         }
 
-        System.out.println("Cloning from " + gitUrl + " to " + repository.getPath() + ", branch : " + localBranch);
+        System.out.println("Cloning from " + gitUrl + " to " + localPath + ", branch : " + branch);
 
+        cloneRepository(branch);
+
+        return repository.getPath();
+    }
+
+    /**
+     * 克隆分支代码
+     *
+     * @param branch 分支名称
+     */
+    private void cloneRepository(String branch) {
         // 这样的写法系统会在内部自动关流
         try (Git ignored = Git.cloneRepository()
                 .setURI(gitUrl)
-                .setBranch(localBranch)
+                .setBranch(branch)
                 .setDirectory(repository)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
                 .call()) {
+        } catch (GitAPIException e) {
+            e.printStackTrace();
         }
     }
+
 
     /**
      * 打开指定位置中的git存储库
@@ -114,7 +132,7 @@ public final class JGit {
      */
     public Repository openRepository() throws IOException {
         return new FileRepositoryBuilder()
-                .setGitDir(new File(localRepository, ".git"))
+                .setGitDir(new File(repository, ".git"))
                 .build();
     }
 
@@ -125,9 +143,10 @@ public final class JGit {
      *     拉取【远程分支】与【克隆存储库时使用的分支】进行对比
      * </p>
      *
-     * @param remoteBranch 远程分支名称
+     * @param localBranch 基础分支
+     * @param remoteBranch 比对分支
      */
-    public List<JGitBean> diffBranch(String remoteBranch) throws IOException, GitAPIException {
+    public List<JGitBean> diffBranch(String localBranch, String remoteBranch) throws IOException, GitAPIException {
 
         try (Repository repository = openRepository()) {
             try (Git git = new Git(repository)) {
@@ -135,7 +154,11 @@ public final class JGit {
                 String localBranchName = "refs/heads/" + localBranch;
                 String remoteBranchName = "refs/heads/" + remoteBranch;
 
-                // 首先，我们需要确保远程分支在本地是可见的。
+                // 确保基础分支在本地可见
+                if(repository.exactRef(localBranchName) == null) {
+                    git.branchCreate().setName(localBranch).setStartPoint("origin/" + localBranch).call();
+                }
+                // 确保比对分支在本地可见
                 if(repository.exactRef(remoteBranchName) == null) {
                     git.branchCreate().setName(remoteBranch).setStartPoint("origin/" + remoteBranch).call();
                 }
@@ -169,21 +192,24 @@ public final class JGit {
                         // 只针对新增、修改文件
                         if (diff.getChangeType() == DiffEntry.ChangeType.ADD || diff.getChangeType() == DiffEntry.ChangeType.MODIFY) {
 
+                            // 远程分支中的差异类路径
+                            String newPath = diff.getNewPath();
+                            // 存放差异行信息
+                            List<Integer> lines = new ArrayList<>();
+                            // 每一个差异类对应一个bean实例
+                            JGitBean bean = new JGitBean(newPath, lines);
+
+                            gitBeanList.add(bean);
+
                             //获取文件差异位置
                             for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
-
-                                // diff.getNewPath() 远程分支中的差异文件路径
-                                JGitBean bean = new JGitBean(diff.getNewPath());
-                                gitBeanList.add(bean);
-
                                 for (Edit edit : hunk.toEditList()) {
+
                                     // 状态只有为替换或新增时才去记录 (增量)
                                     if (edit.getType() == Edit.Type.INSERT || edit.getType() == Edit.Type.REPLACE) {
 
-                                        int lineCount = edit.getEndB() - edit.getBeginB();
-                                        String lineInfo = lineCount == 1 ? edit.getBeginB() + ",1" : edit.getBeginB() + "," + lineCount;
-                                        // 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
-                                        bean.getLine().put(String.valueOf(edit.getEndA()), lineInfo);
+                                        // 记录远程分支中的每个差异代码块的结束行, 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
+                                        lines.add(edit.getEndB());
                                     }
                                 }
                             }
@@ -207,31 +233,27 @@ public final class JGit {
         try (Repository repository = openRepository()) {
             try (Git git = new Git(repository)) {
 
-                String tag1Name = "refs/tags/" + remoteTag1;
-                String tag2Name = "refs/tags/" + remoteTag2;
+                remoteTag1 = "refs/tags/" + remoteTag1;
+                remoteTag2 = "refs/tags/" + remoteTag2;
 
-                int i = 0;
-                ObjectId tag1Id = null;
-                ObjectId tag2Id = null;
+                List<ObjectId> ids = new ArrayList<>();
 
                 for (Ref ref : git.tagList().call()) {
-                    if (tag1Name.equals(ref.getName())) {
-                        i++;
-                        tag1Id = ref.getObjectId();
+                    if (remoteTag1.equals(ref.getName())) {
+                        ids.add(0, ref.getObjectId());
                     }
-                    if (tag2Name.equals(ref.getName())) {
-                        i++;
-                        tag2Id = ref.getObjectId();
+                    if (remoteTag2.equals(ref.getName())) {
+                        ids.add(1, ref.getObjectId());
                     }
                 }
 
-                if (i != 2) {
+                if (ids.size() != 2) {
                     return new ArrayList<>();
                 }
 
                 try (RevWalk walk = new RevWalk(repository)) {
-                    RevCommit commit1 = walk.parseCommit(tag1Id);
-                    RevCommit commit2 = walk.parseCommit(tag2Id);
+                    RevCommit commit1 = walk.parseCommit(ids.get(0));
+                    RevCommit commit2 = walk.parseCommit(ids.get(1));
 
                     // diff结构树
                     AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, commit1);
@@ -243,8 +265,6 @@ public final class JGit {
                             .setNewTree(newTreeParser)
                             .setPathFilter(PathSuffixFilter.create(".java"))
                             .call();
-
-                    System.out.println("================================");
 
                     try (DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
 
@@ -261,20 +281,24 @@ public final class JGit {
                             // 只针对新增、修改文件
                             if (diff.getChangeType() == DiffEntry.ChangeType.ADD || diff.getChangeType() == DiffEntry.ChangeType.MODIFY) {
 
+                                // 远程分支中的差异类路径
+                                String newPath = diff.getNewPath();
+                                // 存放差异行信息
+                                List<Integer> lines = new ArrayList<>();
+                                // 每一个差异类对应一个bean实例
+                                JGitBean bean = new JGitBean(newPath, lines);
+
+                                gitBeanList.add(bean);
+
                                 //获取文件差异位置
                                 for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
-
-                                    JGitBean bean = new JGitBean(diff.getNewPath());
-                                    gitBeanList.add(bean);
-
                                     for (Edit edit : hunk.toEditList()) {
+
                                         // 状态只有为替换或新增时才去记录 (增量)
                                         if (edit.getType() == Edit.Type.INSERT || edit.getType() == Edit.Type.REPLACE) {
 
-                                            int lineCount = edit.getEndB() - edit.getBeginB();
-                                            String lineInfo = lineCount == 1 ? edit.getBeginB() + ",1" : edit.getBeginB() + "," + lineCount;
-                                            // 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
-                                            bean.getLine().put(String.valueOf(edit.getEndA()), lineInfo);
+                                            // 记录远程分支中的每个差异代码块的结束行, 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
+                                            lines.add(edit.getEndB());
                                         }
                                     }
                                 }
@@ -289,28 +313,27 @@ public final class JGit {
     }
 
     /**
-     * 列出Git存储库中的所有分支
+     * 列出Git存储库中的本地分支
      *
-     * @throws IOException
-     * @throws GitAPIException
+     * @return 本地分支
      */
-    public void listBranche() throws IOException, GitAPIException {
-
+    public List<Ref> listLocalBranch() throws IOException, GitAPIException {
         try (Repository repository = openRepository()) {
             try (Git git = new Git(repository)) {
+                return git.branchList().call();
+            }
+        }
+    }
 
-                List<Ref> branchList = git.branchList().call();
-
-                for (Ref branch : branchList) {
-                    System.out.println("Branch: " + branch + " " + branch.getName() + " " + branch.getObjectId().getName());
-                }
-
-                System.out.println("Now including remote branches:");
-
-                branchList = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
-                for (Ref branch : branchList) {
-                    System.out.println("Branch: " + branch + " " + branch.getName() + " " + branch.getObjectId().getName());
-                }
+    /**
+     * 列出Git存储库中的远程分支
+     *
+     * @return 远程分支
+     */
+    public List<Ref> listRemoteBranch() throws IOException, GitAPIException {
+        try (Repository repository = openRepository()) {
+            try (Git git = new Git(repository)) {
+                return git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
             }
         }
     }
@@ -321,31 +344,10 @@ public final class JGit {
      * @throws IOException
      * @throws GitAPIException
      */
-    public void ListTag() throws IOException, GitAPIException {
+    public List<Ref> ListTag() throws IOException, GitAPIException {
         try (Repository repository = openRepository()) {
             try (Git git = new Git(repository)) {
-
-                List<Ref> tagList = git.tagList().call();
-
-                for (Ref tag : tagList) {
-                    System.out.println("Tag: " + tag + " " + tag.getName() + " " + tag.getObjectId().getName());
-
-                    // fetch all commits for this tag
-                    LogCommand log = git.log();
-
-                    Ref peeledRef = repository.getRefDatabase().peel(tag);
-
-                    if(peeledRef.getPeeledObjectId() != null) {
-                        log.add(peeledRef.getPeeledObjectId());
-                    } else {
-                        log.add(tag.getObjectId());
-                    }
-
-                    Iterable<RevCommit> logs = log.call();
-                    for (RevCommit rev : logs) {
-                        System.out.println("Commit: " + rev /* + ", name: " + rev.getName() + ", id: " + rev.getId().getName() */);
-                    }
-                }
+                return git.tagList().call();
             }
         }
     }
@@ -392,13 +394,6 @@ public final class JGit {
      * 删除存储库
      */
     public void delRepository() throws IOException {
-        FileUtils.deleteDirectory(new File(localRepository));
-    }
-
-    /**
-     * 返回本地存储库
-     */
-    public String getLocalRepository() {
-        return localRepository;
+        FileUtils.deleteDirectory(repository);
     }
 }

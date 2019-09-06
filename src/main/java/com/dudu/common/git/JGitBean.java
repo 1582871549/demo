@@ -9,8 +9,7 @@
  */
 package com.dudu.common.git;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -22,31 +21,39 @@ import java.util.Map;
  */
 public class JGitBean {
 
+    /**
+     * 差异类名称
+     */
     private String className;
     /**
-     * key:   本地分支差异行信息
-     * value: 远程分支差异行信息 “差异开始行, 差异行数”
+     * 比对分支差异结束行
      */
-    private Map<String, String> line;
+    private List<Integer> lineB;
 
-    public JGitBean(String className) {
+    /**
+     * 创建一个bean实例
+     *
+     * @param className 差异类名
+     * @param lineB 差异行集合
+     */
+    public JGitBean(String className, List<Integer> lineB) {
         this.className = className;
-        this.line = new HashMap<>(16);
+        this.lineB = lineB;
     }
 
     public String getClassName() {
         return className;
     }
 
-    public Map<String, String> getLine() {
-        return line;
+    public List<Integer> getLineB() {
+        return lineB;
     }
 
     @Override
     public String toString() {
         return "JGitBean{" +
                 "className='" + className + '\'' +
-                ", line=" + line +
+                ", lineB=" + lineB +
                 '}';
     }
 }
