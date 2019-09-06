@@ -13,13 +13,17 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.comments.CommentsCollection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -43,15 +47,15 @@ public class JavaParserHelper {
      * @param beanList 差异类信息集合
      * @param localRepository 本地存储库路径
      */
-    public static Map<String, List<String>> matchMethod(List<JGitBean> beanList, String localRepository) throws FileNotFoundException {
+    public static Map<String, Map<String, String>> matchMethod(List<JGitBean> beanList, String localRepository) throws FileNotFoundException {
 
         StringBuilder buffer = new StringBuilder();
-        Map<String, List<String>> incrementalClass = new HashMap<>(16);
+        Map<String, Map<String, String>> incrementalClass = new HashMap<>(16);
 
         // 遍历差异类信息
         for (JGitBean bean : beanList) {
 
-            List<String> incrementalMethod = new ArrayList<>();
+            Map<String, String> incrementalMethod = new HashMap<>();
 
             File diffClass = new File(localRepository, bean.getClassName());
 
@@ -73,7 +77,16 @@ public class JavaParserHelper {
 
             CompilationUnit unit = result.get();
 
-            String packageName = unit.getPackageDeclaration().get().getNameAsString();
+            Optional<PackageDeclaration> packageDeclaration = unit.getPackageDeclaration();
+
+            Optional<PackageDeclaration> o = Optional.empty();
+
+            // 测试包中的文件无法获取包名, 所以跳过比对
+            if (packageDeclaration == o) {
+                continue;
+            }
+
+            String packageName = packageDeclaration.get().getNameAsString();
 
             TypeDeclaration<?> type = unit.getType(0);
 
@@ -81,26 +94,23 @@ public class JavaParserHelper {
 
             List<MethodDeclaration> methodList = type.getMethods();
 
-            // 遍历该类所有方法, 取出方法的范围对本地分支的差异代码行lineA进行差异方法匹配
-            for (MethodDeclaration method : methodList) {
+            // 遍历每个差异代码块的结束行
+            for (Integer diffLine : bean.getLineB()) {
 
-                // 每个方法的范围(起始行, 结束行)
-                Range range = method.getRange().get();
+                // 遍历该类所有方法, 取出方法的范围对本地分支的差异代码行lineA进行差异方法匹配
+                for (MethodDeclaration method : methodList) {
 
-                // 方法名称
-                String methodName = method.getNameAsString();
+                    // 每个方法的范围(起始行, 结束行)
+                    Range range = method.getRange().get();
 
-                // 遍历每个差异代码块的结束行
-                for (Integer diffLine : bean.getLineB()) {
+                    // 方法名称
+                    String methodName = method.getNameAsString();
 
                     // 结束行匹配方法范围则记录当前的方法名称
                     if (diffLine >= range.begin.line && diffLine <= range.end.line) {
 
                         // 记录匹配方法
-                        incrementalMethod.add(methodName);
-
-                        // 每个方法只记录一次, 防止重复数据
-                        break;
+                        incrementalMethod.put(methodName, null);
                     }
                 }
             }

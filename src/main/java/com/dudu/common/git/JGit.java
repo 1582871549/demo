@@ -12,10 +12,7 @@ package com.dudu.common.git;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
@@ -40,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -85,15 +83,19 @@ public final class JGit {
      */
     public String createRepository(String branch) throws IOException {
 
+        String[] split = Pattern.compile("-").split(UUID.randomUUID().toString());
+
         // 拼接一个随机文件名
-        final String repositoryName = REPO_PRE + UUID.randomUUID().toString();
+        final String repositoryName = REPO_PRE + split[0];
 
         // 为克隆的存储库准备一个文件夹
         repository = new File(localPath, repositoryName);
 
         // 如果该文件夹存在则进行删除、避免克隆存储库时文件夹重复
-        if(!repository.delete()) {
-            throw new IOException("Could not delete localRepository folder : " + repository.getPath());
+        if (repository.exists()) {
+            if(!repository.delete()) {
+                throw new IOException("Could not delete localRepository folder : " + repository.getPath());
+            }
         }
 
         System.out.println("Cloning from " + gitUrl + " to " + localPath + ", branch : " + branch);

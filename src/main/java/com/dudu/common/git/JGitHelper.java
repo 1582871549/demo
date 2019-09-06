@@ -22,13 +22,13 @@ public final class JGitHelper {
      * @param gitUrl git仓库路径
      * @param username 用户名
      * @param password 密码
-     * @param repositoryDirName 本地仓库名称
+     * @param localPath 本地路径
      */
     public JGitHelper(String gitUrl,
                       String username,
                       String password,
-                      String repositoryDirName) {
-        this.git = new JGit(gitUrl, username, password, repositoryDirName);
+                      String localPath) {
+        this.git = new JGit(gitUrl, username, password, localPath);
     }
 
     /**
@@ -44,14 +44,14 @@ public final class JGitHelper {
      *
      * @return 分支增量方法集合
      */
-    private Map<String, List<String>> getBranchIncremental(String localBranch, String remoteBranch, boolean isDelete)
+    private Map<String, Map<String, String>> getBranchIncremental(String localBranch, String remoteBranch, boolean isDelete)
             throws GitAPIException, IOException {
 
         String localRepository = git.createRepository(remoteBranch);
 
         List<JGitBean> beanList = git.diffBranch(localBranch, remoteBranch);
 
-        Map<String, List<String>> incrementalClass = JavaParserHelper.matchMethod(beanList, localRepository);
+        Map<String, Map<String, String>> incrementalClass = JavaParserHelper.matchMethod(beanList, localRepository);
 
         if (isDelete) {
             git.delRepository();
@@ -73,7 +73,7 @@ public final class JGitHelper {
      *
      * @return 分支增量方法集合
      */
-    public Map<String, List<String>> getBranchIncrementalMethod(String localBranch, String remoteBranch, boolean isDelete) {
+    public Map<String, Map<String, String>> getBranchIncrementalMethod(String localBranch, String remoteBranch, boolean isDelete) {
         try {
             return getBranchIncremental(localBranch, remoteBranch, isDelete);
         } catch (GitAPIException | IOException e) {
@@ -95,14 +95,14 @@ public final class JGitHelper {
      *
      * @return tag增量方法集合
      */
-    private Map<String, List<String>> getTagIncremental(String remoteTag1, String remoteTag2, boolean isDelete)
+    private Map<String, Map<String, String>> getTagIncremental(String remoteTag1, String remoteTag2, boolean isDelete)
             throws GitAPIException, IOException {
 
         String localRepository = git.createRepository("master");
 
         List<JGitBean> beanList = git.diffTag(remoteTag1, remoteTag2);
 
-        Map<String, List<String>> incrementalClass = JavaParserHelper.matchMethod(beanList, localRepository);
+        Map<String, Map<String, String>> incrementalClass = JavaParserHelper.matchMethod(beanList, localRepository);
 
         if (isDelete) {
             git.delRepository();
@@ -124,7 +124,7 @@ public final class JGitHelper {
      *
      * @return tag增量方法集合
      */
-    public Map<String, List<String>> getTagIncrementalMethod(String remoteTag1, String remoteTag2, boolean isDelete) {
+    public Map<String, Map<String, String>> getTagIncrementalMethod(String remoteTag1, String remoteTag2, boolean isDelete) {
         try {
             return getTagIncremental(remoteTag1, remoteTag2, isDelete);
         } catch (GitAPIException | IOException e) {
@@ -134,24 +134,28 @@ public final class JGitHelper {
     }
 
     public static void main(String[] args) {
-        String gitUrl = "https://github.com/1582871549/jacoco.git";
 
+        String gitUrl = "https://github.com/1582871549/demo.git";
         String username = "1582871549@qq.com";
         String password = "840742807du";
-        String repositoryDirName = "gitRepository";
+        String localPath = "D:\\aaa";
 
         String localBranch = "dev";
         String remoteBranch = "dev-shiro";
+
         String a = "v.1.0";
         String b = "v.1.1";
 
-        JGitHelper helper = new JGitHelper(gitUrl, username, password, repositoryDirName);
+        JGitHelper helper = new JGitHelper(gitUrl, username, password, localPath);
 
-        Map<String, List<String>> classMap = helper.getBranchIncrementalMethod(localBranch, remoteBranch, true);
+        Map<String, Map<String, String>> classMap = helper.getBranchIncrementalMethod(localBranch, remoteBranch, true);
         // Map<String, List<String>> classMap = helper.getTagIncrementalMethod(a, b, true);
 
-        for (Map.Entry<String, List<String>> entry : classMap.entrySet()) {
-            System.out.println(entry);
+        for (Map.Entry<String, Map<String, String>> classEntry : classMap.entrySet()) {
+            System.out.println("=========   " + classEntry.getKey() + "   =========");
+            for (Map.Entry<String, String> methodEntry : classEntry.getValue().entrySet()) {
+                System.out.println("---------   " + methodEntry.getKey() + "   ---------");
+            }
         }
 
     }
