@@ -39,6 +39,12 @@ public class JsonDemo2 {
 
         JSONObject jsonObject = JSONObject.parseObject(jsonStr);
 
+
+        Integer password = jsonObject.getInteger("password");
+        int value = jsonObject.getIntValue("password");
+
+        System.out.println("--- " + password + "--- " +value);
+
         System.out.println(jsonObject.toString());
 
         UserDTO userDTO = JSONObject.toJavaObject(jsonObject, UserDTO.class);

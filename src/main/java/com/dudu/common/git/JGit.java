@@ -10,9 +10,10 @@
 package com.dudu.common.git;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
@@ -57,7 +58,7 @@ public final class JGit {
     private final String localPath;
     private final List<JGitBean> gitBeanList;
 
-    private File repository;
+    private String repositoryPath;
 
     /**
      * 创建一个JGit实例
@@ -83,34 +84,39 @@ public final class JGit {
      */
     public String createRepository(String branch) throws IOException {
 
+        mkdirsDirectory();
+
         String[] split = Pattern.compile("-").split(UUID.randomUUID().toString());
 
         // 拼接一个随机文件名
         final String repositoryName = REPO_PRE + split[0];
 
         // 为克隆的存储库准备一个文件夹
-        repository = new File(localPath, repositoryName);
+        File repository = new File(localPath, repositoryName);
+
+        repositoryPath = repository.getPath();
 
         // 如果该文件夹存在则进行删除、避免克隆存储库时文件夹重复
         if (repository.exists()) {
             if(!repository.delete()) {
-                throw new IOException("Could not delete localRepository folder : " + repository.getPath());
+                throw new IOException("Could not delete localRepository folder : " + repositoryPath);
             }
         }
 
         System.out.println("Cloning from " + gitUrl + " to " + localPath + ", branch : " + branch);
 
-        cloneRepository(branch);
+        cloneRepository(repository, branch);
 
-        return repository.getPath();
+        return repositoryPath;
     }
 
     /**
      * 克隆分支代码
      *
+     * @param repository 存储库
      * @param branch 分支名称
      */
-    private void cloneRepository(String branch) {
+    private void cloneRepository(File repository, String branch) {
         // 这样的写法系统会在内部自动关流
         try (Git ignored = Git.cloneRepository()
                 .setURI(gitUrl)
@@ -130,12 +136,33 @@ public final class JGit {
      *     如果目录不存在,不会抛出异常. 也不会输出任何存储库信息
      * </p>
      *
+     * @param repository 存储库路径
      * @return 存储库实例
      */
-    public Repository openRepository() throws IOException {
+    public Repository openRepository(String repository) throws IOException {
         return new FileRepositoryBuilder()
                 .setGitDir(new File(repository, ".git"))
                 .build();
+    }
+
+    /**
+     * 切换分支
+     *
+     * @param branch 分支名称
+     */
+    public void checkout(String branch) {
+        try (Repository repository = openRepository(repositoryPath)) {
+            try (Git git = new Git(repository)) {
+                git.checkout()
+                        .setName(branch)
+                        .call();
+
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -150,7 +177,7 @@ public final class JGit {
      */
     public List<JGitBean> diffBranch(String localBranch, String remoteBranch) throws IOException, GitAPIException {
 
-        try (Repository repository = openRepository()) {
+        try (Repository repository = openRepository(repositoryPath)) {
             try (Git git = new Git(repository)) {
 
                 String localBranchName = "refs/heads/" + localBranch;
@@ -232,7 +259,7 @@ public final class JGit {
      * @throws GitAPIException
      */
     public List<JGitBean> diffTag(String remoteTag1, String remoteTag2) throws IOException, GitAPIException {
-        try (Repository repository = openRepository()) {
+        try (Repository repository = openRepository(repositoryPath)) {
             try (Git git = new Git(repository)) {
 
                 remoteTag1 = "refs/tags/" + remoteTag1;
@@ -320,7 +347,7 @@ public final class JGit {
      * @return 本地分支
      */
     public List<Ref> listLocalBranch() throws IOException, GitAPIException {
-        try (Repository repository = openRepository()) {
+        try (Repository repository = openRepository(repositoryPath)) {
             try (Git git = new Git(repository)) {
                 return git.branchList().call();
             }
@@ -333,7 +360,7 @@ public final class JGit {
      * @return 远程分支
      */
     public List<Ref> listRemoteBranch() throws IOException, GitAPIException {
-        try (Repository repository = openRepository()) {
+        try (Repository repository = openRepository(repositoryPath)) {
             try (Git git = new Git(repository)) {
                 return git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
             }
@@ -347,7 +374,7 @@ public final class JGit {
      * @throws GitAPIException
      */
     public List<Ref> ListTag() throws IOException, GitAPIException {
-        try (Repository repository = openRepository()) {
+        try (Repository repository = openRepository(repositoryPath)) {
             try (Git git = new Git(repository)) {
                 return git.tagList().call();
             }
@@ -396,6 +423,19 @@ public final class JGit {
      * 删除存储库
      */
     public void delRepository() throws IOException {
-        FileUtils.deleteDirectory(repository);
+        FileUtils.deleteDirectory(new File(repositoryPath));
+    }
+
+    /**
+     * 创建多级目录
+     */
+    private void mkdirsDirectory() throws IOException {
+        File file = new File(localPath);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                throw new IOException("创建git存储库多级目录失败");
+            }
+        }
+
     }
 }

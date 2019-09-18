@@ -10,11 +10,11 @@
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dudu.DemoApplication;
-import com.dudu.common.util.DateUtil;
 import com.dudu.dao.RoleMapper;
 import com.dudu.entity.po.RolePO;
-import com.dudu.entity.po.UserPO;
-import com.sun.jndi.toolkit.url.Uri;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.archivers.zip.ZipLong;
+import org.apache.commons.compress.archivers.zip.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -100,6 +99,27 @@ public class MybatisTest {
         StringUtils.isBlank("");
 
 
+
+    }
+
+    @Test
+    public void aaa(){
+
+
+        try {
+
+            File file = new File("D:\\aaa", "du.txt");
+
+            ZipFile zipFile = new ZipFile(file);
+
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println();
 
     }
 }
