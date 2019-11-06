@@ -10,7 +10,7 @@
 package com.dudu.common.shiro.realm;
 
 import com.dudu.entity.dto.UserDTO;
-import com.dudu.service.ResourceService;
+import com.dudu.coverage.service.ResourceService;
 import com.dudu.service.RoleService;
 import com.dudu.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,6 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +73,8 @@ public class UserRealm extends AuthorizingRealm {
 
     // 根据用户名字从数据库中获取当前用户的权限数据
     private Set<String> getPermissionsByUserName(String username) {
-        List<String> resourceList = resourceService.listResourceByUsername(username);
+        // List<String> resourceList = resourceService.listResourceByUsername(username);
+        List<String> resourceList = null;
         if( resourceList != null ){
             return new HashSet<>(resourceList);
         }else{

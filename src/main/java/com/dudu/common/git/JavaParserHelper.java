@@ -44,20 +44,21 @@ public class JavaParserHelper {
      *          1、对差异行排序, 已执行过的差异行匹配跳过
      *          2、忽略差异行是方法的匹配
      *
-     * @param beanList 差异类信息集合
-     * @param localRepository 本地存储库路径
+     * @param insertMap 差异类信息集合
+     * @param repositoryPath 本地存储库路径
      */
-    public static Map<String, Map<String, String>> matchMethod(List<JGitBean> beanList, String localRepository) throws FileNotFoundException {
+    public static Map<String, Map<String, String>> matchMethod(Map<String, List<Integer>> insertMap, String repositoryPath) throws FileNotFoundException {
 
         StringBuilder buffer = new StringBuilder();
+
         Map<String, Map<String, String>> incrementalClass = new HashMap<>(16);
 
         // 遍历差异类信息
-        for (JGitBean bean : beanList) {
+        for (Map.Entry<String, List<Integer>> entry : insertMap.entrySet()) {
 
             Map<String, String> incrementalMethod = new HashMap<>();
 
-            File diffClass = new File(localRepository, bean.getClassName());
+            File diffClass = new File(repositoryPath, entry.getKey());
 
             if (!diffClass.exists()) {
                 continue;
@@ -94,26 +95,33 @@ public class JavaParserHelper {
 
             List<MethodDeclaration> methodList = type.getMethods();
 
-            // 遍历每个差异代码块的结束行
-            for (Integer diffLine : bean.getLineB()) {
-
-                // 遍历该类所有方法, 取出方法的范围对本地分支的差异代码行lineA进行差异方法匹配
+            if (entry.getValue() == null || entry.getValue().size() == 0) {
                 for (MethodDeclaration method : methodList) {
+                    incrementalMethod.put(method.getNameAsString(), null);
+                }
+            } else {
+                // 遍历每个差异代码块的结束行
+                for (Integer diffLine : entry.getValue()) {
 
-                    // 每个方法的范围(起始行, 结束行)
-                    Range range = method.getRange().get();
+                    // 遍历该类所有方法, 取出方法的范围对本地分支的差异代码行lineA进行差异方法匹配
+                    for (MethodDeclaration method : methodList) {
 
-                    // 方法名称
-                    String methodName = method.getNameAsString();
+                        // 每个方法的范围(起始行, 结束行)
+                        Range range = method.getRange().get();
 
-                    // 结束行匹配方法范围则记录当前的方法名称
-                    if (diffLine >= range.begin.line && diffLine <= range.end.line) {
+                        // 方法名称
+                        String methodName = method.getNameAsString();
 
-                        // 记录匹配方法
-                        incrementalMethod.put(methodName, null);
+                        // 结束行匹配方法范围则记录当前的方法名称
+                        if (diffLine >= range.begin.line && diffLine <= range.end.line) {
+
+                            // 记录匹配方法
+                            incrementalMethod.put(methodName, null);
+                        }
                     }
                 }
             }
+
 
             String replace = packageName.replace(".", "/");
 

@@ -1,13 +1,14 @@
 package com.dudu.entity.vo;
 
 import com.dudu.entity.base.BaseVO;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.Accessors;
 
-@Data
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@Getter
+@Setter
+// @ToString(callSuper = true)
 public class UserVO extends BaseVO {
 
     private static final long serialVersionUID = -6923768443982647649L;

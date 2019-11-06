@@ -8,10 +8,9 @@ import java.util.regex.Pattern;
 
 public class StringUtil {
 
-	/** 
-	 * 功能描述：关于字符串的一些实用操作 
-	 */
-	/** 
+    /**
+     * 功能描述：关于字符串的一些实用操作
+     *
      * 功能描述：分割字符串 
      *  
      * @param str 

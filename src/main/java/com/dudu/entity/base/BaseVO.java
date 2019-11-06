@@ -9,7 +9,8 @@
  */
 package com.dudu.entity.base;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -20,7 +21,8 @@ import java.util.Date;
  * @create 2019/3/25
  * @since 1.0.0
  */
-@Data
+@Getter
+@Setter
 public abstract class BaseVO implements Serializable {
 
     private static final long serialVersionUID = 5400231419912515438L;

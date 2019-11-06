@@ -1,36 +1,41 @@
 /**
- * FileName: JGitBean
+ * FileName: Project
  * Author:   大橙子
- * Date:     2019/9/20 15:24
+ * Date:     2019/10/24 15:17
  * Description:
  * History:
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.dudu.common.git;
+package com.dudu.entity.po;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * 〈一句话功能简述〉<br> 
  * 〈〉
  *
  * @author 大橙子
- * @create 2019/9/20
+ * @create 2019/10/24
  * @since 1.0.0
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class JGitBean {
+public class Project {
 
-    private String path;
+    /**
+     * 项目id
+     */
+    private Integer projectId;
+    /**
+     * 项目名称
+     */
+    private String projectName;
+    /**
+     * 远程存储库url
+     */
     private String gitUrl;
-    private String username;
-    private String password;
+    /**
+     * 基础分支
+     */
     private String localBranch;
-    private String remoteBranch;
-    private String repositoryPath;
 }

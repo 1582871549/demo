@@ -9,8 +9,12 @@
  */
 package com.dudu.common.configuration;
 
+import com.dudu.common.configuration.bean.ExecProperties;
+import com.dudu.common.configuration.bean.GitProperties;
+import com.dudu.common.configuration.bean.MavenProperties;
 import com.dudu.common.configuration.config.DataSourceConfig;
 import com.dudu.common.configuration.config.ShiroConfig;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -25,6 +29,7 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import(value = {DataSourceConfig.class, ShiroConfig.class})
+@EnableConfigurationProperties({GitProperties.class, MavenProperties.class, ExecProperties.class})
 public class CustomAutoConfiguration {
 
 

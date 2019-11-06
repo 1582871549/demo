@@ -10,14 +10,16 @@
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dudu.DemoApplication;
+import com.dudu.common.configuration.bean.ExecProperties;
+import com.dudu.common.configuration.bean.GitProperties;
+import com.dudu.common.configuration.bean.MavenProperties;
 import com.dudu.dao.RoleMapper;
 import com.dudu.entity.po.RolePO;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.commons.compress.archivers.zip.ZipLong;
-import org.apache.commons.compress.archivers.zip.ZipUtil;
+import com.dudu.entity.vo.UserVO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.shared.invoker.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -43,6 +45,20 @@ public class MybatisTest {
 
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    private GitProperties gitProperties;
+    @Autowired
+    private MavenProperties mavenProperties;
+    @Autowired
+    private ExecProperties execProperties;
+
+    @Test
+    public void aa() {
+        System.out.println(gitProperties.toString());
+        System.out.println(mavenProperties.toString());
+        System.out.println(execProperties.toString());
+    }
 
     @Test
     public void contextLoads(){
@@ -106,20 +122,125 @@ public class MybatisTest {
     public void aaa(){
 
 
+
+        File file = new File("D:\\aaa", "ccc");
+
+        String path = file.getPath();
+
+        if (file.exists()) {
+            if (!file.delete()) {
+                System.out.println("删除失败");
+            }
+            System.out.println("删除成功");
+        }
+
+        System.out.println("path " + path);
+
+    }
+
+    @Test
+    public void maven(){
+
+        InvocationRequest request = new DefaultInvocationRequest();
+        // request.setPomFile(new File("D:\\Soft_Package\\coverage\\demo\\pom.xml"));
+        request.setPomFile(new File("D:\\aaa\\repository\\pom.xml"));
+        request.setGoals(Collections.singletonList("install"));
+
+        Invoker invoker = new DefaultInvoker();
+        invoker.setMavenHome(new File("D:\\Soft_Package\\maven\\apache-maven-3.5.3"));
+
+        invoker.setLogger(new PrintStreamLogger(System.err,  InvokerLogger.ERROR){} );
+        invoker.setOutputHandler(s -> { });
+
+
         try {
-
-            File file = new File("D:\\aaa", "du.txt");
-
-            ZipFile zipFile = new ZipFile(file);
-
-
-
-
-        } catch (IOException e) {
+            invoker.execute(request);
+        } catch (MavenInvocationException e) {
             e.printStackTrace();
         }
 
-        System.out.println();
+
+        try{
+            if (invoker.execute(request).getExitCode() == 0) {
+                System.out.println("success");
+            } else {
+                System.err.println("error");
+            }
+        } catch (MavenInvocationException e) {
+            e.printStackTrace();
+        }
 
     }
+
+    @Test
+    public void number() {
+
+        int size = 40;
+        int len = 50;
+
+        int a = size % len == 0 ? size / len : (size / len) + 1;
+
+        System.out.println(a + " --- ");
+        System.out.println(40 % 50);
+
+    }
+
+    @Test
+    public void testBean() {
+
+        UserVO userVO = new UserVO()
+                .setName("aaa")
+                .setPhone("123456")
+                .setSex("男")
+                .setUsername("qwe");
+
+        UserVO user = new UserVO();
+        user.setName("aaa");
+        user.setSex("男");
+        user.setPhone("123456");
+        user.setUsername("qwe");
+
+
+        UserVO user1 = user.setName("aaa");
+
+        UserVO user2 = user1.setPhone("123456");
+
+        UserVO user3 = user2.setSex("男");
+
+        int i=12;
+        System.out.println(i+=i-=i*=i);
+
+        System.out.println(user);
+        System.out.println(user1);
+        System.out.println(user2);
+        System.out.println(user3);
+
+    }
+
+    public void convert(List<String> methods) {
+
+        Map<String, Map<String, String>> classMap = new HashMap<>();
+        Pattern compile = Pattern.compile("-");
+
+        // com/dudu/entity/vo/User-getName 全限定类名-方法名
+        for (String method : methods) {
+
+            String[] split = compile.split(method);
+            String className = split[0];
+            String methodName = split[1];
+
+            Map<String, String> methodMap = classMap.get(className);
+
+            if (methodMap != null) {
+                methodMap.put(methodName, null);
+            } else {
+                methodMap = new HashMap<>();
+                methodMap.put(methodName, null);
+                classMap.put(className, methodMap);
+            }
+        }
+    }
+
+
+
 }

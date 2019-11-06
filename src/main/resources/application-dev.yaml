@@ -1,0 +1,12 @@
+coverage-resource:
+  git:
+    username: 1582871549@qq.com
+    password: 840742807du
+    default-branch: master
+    repository-path: D:\aaa
+  maven:
+    command: install
+    home-path: D:\Soft_Package\maven\apache-maven-3.5.3
+  exec:
+    default-name: dump.exec
+    directory: exec
