@@ -10,35 +10,64 @@
 package com.dudu.common.configuration.config;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.dudu.common.configuration.bean.HikariConfigBean;
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 /**
+ * 配置数据源
+ *
  * @author 大橙子
  * @date  2019/4/2
  * @since 1.0.0
  */
-@EnableTransactionManagement
 @Configuration
 @MapperScan(basePackages = {"com.dudu.dao"})
+@EnableTransactionManagement
 public class DataSourceConfig {
 
-    @Resource
-    private HikariConfigBean hikariConfigBean;
+    @Bean
+    @Primary
+    @ConfigurationProperties("spring.datasource.first")
+    public DataSourceProperties firstDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean
+    @Primary
+    @ConfigurationProperties("spring.datasource.first")
+    public DataSource firstDataSource() {
+        return firstDataSourceProperties()
+                .initializeDataSourceBuilder()
+                .type(HikariDataSource.class)
+                .build();
+    }
+
+    @Bean
+    @ConfigurationProperties("spring.datasource.second")
+    public DataSourceProperties secondDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean
+    @ConfigurationProperties("spring.datasource.second")
+    public DataSource secondDataSource() {
+        return secondDataSourceProperties()
+                .initializeDataSourceBuilder()
+                .type(HikariDataSource.class)
+                .build();
+    }
 
     /**
      * 分页插件
-     * @return paginationInterceptor
      */
     @Bean
     public PaginationInterceptor paginationInterceptor() {
@@ -46,30 +75,7 @@ public class DataSourceConfig {
     }
 
     /**
-     * 配置数据源
-     * @return dataSource
-     */
-    @Bean
-    @Primary
-    public DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/music?characterEncoding=utf8&useSSL=false&autoReconnect=true&serverTimezone=UTC");
-        config.setUsername("dudu");
-        config.setPassword("dudu");
-        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        config.setConnectionTimeout(30000);
-        config.setIdleTimeout(600000);
-        config.setMaxLifetime(1800000);
-        config.setConnectionTestQuery("select 1");
-        config.setMinimumIdle(10);
-        config.setMaximumPoolSize(25);
-        config.setPoolName("dudu-hikari-pool");
-        return new HikariDataSource(config);
-    }
-
-    /**
      * 配置事务管理器
-     * @return dataSourceTransactionManager
      */
     @Bean
     @Primary

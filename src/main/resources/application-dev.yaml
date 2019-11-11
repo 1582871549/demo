@@ -10,3 +10,19 @@ coverage-resource:
   exec:
     default-name: dump.exec
     directory: exec
+
+
+
+
+spring:
+  datasource:
+    first:
+      username: dudu
+      password: dudu
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/music?characterEncoding=utf8&useSSL=false&autoReconnect=true&serverTimezone=UTC
+    second:
+      username: dudu
+      password: dudu
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/music?characterEncoding=utf8&useSSL=false&autoReconnect=true&serverTimezone=UTC

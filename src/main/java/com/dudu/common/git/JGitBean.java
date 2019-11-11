@@ -9,9 +9,7 @@
  */
 package com.dudu.common.git;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -22,15 +20,25 @@ import lombok.NoArgsConstructor;
  * @since 1.0.0
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class JGitBean {
 
-    private String path;
-    private String gitUrl;
+    private String url;
     private String username;
     private String password;
     private String localBranch;
     private String remoteBranch;
-    private String repositoryPath;
+
+    private String serverAddress;
+    private Integer serverPort;
+
+    private String projectPath;
+    private String dumpPath;
+
+    public JGitBean(String username, String password, String localBranch, String projectPath, String dumpPath) {
+        this.username = username;
+        this.password = password;
+        this.localBranch = localBranch;
+        this.projectPath = projectPath;
+        this.dumpPath = dumpPath;
+    }
 }

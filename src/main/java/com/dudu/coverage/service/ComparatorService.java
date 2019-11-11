@@ -9,6 +9,11 @@
  */
 package com.dudu.coverage.service;
 
+import com.dudu.common.git.JGitBean;
+
+import java.util.List;
+import java.util.Map;
+
 /**
  * 比较器服务
  *
@@ -18,7 +23,7 @@ package com.dudu.coverage.service;
  */
 public interface ComparatorService {
 
-    void comparisonBranch();
+    Map<String, List<Integer>> comparisonBranch(JGitBean bean);
 
-    void comparisonTag();
+    Map<String, List<Integer>> comparisonTag(JGitBean bean);
 }

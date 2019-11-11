@@ -9,8 +9,15 @@
  */
 package com.dudu.coverage.service.impl;
 
+import com.dudu.common.git.JGitBean;
+import com.dudu.common.git.JGitHelper;
 import com.dudu.coverage.service.ComparatorService;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -25,12 +32,21 @@ public class ComparatorServiceImpl implements ComparatorService {
 
 
     @Override
-    public void comparisonBranch() {
+    public Map<String, List<Integer>> comparisonBranch(JGitBean gitBean) {
 
+
+        try {
+            return JGitHelper.getBranchDiff(gitBean);
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     @Override
-    public void comparisonTag() {
+    public Map<String, List<Integer>> comparisonTag(JGitBean bean) {
 
+        return null;
     }
 }

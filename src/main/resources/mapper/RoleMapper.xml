@@ -7,8 +7,8 @@
     <id column="role_id" property="roleId" jdbcType="CHAR" />
     <result column="role_name" property="roleName" jdbcType="VARCHAR" />
     <result column="comment" property="comment" jdbcType="VARCHAR" />
-    <result column="update_time" property="updateTime" jdbcType="CHAR" />
     <result column="create_time" property="createTime" jdbcType="CHAR" />
+    <result column="modified_time" property="modifiedTime" jdbcType="CHAR" />
     <result column="is_locked" property="locked" jdbcType="BIT" />
   </resultMap>
 

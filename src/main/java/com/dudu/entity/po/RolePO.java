@@ -49,7 +49,7 @@ public class RolePO extends Model<RolePO> {
     /**
      * 修改时间
      */
-    private String updateTime;
+    private String modifiedTime;
     /**
      * 是否锁定
      */

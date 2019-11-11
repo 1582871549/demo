@@ -12,28 +12,13 @@ import lombok.Data;
 @Data
 public class ProjectBO {
 
-    /**
-     * 项目id
-     */
     private Integer projectId;
-    /**
-     * 项目名称
-     */
     private String projectName;
-    /**
-     * 远程存储库url
-     */
-    private String gitUrl;
-    /**
-     * 基础分支
-     */
-    private String gitBranch;
-    /**
-     * 项目id
-     */
+
+    private String url;
+    private String localBranch;
+    private String remoteBranch;
+
     private String serverAddress;
-    /**
-     * 项目id
-     */
     private Integer serverPort;
 }

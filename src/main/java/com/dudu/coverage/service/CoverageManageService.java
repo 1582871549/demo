@@ -1,5 +1,7 @@
 package com.dudu.coverage.service;
 
+import com.dudu.entity.bo.ProjectBO;
+
 /**
  * 覆盖率调度服务
  *
@@ -9,5 +11,5 @@ package com.dudu.coverage.service;
  */
 public interface CoverageManageService {
 
-    void callCoverageService();
+    void callCoverageService(ProjectBO projectBO);
 }

@@ -9,8 +9,13 @@
  */
 package com.dudu.coverage.service.impl;
 
+import com.dudu.common.git.JavaParserHelper;
 import com.dudu.coverage.service.AdapterService;
 import org.springframework.stereotype.Service;
+
+import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -24,7 +29,16 @@ import org.springframework.stereotype.Service;
 public class AdapterServiceImpl implements AdapterService {
 
     @Override
-    public void matchMethodName() {
+    public Map<String, Map<String, String>> matchMethodName(Map<String, List<Integer>> insertMap, String repositoryPath) {
 
+        try {
+
+            JavaParserHelper.matchMethod(insertMap, repositoryPath);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

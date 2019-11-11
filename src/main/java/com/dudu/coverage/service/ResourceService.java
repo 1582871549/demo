@@ -1,5 +1,6 @@
 package com.dudu.coverage.service;
 
+import com.dudu.common.git.JGitBean;
 import com.dudu.entity.bo.ProjectBO;
 
 /**
@@ -11,6 +12,6 @@ import com.dudu.entity.bo.ProjectBO;
  */
 public interface ResourceService {
 
-    void prepareCoverageResource(ProjectBO projectBO);
+    void prepareCoverageResource(JGitBean gitBean);
 
 }

@@ -1,22 +1,10 @@
-/**
- * FileName: ResourceServiceImpl
- * Author:   大橙子
- * Date:     2019/4/3 10:49
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package com.dudu.coverage.service.impl;
 
-import com.dudu.common.configuration.bean.ExecProperties;
 import com.dudu.common.configuration.bean.MavenProperties;
-import com.dudu.common.configuration.bean.GitProperties;
-import com.dudu.common.git.JGit;
+import com.dudu.common.git.JGitBean;
+import com.dudu.common.git.JGitHelper;
 import com.dudu.coverage.service.ResourceService;
-import com.dudu.entity.bo.ProjectBO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.shared.invoker.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,72 +27,34 @@ import java.util.Collections;
 @Service
 public class ResourceServiceImpl implements ResourceService {
 
-    private final GitProperties gitProperties;
     private final MavenProperties mavenProperties;
-    private final ExecProperties execProperties;
 
     @Autowired
-    public ResourceServiceImpl(GitProperties gitProperties, MavenProperties mavenProperties, ExecProperties execProperties) {
-        this.gitProperties = gitProperties;
+    public ResourceServiceImpl(MavenProperties mavenProperties) {
         this.mavenProperties = mavenProperties;
-        this.execProperties = execProperties;
     }
 
     @Override
-    public void prepareCoverageResource(ProjectBO projectBO) {
+    public void prepareCoverageResource(JGitBean gitBean) {
 
-        cloneCode(projectBO);
+        cloneCode(gitBean);
 
-        compileCode(projectBO);
+        compileCode(gitBean.getProjectPath());
 
-        pullExecFileFromServer(projectBO);
+        pullExecFileFromServer(gitBean);
     }
 
-    public void cloneCode(ProjectBO projectBO) {
+    private void cloneCode(JGitBean gitBean) {
         try {
-            cloneRepository(projectBO);
+            JGitHelper.cloneRepository(gitBean);
         } catch (IOException | GitAPIException e) {
             e.printStackTrace();
         }
     }
 
-    private void cloneRepository(ProjectBO projectBO) throws IOException, GitAPIException {
-
-        String projectPath = getProjectPath(projectBO);
-        String defaultBranch = gitProperties.getDefaultBranch();
-
-        JGit git = getJGit(projectBO, defaultBranch);
-
-        git.cloneRepository(projectPath);
-    }
-
-    private String getProjectPath(ProjectBO projectBO) {
-
-        String repositoryPath = gitProperties.getRepositoryPath();
-        String projectId = String.valueOf(projectBO.getProjectId());
-        String projectName = projectBO.getProjectName();
-
-        return repositoryPath + File.separatorChar
-                + projectId + File.separatorChar
-                + projectName;
-    }
-
-    private JGit getJGit(ProjectBO projectBO, String defaultBranch) {
-
-        String url = projectBO.getGitUrl();
-        String username = gitProperties.getUsername();
-        String password = gitProperties.getPassword();
-        String branch = projectBO.getGitBranch();
-
-        if (StringUtils.isBlank(branch)) {
-            return new JGit(url, username, password, defaultBranch);
-        }
-        return new JGit(url, username, password, branch);
-    }
-
-    public void compileCode(ProjectBO projectBO) {
+    private void compileCode(String projectPath) {
         try {
-            if (executeCommand(projectBO) == 0) {
+            if (executeCommand(projectPath) == 0) {
                 log.info("success");
             } else {
                 log.info("error");
@@ -114,9 +64,8 @@ public class ResourceServiceImpl implements ResourceService {
         }
     }
 
-    private int executeCommand(ProjectBO projectBO) throws MavenInvocationException {
+    private int executeCommand(String projectPath) throws MavenInvocationException {
 
-        String projectPath = getProjectPath(projectBO);
         String command = mavenProperties.getCommand();
         String homePath = mavenProperties.getHomePath();
 
@@ -134,19 +83,19 @@ public class ResourceServiceImpl implements ResourceService {
         return execute.getExitCode();
     }
 
-    public void pullExecFileFromServer(ProjectBO projectBO) {
+    public void pullExecFileFromServer(JGitBean gitBean) {
         try {
-            pullExecFile(projectBO);
+            pullExecFile(gitBean);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void pullExecFile(ProjectBO projectBO) throws IOException {
+    private void pullExecFile(JGitBean gitBean) throws IOException {
 
-        String dumpPath = getDumpPath(projectBO);
-        String address = projectBO.getServerAddress();
-        Integer port = projectBO.getServerPort();
+        String dumpPath = gitBean.getDumpPath();
+        String address = gitBean.getServerAddress();
+        Integer port = gitBean.getServerPort();
 
         try (Socket socket = new Socket(InetAddress.getByName(address), port)) {
             if (!socket.isConnected()) {
@@ -175,15 +124,4 @@ public class ResourceServiceImpl implements ResourceService {
         //     }
         // }
     }
-
-    private String getDumpPath(ProjectBO projectBO) {
-
-        String directory = execProperties.getDirectory();
-        String defaultName = execProperties.getDefaultName();
-
-        return getProjectPath(projectBO) + File.separatorChar
-                + directory + File.separatorChar
-                + defaultName;
-    }
-
 }
