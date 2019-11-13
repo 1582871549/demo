@@ -61,8 +61,8 @@ public class JGitTest {
         String url = "https://github.com/1582871549/demo.git";
         Integer projectId = 1;
         String projectName = "test";
-        String defaultBranch = "dev";
-        String compareBranch = "dev-shiro";
+        String baseBranch = "master";
+        String compareBranch = "dev";
         String serverAddress = "127.0.0.1";
         Integer serverPort = 4399;
 
@@ -70,13 +70,12 @@ public class JGitTest {
         projectDO.setUrl(url);
         projectDO.setProjectId(projectId);
         projectDO.setProjectName(projectName);
-        projectDO.setDefaultBranch(defaultBranch);
+        projectDO.setBaseBranch(baseBranch);
         projectDO.setCompareBranch(compareBranch);
         projectDO.setServerAddress(serverAddress);
         projectDO.setServerPort(serverPort);
 
         coverageSchedulerService.callCoverageService(projectDO);
-
     }
 
     @Test

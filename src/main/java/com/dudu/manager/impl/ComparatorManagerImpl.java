@@ -39,11 +39,11 @@ public class ComparatorManagerImpl implements ComparatorManager {
     private Map<String, List<Integer>> comparison(CoverageBO coverageBO) {
 
         String projectPath = coverageBO.getProjectPath();
-        String defaultBranch = coverageBO.getDefaultBranch();
+        String baseBranch = coverageBO.getBaseBranch();
         String compareBranch = coverageBO.getCompareBranch();
 
         try {
-            return JGitHelper.compareBranchDiff(projectPath, defaultBranch, compareBranch);
+            return JGitHelper.compareBranchDiff(projectPath, baseBranch, compareBranch);
         } catch (IOException | GitAPIException e) {
             throw new BusinessException("branch comparison failed", e);
         }

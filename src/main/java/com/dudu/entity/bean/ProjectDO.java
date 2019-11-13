@@ -16,7 +16,7 @@ public class ProjectDO {
     private String projectName;
 
     private String url;
-    private String defaultBranch;
+    private String baseBranch;
     private String compareBranch;
 
     private String serverAddress;

@@ -56,6 +56,8 @@ public final class JGitHelper {
 
         File projectDir = new File(projectPath);
 
+        log.info("projectDir : " + projectDir);
+
         // 如果该文件夹存在则进行删除、避免克隆存储库时文件夹重复
         if (projectDir.exists()) {
             FileUtils.deleteDirectory(projectDir);
@@ -85,7 +87,7 @@ public final class JGitHelper {
     }
 
     public static Map<String, List<Integer>> compareBranchDiff(String projectPath,
-                                                           String defaultBranch,
+                                                           String baseBranch,
                                                            String compareBranch) throws IOException, GitAPIException {
 
         Map<String, List<Integer>> branchDiffMap = new HashMap<>(16);
@@ -93,12 +95,12 @@ public final class JGitHelper {
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
             try (Git git = new Git(repository)) {
 
-                String defaultBranchName = "refs/heads/" + defaultBranch;
+                String baseBranchName = "refs/heads/" + baseBranch;
                 String compareBranchName = "refs/heads/" + compareBranch;
 
                 // 确保基础分支在本地可见
-                if(repository.exactRef(defaultBranchName) == null) {
-                    git.branchCreate().setName(defaultBranch).setStartPoint("origin/" + defaultBranch).call();
+                if(repository.exactRef(baseBranchName) == null) {
+                    git.branchCreate().setName(baseBranch).setStartPoint("origin/" + baseBranch).call();
                 }
                 // 确保比对分支在本地可见
                 if(repository.exactRef(compareBranchName) == null) {
@@ -106,7 +108,7 @@ public final class JGitHelper {
                 }
 
                 // diff结构树
-                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, defaultBranchName);
+                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, baseBranchName);
                 AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareBranchName);
 
                 // 对比.java后缀的文件

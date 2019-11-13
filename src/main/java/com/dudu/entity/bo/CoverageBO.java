@@ -25,7 +25,7 @@ public class CoverageBO {
     private String url;
     private String username;
     private String password;
-    private String defaultBranch;
+    private String baseBranch;
     private String compareBranch;
 
     private String serverAddress;
