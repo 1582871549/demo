@@ -37,59 +37,44 @@ import java.util.*;
 @Slf4j
 public final class JGitHelper {
 
-    public static void main(String[] args) {
-
-        String url = "https://github.com/1582871549/demo.git";
-        String username = "1582871549@qq.com";
-        String password = "840742807du";
-
-        String localbranch = "dev";
-        String remoteBranch = "dev-shiro";
-
-        String repositoryPath = "D:\\aaa\\ccc\\repository";
-
-    }
-
     /**
      * 打开指定位置中的git存储库
      * 如果目录不存在
      * 不会抛出异常, 也不会输出任何存储库信息
      */
-    public static Repository openRepository(String projectPath) throws IOException {
+    private static Repository openRepository(String projectPath) throws IOException {
         return new FileRepositoryBuilder()
                 .setGitDir(new File(projectPath, ".git"))
                 .build();
     }
 
-    public static void cloneRepository(JGitBean gitBean) throws IOException, GitAPIException {
+    public static void cloneRepository(String url,
+                                       String username,
+                                       String password,
+                                       String compareBranch,
+                                       String projectPath) throws IOException, GitAPIException {
 
-        String url = gitBean.getUrl();
-        String localBranch = gitBean.getLocalBranch();
-        String username = gitBean.getUsername();
-        String password = gitBean.getPassword();
-        String projectPath = gitBean.getProjectPath();
-
-        File repository = new File(projectPath);
+        File projectDir = new File(projectPath);
 
         // 如果该文件夹存在则进行删除、避免克隆存储库时文件夹重复
-        if (repository.exists()) {
-            FileUtils.deleteDirectory(repository);
+        if (projectDir.exists()) {
+            FileUtils.deleteDirectory(projectDir);
         }
 
-        JGitHelper.mkdirsDirectory(repository);
-
-        log.info("Cloning from " + url + " to " + projectPath + ", branch : " + localBranch);
+        JGitHelper.mkdirsDirectory(projectDir);
 
         try (Git ignored = Git.cloneRepository()
                 .setURI(url)
-                .setBranch(localBranch)
-                .setDirectory(repository)
+                .setBranch(compareBranch)
+                .setDirectory(projectDir)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
                 .call()) {
+
+            log.info("Cloning from " + url + " to " + projectPath + ", branch : " + compareBranch);
         }
     }
 
-    public static void checkout(String projectPath, String branchName) throws IOException, GitAPIException {
+    public static void checkoutLocalBranch(String projectPath, String branchName) throws IOException, GitAPIException {
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
             try (Git git = new Git(repository)) {
                 git.checkout()
@@ -99,65 +84,30 @@ public final class JGitHelper {
         }
     }
 
-    public static void aaa(JGitBean bean) throws IOException, GitAPIException {
+    public static Map<String, List<Integer>> compareBranchDiff(String projectPath,
+                                                           String defaultBranch,
+                                                           String compareBranch) throws IOException, GitAPIException {
 
-        try (Repository repository = JGitHelper.openRepository(bean.getProjectPath())) {
-            try (Git git = new Git(repository)) {
-
-                // 遍历存储库所有tag, 获取tag对应的commitId.
-                for (Ref ref : git.tagList().call()) {
-                    System.out.println("name : " + ref.getName() + ", id : " + ref.getObjectId());
-
-                    try (RevWalk walk = new RevWalk(repository)) {
-                        RevCommit commit2 = walk.parseCommit(ref.getObjectId());
-
-                        git.branchCreate().setName("tagA").setStartPoint(commit2).call();
-                    }
-                }
-                // 根据tag commitId 来创建分支tagA, 完成本地分支创建
-
-                // 切换到tagA分支, 并编译tagA分支代码.
-
-                List<Ref> list = git.branchList().call();
-
-                System.out.println("------------------");
-
-                for (Ref ref : list) {
-                    System.out.println(ref.getName());
-                }
-            }
-        }
-
-    }
-
-
-    public static Map<String, List<Integer>> getBranchDiff(JGitBean gitBean) throws IOException, GitAPIException {
-
-        String projectPath = gitBean.getProjectPath();
-        String localBranch = gitBean.getLocalBranch();
-        String remoteBranch = gitBean.getRemoteBranch();
-
-
-        Map<String, List<Integer>> insertMap = new HashMap<>(16);
+        Map<String, List<Integer>> branchDiffMap = new HashMap<>(16);
 
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
             try (Git git = new Git(repository)) {
 
-                String localBranchName = "refs/heads/" + localBranch;
-                String remoteBranchName = "refs/heads/" + remoteBranch;
+                String defaultBranchName = "refs/heads/" + defaultBranch;
+                String compareBranchName = "refs/heads/" + compareBranch;
 
                 // 确保基础分支在本地可见
-                if(repository.exactRef(localBranchName) == null) {
-                    git.branchCreate().setName(localBranch).setStartPoint("origin/" + localBranch).call();
+                if(repository.exactRef(defaultBranchName) == null) {
+                    git.branchCreate().setName(defaultBranch).setStartPoint("origin/" + defaultBranch).call();
                 }
                 // 确保比对分支在本地可见
-                if(repository.exactRef(remoteBranchName) == null) {
-                    git.branchCreate().setName(remoteBranch).setStartPoint("origin/" + remoteBranch).call();
+                if(repository.exactRef(compareBranchName) == null) {
+                    git.branchCreate().setName(compareBranch).setStartPoint("origin/" + compareBranch).call();
                 }
 
                 // diff结构树
-                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, localBranchName);
-                AbstractTreeIterator newTreeParser = prepareTreeParser(repository, remoteBranchName);
+                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, defaultBranchName);
+                AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareBranchName);
 
                 // 对比.java后缀的文件
                 List<DiffEntry> diffList = git.diff()
@@ -172,18 +122,10 @@ public final class JGitHelper {
                     formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
                     formatter.setRepository(repository);
 
-                    System.out.println();
-                    System.out.println();
-                    System.out.println();
-
                     // 每一个diffEntry都是版本之间文件的变动差异
                     for (DiffEntry diff : diffList) {
 
                         formatter.format(diff);
-
-                        // 控制台打印差异文件信息
-                        // System.out.println(System.out);
-                        // System.out.println("Diff: " + diff.getChangeType() + ": " + (diff.getOldPath().equals(diff.getNewPath()) ? diff.getNewPath() : diff.getOldPath() + " -> " + diff.getNewPath()));
 
                         // 只针对新增、修改文件
                         if (diff.getChangeType() == DiffEntry.ChangeType.ADD || diff.getChangeType() == DiffEntry.ChangeType.MODIFY) {
@@ -193,7 +135,7 @@ public final class JGitHelper {
                             // 存放差异行信息
                             List<Integer> lines = new ArrayList<>();
 
-                            insertMap.put(newPath, lines);
+                            branchDiffMap.put(newPath, lines);
 
                             System.out.println("newpath  ： " + newPath);
 
@@ -218,7 +160,7 @@ public final class JGitHelper {
                 }
             }
         }
-        return insertMap;
+        return branchDiffMap;
     }
 
     /**

@@ -1,9 +1,10 @@
-package com.dudu.coverage.service.impl;
+package com.dudu.manager.impl;
 
 import com.dudu.common.configuration.bean.MavenProperties;
-import com.dudu.common.git.JGitBean;
+import com.dudu.common.exception.BusinessException;
+import com.dudu.entity.bo.CoverageBO;
 import com.dudu.common.git.JGitHelper;
-import com.dudu.coverage.service.ResourceService;
+import com.dudu.manager.ResourceManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.shared.invoker.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -25,28 +26,37 @@ import java.util.Collections;
  */
 @Slf4j
 @Service
-public class ResourceServiceImpl implements ResourceService {
+public class ResourceManagerImpl implements ResourceManager {
 
     private final MavenProperties mavenProperties;
 
     @Autowired
-    public ResourceServiceImpl(MavenProperties mavenProperties) {
+    public ResourceManagerImpl(MavenProperties mavenProperties) {
         this.mavenProperties = mavenProperties;
     }
 
     @Override
-    public void prepareCoverageResource(JGitBean gitBean) {
+    public void prepareCoverageResource(CoverageBO coverageBO) {
 
-        cloneCode(gitBean);
+        String projectPath = coverageBO.getProjectPath();
 
-        compileCode(gitBean.getProjectPath());
+        cloneCode(coverageBO);
 
-        pullExecFileFromServer(gitBean);
+        compileCode(projectPath);
+
+        // pullExecFileFromServer(coverageBO);
     }
 
-    private void cloneCode(JGitBean gitBean) {
+    private void cloneCode(CoverageBO coverageBO) {
+
+        String url = coverageBO.getUrl();
+        String username = coverageBO.getUsername();
+        String password = coverageBO.getPassword();
+        String compareBranch = coverageBO.getCompareBranch();
+        String projectPath = coverageBO.getProjectPath();
+
         try {
-            JGitHelper.cloneRepository(gitBean);
+            JGitHelper.cloneRepository(url, username, password, compareBranch, projectPath);
         } catch (IOException | GitAPIException e) {
             e.printStackTrace();
         }
@@ -54,17 +64,13 @@ public class ResourceServiceImpl implements ResourceService {
 
     private void compileCode(String projectPath) {
         try {
-            if (executeCommand(projectPath) == 0) {
-                log.info("success");
-            } else {
-                log.info("error");
-            }
+            executeCommand(projectPath);
         } catch (MavenInvocationException e) {
             e.printStackTrace();
         }
     }
 
-    private int executeCommand(String projectPath) throws MavenInvocationException {
+    private void executeCommand(String projectPath) throws MavenInvocationException {
 
         String command = mavenProperties.getCommand();
         String homePath = mavenProperties.getHomePath();
@@ -80,22 +86,33 @@ public class ResourceServiceImpl implements ResourceService {
         invoker.setOutputHandler(s -> { });
 
         InvocationResult execute = invoker.execute(request);
-        return execute.getExitCode();
+        int exitCode = execute.getExitCode();
+
+        isCompileSuccess(exitCode);
     }
 
-    public void pullExecFileFromServer(JGitBean gitBean) {
+    private void isCompileSuccess(int exitCode) {
+        if (exitCode == 0) {
+            log.info("success");
+        } else {
+            log.info("error");
+            throw new BusinessException("project compile failed");
+        }
+    }
+
+    private void pullExecFileFromServer(CoverageBO coverageBO) {
         try {
-            pullExecFile(gitBean);
+            pullExecFile(coverageBO);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void pullExecFile(JGitBean gitBean) throws IOException {
+    private void pullExecFile(CoverageBO coverageBO) throws IOException {
 
-        String dumpPath = gitBean.getDumpPath();
-        String address = gitBean.getServerAddress();
-        Integer port = gitBean.getServerPort();
+        String dumpPath = coverageBO.getDumpPath();
+        String address = coverageBO.getServerAddress();
+        Integer port = coverageBO.getServerPort();
 
         try (Socket socket = new Socket(InetAddress.getByName(address), port)) {
             if (!socket.isConnected()) {

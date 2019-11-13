@@ -10,7 +10,7 @@
 package com.dudu.entity.other;
 
 import com.dudu.entity.dto.RoleDTO;
-import com.dudu.entity.po.UserPO;
+import com.dudu.entity.bean.UserPO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

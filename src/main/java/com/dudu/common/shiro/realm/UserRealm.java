@@ -10,7 +10,7 @@
 package com.dudu.common.shiro.realm;
 
 import com.dudu.entity.dto.UserDTO;
-import com.dudu.coverage.service.ResourceService;
+import com.dudu.service.ResourceService;
 import com.dudu.service.RoleService;
 import com.dudu.service.UserService;
 import lombok.extern.slf4j.Slf4j;

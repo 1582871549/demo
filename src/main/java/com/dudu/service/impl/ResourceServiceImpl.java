@@ -1,30 +1,29 @@
 /**
- * FileName: CoverageServiceImpl
+ * FileName: RoleServiceImpl
  * Author:   大橙子
- * Date:     2019/10/24 14:50
+ * Date:     2019/4/3 9:42
  * Description:
  * History:
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.dudu.coverage.service.impl;
+package com.dudu.service.impl;
 
-import com.dudu.coverage.service.CoverageService;
+import com.dudu.service.ResourceService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 〈一句话功能简述〉<br> 
  * 〈〉
  *
  * @author 大橙子
- * @create 2019/10/24
+ * @create 2019/4/3
  * @since 1.0.0
  */
+@Transactional(rollbackFor = Exception.class)
 @Service
-public class CoverageServiceImpl implements CoverageService {
+public class ResourceServiceImpl implements ResourceService {
 
-    @Override
-    public void calculationChangeCoverage() {
 
-    }
 }

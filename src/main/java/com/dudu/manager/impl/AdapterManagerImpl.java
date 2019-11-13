@@ -7,10 +7,11 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.dudu.coverage.service.impl;
+package com.dudu.manager.impl;
 
+import com.dudu.common.exception.BusinessException;
 import com.dudu.common.git.JavaParserHelper;
-import com.dudu.coverage.service.AdapterService;
+import com.dudu.manager.AdapterManager;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -26,19 +27,18 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Service
-public class AdapterServiceImpl implements AdapterService {
+public class AdapterManagerImpl implements AdapterManager {
 
     @Override
-    public Map<String, Map<String, String>> matchMethodName(Map<String, List<Integer>> insertMap, String repositoryPath) {
+    public Map<String, Map<String, String>> matchMethod(Map<String, List<Integer>> insertMap, String repositoryPath) {
+        return matchMethodName(insertMap, repositoryPath);
+    }
 
+    private Map<String, Map<String, String>> matchMethodName(Map<String, List<Integer>> insertMap, String repositoryPath) {
         try {
-
-            JavaParserHelper.matchMethod(insertMap, repositoryPath);
-
+            return JavaParserHelper.matchMethod(insertMap, repositoryPath);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            throw new BusinessException("match method failed", e);
         }
-
-        return null;
     }
 }

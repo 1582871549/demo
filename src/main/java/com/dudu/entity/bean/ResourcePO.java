@@ -1,4 +1,4 @@
-package com.dudu.entity.po;
+package com.dudu.entity.bean;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;

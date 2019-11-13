@@ -1,4 +1,4 @@
-package com.dudu.entity.bo;
+package com.dudu.entity.bean;
 
 import lombok.Data;
 
@@ -10,14 +10,14 @@ import lombok.Data;
  * @since 1.0.0
  */
 @Data
-public class ProjectBO {
+public class ProjectDO {
 
     private Integer projectId;
     private String projectName;
 
     private String url;
-    private String localBranch;
-    private String remoteBranch;
+    private String defaultBranch;
+    private String compareBranch;
 
     private String serverAddress;
     private Integer serverPort;

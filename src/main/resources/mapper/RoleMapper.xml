@@ -3,7 +3,7 @@
 <mapper namespace="com.dudu.dao.RoleMapper" >
 
 
-  <resultMap id="BaseResultMap" type="com.dudu.entity.po.RolePO" >
+  <resultMap id="BaseResultMap" type="com.dudu.entity.bean.RolePO" >
     <id column="role_id" property="roleId" jdbcType="CHAR" />
     <result column="role_name" property="roleName" jdbcType="VARCHAR" />
     <result column="comment" property="comment" jdbcType="VARCHAR" />

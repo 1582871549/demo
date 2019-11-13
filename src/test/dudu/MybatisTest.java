@@ -15,7 +15,7 @@ import com.dudu.common.configuration.bean.GitProperties;
 import com.dudu.common.configuration.bean.MavenProperties;
 import com.dudu.common.util.DateUtil;
 import com.dudu.dao.RoleMapper;
-import com.dudu.entity.po.RolePO;
+import com.dudu.entity.bean.RolePO;
 import com.dudu.entity.vo.UserVO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

@@ -1,7 +1,7 @@
 /**
- * FileName: CoverageBO
+ * FileName: JGitBean
  * Author:   大橙子
- * Date:     2019/10/24 14:57
+ * Date:     2019/9/20 15:24
  * Description:
  * History:
  * <author>          <time>          <version>          <desc>
@@ -16,68 +16,28 @@ import lombok.Data;
  * 〈〉
  *
  * @author 大橙子
- * @create 2019/10/24
+ * @create 2019/9/20
  * @since 1.0.0
  */
 @Data
 public class CoverageBO {
 
-    /**
-     * 项目id
-     */
-    private Integer projectId;
-    /**
-     * 覆盖率id
-     */
-    private Integer coverageId;
-    /**
-     * 行覆盖数
-     */
-    private Integer lineCovered;
-    /**
-     * 行未覆盖数
-     */
-    private Integer lineMissed;
-    /**
-     * 方法覆盖数
-     */
-    private Integer methodCovered;
-    /**
-     * 方法未覆盖数
-     */
-    private Integer methodMissed;
-    /**
-     * 类覆盖数
-     */
-    private Integer classCovered;
-    /**
-     * 类未覆盖数
-     */
-    private Integer classMissed;
-    /**
-     * 分支覆盖数
-     */
-    private Integer branchCovered;
-    /**
-     * 分支未覆盖数
-     */
-    private Integer branchMissed;
-    /**
-     * 圈覆盖数
-     */
-    private Integer complexityCovered;
-    /**
-     * 圈未覆盖数
-     */
-    private Integer complexityMissed;
-    /**
-     * 指令覆盖数
-     */
-    private Integer instructionCovered;
-    /**
-     * 指令未覆盖数
-     */
-    private Integer instructionMissed;
+    private String url;
+    private String username;
+    private String password;
+    private String defaultBranch;
+    private String compareBranch;
 
+    private String serverAddress;
+    private Integer serverPort;
+
+    private String projectPath;
+    private String dumpPath;
+
+    public CoverageBO(String username, String password, String projectPath, String dumpPath) {
+        this.username = username;
+        this.password = password;
+        this.projectPath = projectPath;
+        this.dumpPath = dumpPath;
+    }
 }
-
