@@ -33,10 +33,6 @@ public class ComparatorManagerImpl implements ComparatorManager {
 
     @Override
     public Map<String, List<Integer>> comparisonBranch(CoverageBO coverageBO) {
-        return comparison(coverageBO);
-    }
-
-    private Map<String, List<Integer>> comparison(CoverageBO coverageBO) {
 
         String projectPath = coverageBO.getProjectPath();
         String baseBranch = coverageBO.getBaseBranch();
@@ -52,6 +48,14 @@ public class ComparatorManagerImpl implements ComparatorManager {
     @Override
     public Map<String, List<Integer>> comparisonTag(CoverageBO coverageBO) {
 
-        return null;
+        String projectPath = coverageBO.getProjectPath();
+        String baseTag = coverageBO.getBaseBranch();
+        String compareTag = coverageBO.getCompareBranch();
+
+        try {
+            return JGitHelper.compareTagDiff(projectPath, baseTag, compareTag);
+        } catch (IOException | GitAPIException e) {
+            throw new BusinessException("branch comparison failed", e);
+        }
     }
 }

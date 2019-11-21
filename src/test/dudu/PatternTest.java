@@ -1,20 +1,20 @@
 import com.dudu.DemoApplication;
-import com.dudu.pattern.Bridge.RefinedPhoneBrand;
-import com.dudu.pattern.Bridge.brand.ApplePhone;
-import com.dudu.pattern.Bridge.model.ProModel;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
+import com.dudu.pattern.bridge.RefinedPhoneStyle;
+import com.dudu.pattern.bridge.brand.HuaweiPhone;
+import com.dudu.pattern.bridge.brand.IPhone;
+import com.dudu.pattern.bridge.style.MaxStyle;
+import com.dudu.pattern.bridge.style.ProStyle;
+import com.dudu.pattern.builder.Computer;
+import com.dudu.pattern.strategy.StationContext;
+import com.dudu.pattern.strategy.impl.Bus;
+import com.dudu.pattern.strategy.impl.SharedBicycle;
+import com.dudu.pattern.strategy.impl.Taxi;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -47,39 +47,64 @@ public class PatternTest {
      * 桥接模式
      */
     @Test
-    public void bridgePatternTest() {
+    public void bridgePatternIPhoneTest() {
 
-        RefinedPhoneBrand applePhone = new ApplePhone(new ProModel());
-        applePhone.checkPhoneQuality();
-        applePhone.orderPhone(1);
+        RefinedPhoneStyle iPhoneMax = new MaxStyle(new IPhone());
+        iPhoneMax.checkPhoneQuality();
+        iPhoneMax.orderPhoneStyle("xs");
+
+        RefinedPhoneStyle huaweiPhonePro = new ProStyle(new HuaweiPhone());
+        huaweiPhonePro.checkPhoneQuality();
+        huaweiPhonePro.orderPhoneStyle("p30");
 
     }
 
+    /**
+     * 策略模式
+     */
     @Test
-    public String mulStr(String str1, String str2) {
+    public void strategyPatternTest() {
 
-        double num1 = Double.parseDouble(str1);
-        double num2 = Double.parseDouble(str2);
+        StationContext stationContext = new StationContext();
+        int distance = 15;
+        int peopleNumber = 2;
 
-        String value = String.valueOf(num1 * num2);
+        double busAmount = stationContext.goToThePark(new Bus(), distance, peopleNumber);
+        double sharedBicycleAmount = stationContext.goToThePark(new SharedBicycle(), distance, peopleNumber);
+        double taxiAmount = stationContext.goToThePark(new Taxi(), distance, peopleNumber);
 
-        return value;
+        System.out.println(String.format("乘坐公交车到天津之眼的花费为：%f人民币", busAmount));
+        System.out.println(String.format("乘坐共享单车到天津之眼的花费为：%f人民币", sharedBicycleAmount));
+        System.out.println(String.format("乘坐出租车到天津之眼的花费为：%f人民币", taxiAmount));
+
     }
 
+    /**
+     * 策略模式
+     */
     @Test
-    public void mulStr1() {
+    public void buildPatternTest() {
 
-        String str1 = "3.14";
-        String str2 = "2";
+        Computer computer = Computer.builder()
+                .CPU("2.6Hz")
+                .processor("英特尔")
+                .SSD(true)
+                .videoCard("英伟达信仰尺")
+                .build();
 
-        double num1 = Double.parseDouble(str1);
-        double num2 = Double.parseDouble(str2);
+        System.out.println(computer);
 
-        String value = String.valueOf(num1 * num2);
+        String string = Computer.builder()
+                .CPU("2.6Hz")
+                .processor("英特尔")
+                .SSD(true)
+                .videoCard("英伟达信仰尺")
+                .toString();
 
-        System.out.println(value);
+        System.out.println(string);
 
+        Computer build = Computer.builder().build();
+
+        System.out.println(build);
     }
-
-
 }

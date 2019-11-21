@@ -9,7 +9,7 @@
  */
 package com.dudu.entity.bo;
 
-import lombok.Data;
+import lombok.*;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -19,25 +19,21 @@ import lombok.Data;
  * @create 2019/9/20
  * @since 1.0.0
  */
-@Data
+@Builder
+@Getter
+@ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CoverageBO {
 
-    private String url;
-    private String username;
-    private String password;
-    private String baseBranch;
-    private String compareBranch;
+    private final String url;
+    private final String username;
+    private final String password;
+    private final String baseBranch;
+    private final String compareBranch;
 
-    private String serverAddress;
-    private Integer serverPort;
+    private final String serverAddress;
+    private final Integer serverPort;
 
-    private String projectPath;
-    private String dumpPath;
-
-    public CoverageBO(String username, String password, String projectPath, String dumpPath) {
-        this.username = username;
-        this.password = password;
-        this.projectPath = projectPath;
-        this.dumpPath = dumpPath;
-    }
+    private final String projectPath;
+    private final String dumpPath;
 }

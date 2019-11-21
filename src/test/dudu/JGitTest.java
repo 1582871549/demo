@@ -79,7 +79,7 @@ public class JGitTest {
     }
 
     @Test
-    public void listTagsByRemote() throws GitAPIException {
+    public void listTags() throws GitAPIException {
 
         System.out.println("Listing remote repository " + REMOTE_URL);
 
@@ -91,34 +91,25 @@ public class JGitTest {
         for (Ref ref : refs) {
             System.out.println("Ref: " + ref);
 
-            System.out.println(ref.getName());
-            System.out.println(ref.getObjectId());
-            System.out.println();
+            String tagName = ref.getName();
+            String substring = tagName.substring(10, tagName.length());
+
+            System.out.println(substring);
+            // System.out.println(ref.getObjectId());
+
         }
 
-        System.out.println("----------------------------");
+    }
+
+    @Test
+    public void listAllRef() throws GitAPIException {
 
         final Map<String, Ref> map = Git.lsRemoteRepository()
-                .setHeads(true)
-                .setTags(true)
                 .setRemote(REMOTE_URL)
                 .callAsMap();
 
-        System.out.println("As map");
-
         for (Map.Entry<String, Ref> entry : map.entrySet()) {
             System.out.println("Key: " + entry.getKey() + ", Ref: " + entry.getValue());
-        }
-
-        System.out.println("----------------------------");
-
-        refs = Git.lsRemoteRepository()
-                .setRemote(REMOTE_URL)
-                .call();
-
-        System.out.println("All refs");
-        for (Ref ref : refs) {
-            System.out.println("Ref: " + ref);
         }
     }
 

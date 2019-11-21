@@ -87,74 +87,141 @@ public final class JGitHelper {
     }
 
     public static Map<String, List<Integer>> compareBranchDiff(String projectPath,
-                                                           String baseBranch,
-                                                           String compareBranch) throws IOException, GitAPIException {
-
-        Map<String, List<Integer>> branchDiffMap = new HashMap<>(16);
+                                                               String baseBranch,
+                                                               String compareBranch) throws IOException, GitAPIException {
 
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
-            try (Git git = new Git(repository)) {
 
-                String baseBranchName = "refs/heads/" + baseBranch;
-                String compareBranchName = "refs/heads/" + compareBranch;
+            List<DiffEntry> diffEntryList = getDiffAndCreateBranchPoint(repository, baseBranch, compareBranch);
 
-                // 确保基础分支在本地可见
-                if(repository.exactRef(baseBranchName) == null) {
-                    git.branchCreate().setName(baseBranch).setStartPoint("origin/" + baseBranch).call();
+            return getDiffMap(repository, diffEntryList);
+        }
+    }
+
+    public static Map<String, List<Integer>> compareTagDiff(String projectPath,
+                                                     String baseTag,
+                                                     String compareTag) throws IOException, GitAPIException {
+
+        try (Repository repository = JGitHelper.openRepository(projectPath)) {
+
+            List<DiffEntry> diffEntryList = getDiffAndCreateTagPoint(repository, baseTag, compareTag);
+
+            return getDiffMap(repository, diffEntryList);
+        }
+    }
+
+    private static List<DiffEntry> getDiffAndCreateTagPoint(Repository repository,
+                                                     String baseTag,
+                                                     String compareTag) throws GitAPIException, IOException {
+
+        String baseTagName = "refs/tags/" + baseTag;
+        String compareTagName = "refs/tags/" + compareTag;
+
+        Map<String, ObjectId> tagMap = new HashMap<>();
+
+        try (Git git = new Git(repository)) {
+
+            for (Ref ref : git.tagList().call()) {
+                if (baseTagName.equals(ref.getName())) {
+                    tagMap.put("baseTag", ref.getObjectId());
                 }
-                // 确保比对分支在本地可见
-                if(repository.exactRef(compareBranchName) == null) {
-                    git.branchCreate().setName(compareBranch).setStartPoint("origin/" + compareBranch).call();
+                if (compareTagName.equals(ref.getName())) {
+                    tagMap.put("compareTag", ref.getObjectId());
                 }
+            }
 
-                // diff结构树
-                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, baseBranchName);
-                AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareBranchName);
+            if (tagMap.size() != 2) {
+                return Collections.emptyList();
+            }
 
-                // 对比.java后缀的文件
-                List<DiffEntry> diffList = git.diff()
+            try (RevWalk walk = new RevWalk(repository)) {
+
+                RevCommit baseTagCommit = walk.parseCommit(tagMap.get("baseTag"));
+                RevCommit compareTagCommit = walk.parseCommit(tagMap.get("compareTag"));
+
+                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, baseTagCommit);
+                AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareTagCommit);
+
+                return git.diff()
                         .setOldTree(oldTreeParser)
                         .setNewTree(newTreeParser)
                         .setPathFilter(PathSuffixFilter.create(".java"))
                         .call();
+            }
+        }
+    }
 
-                try (DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
+    private static List<DiffEntry> getDiffAndCreateBranchPoint(Repository repository,
+                                                               String baseBranch,
+                                                               String compareBranch) throws IOException, GitAPIException {
 
-                    // 设置比较器 忽略全部空白字符
-                    formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
-                    formatter.setRepository(repository);
+        String baseBranchName = "refs/heads/" + baseBranch;
+        String compareBranchName = "refs/heads/" + compareBranch;
 
-                    // 每一个diffEntry都是版本之间文件的变动差异
-                    for (DiffEntry diff : diffList) {
+        try (Git git = new Git(repository)) {
 
-                        formatter.format(diff);
+            if(repository.exactRef(baseBranchName) == null) {
+                git.branchCreate().setName(baseBranch).setStartPoint("origin/" + baseBranch).call();
+            }
 
-                        // 只针对新增、修改文件
-                        if (diff.getChangeType() == DiffEntry.ChangeType.ADD || diff.getChangeType() == DiffEntry.ChangeType.MODIFY) {
+            if(repository.exactRef(compareBranchName) == null) {
+                git.branchCreate().setName(compareBranch).setStartPoint("origin/" + compareBranch).call();
+            }
 
-                            // 远程分支中的差异类路径
-                            String newPath = diff.getNewPath();
-                            // 存放差异行信息
-                            List<Integer> lines = new ArrayList<>();
+            AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, baseBranchName);
+            AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareBranchName);
 
-                            branchDiffMap.put(newPath, lines);
+            return git.diff()
+                    .setOldTree(oldTreeParser)
+                    .setNewTree(newTreeParser)
+                    .setPathFilter(PathSuffixFilter.create(".java"))
+                    .call();
+        }
+    }
 
-                            System.out.println("newpath  ： " + newPath);
+    private static Map<String, List<Integer>> getDiffMap(Repository repository,
+                                                         List<DiffEntry> diffEntryList) throws IOException {
 
-                            //获取文件差异位置
-                            for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
-                                for (Edit edit : hunk.toEditList()) {
+        Map<String, List<Integer>> branchDiffMap = new HashMap<>(16);
 
-                                    System.out.println("edit  ： " + edit.getType() + "   EndA " + edit.getEndA() + "   EndB " + edit.getEndB());
-                                    // 状态只有为替换或新增时才去记录 (增量)
-                                    if (edit.getType() == Edit.Type.INSERT || edit.getType() == Edit.Type.REPLACE) {
+        try (DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
 
-                                        if (edit.getEndA() != 0) {
-                                            // 记录远程分支中的每个差异代码块的结束行, 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
-                                            lines.add(edit.getEndB());
-                                            System.out.println("====================================edit.getEndB() " + edit.getEndB());
-                                        }
-                                    }
+            formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
+            formatter.setRepository(repository);
+
+            for (DiffEntry diff : diffEntryList) {
+
+                formatter.format(diff);
+
+                DiffEntry.ChangeType changeType = diff.getChangeType();
+
+                if (changeType == DiffEntry.ChangeType.ADD
+                        || changeType == DiffEntry.ChangeType.MODIFY
+                        || changeType == DiffEntry.ChangeType.DELETE) {
+
+                    // 远程分支中的差异类路径
+                    String newPath = diff.getNewPath();
+                    // 存放差异行信息
+                    List<Integer> lines = new ArrayList<>();
+
+                    branchDiffMap.put(newPath, lines);
+
+                    System.out.println("newpath  ： " + newPath);
+
+                    for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
+                        for (Edit edit : hunk.toEditList()) {
+
+                            System.out.println("edit  ： " + edit.getType() + "   EndA " + edit.getEndA() + "   EndB " + edit.getEndB());
+
+                            Edit.Type type = edit.getType();
+
+                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE || type == Edit.Type.DELETE) {
+
+                                // 当endA == 0 的时候， 说明当前类型为新增类。 在匹配差异方法时添加全部方法
+                                if (edit.getEndA() != 0) {
+                                    // 记录远程分支中的每个差异代码块的结束行, 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
+                                    lines.add(edit.getEndB());
+                                    System.out.println("====================================edit.getEndB() " + edit.getEndB());
                                 }
                             }
                         }
@@ -187,101 +254,7 @@ public final class JGitHelper {
         }
     }
 
-
-    /**
-     * tag比对
-     *
-     * @param remoteTag1 tag1
-     * @param remoteTag2 tag2
-     * @throws IOException
-     * @throws GitAPIException
-     */
-    public Map<String, List<Integer>> diffTag(String projectPath, String remoteTag1, String remoteTag2) throws IOException, GitAPIException {
-
-        Map<String, List<Integer>> insertMap = new HashMap<>(16);
-
-        try (Repository repository = JGitHelper.openRepository(projectPath)) {
-            try (Git git = new Git(repository)) {
-
-                remoteTag1 = "refs/tags/" + remoteTag1;
-                remoteTag2 = "refs/tags/" + remoteTag2;
-
-                List<ObjectId> ids = new ArrayList<>();
-
-                for (Ref ref : git.tagList().call()) {
-                    if (remoteTag1.equals(ref.getName())) {
-                        ids.add(0, ref.getObjectId());
-                    }
-                    if (remoteTag2.equals(ref.getName())) {
-                        ids.add(1, ref.getObjectId());
-                    }
-                }
-
-                if (ids.size() != 2) {
-                    return new HashMap<>(0);
-                }
-
-                try (RevWalk walk = new RevWalk(repository)) {
-                    RevCommit commit1 = walk.parseCommit(ids.get(0));
-                    RevCommit commit2 = walk.parseCommit(ids.get(1));
-
-                    // diff结构树
-                    AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, commit1);
-                    AbstractTreeIterator newTreeParser = prepareTreeParser(repository, commit2);
-
-                    // 对比.java后缀的文件
-                    List<DiffEntry> diffList = git.diff()
-                            .setOldTree(oldTreeParser)
-                            .setNewTree(newTreeParser)
-                            .setPathFilter(PathSuffixFilter.create(".java"))
-                            .call();
-
-                    try (DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
-
-                        // 设置比较器 忽略全部空白字符
-                        formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
-                        formatter.setRepository(repository);
-
-                        // 每一个diffEntry都是第个文件版本之间的变动差异
-                        for (DiffEntry diff : diffList) {
-
-                            //打印文件差异具体内容
-                            formatter.format(diff);
-
-                            // 只针对新增、修改文件
-                            if (diff.getChangeType() == DiffEntry.ChangeType.ADD || diff.getChangeType() == DiffEntry.ChangeType.MODIFY) {
-
-                                // 远程分支中的差异类路径
-                                String newPath = diff.getNewPath();
-                                // 存放差异行信息
-                                List<Integer> lines = new ArrayList<>();
-
-                                insertMap.put(newPath, lines);
-
-                                //获取文件差异位置
-                                for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
-                                    for (Edit edit : hunk.toEditList()) {
-                                        // 状态只有为替换或新增时才去记录 (增量)
-                                        if (edit.getType() == Edit.Type.INSERT || edit.getType() == Edit.Type.REPLACE) {
-                                            if (edit.getEndA() != 0) {
-                                                // 记录远程分支中的每个差异代码块的结束行, 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
-                                                lines.add(edit.getEndB());
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    walk.dispose();
-                }
-            }
-        }
-        return insertMap;
-    }
-
-
-    private AbstractTreeIterator prepareTreeParser(Repository repository, RevCommit objectId) throws IOException {
+    private static AbstractTreeIterator prepareTreeParser(Repository repository, RevCommit objectId) throws IOException {
         // from the commit we can build the tree which allows us to construct the TreeParser
         //noinspection Duplicates
         try (RevWalk walk = new RevWalk(repository)) {
@@ -316,13 +289,6 @@ public final class JGitHelper {
                 throw new IOException("创建git存储库多级目录失败");
             }
         }
-    }
-
-    /**
-     * 删除存储库
-     */
-    public static void deleteDirectory(String repositoryPath) throws IOException {
-        FileUtils.deleteDirectory(new File(repositoryPath));
     }
 
 }

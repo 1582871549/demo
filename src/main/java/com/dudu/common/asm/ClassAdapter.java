@@ -73,12 +73,8 @@ public class ClassAdapter extends ClassVisitor implements Opcodes {
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 
-        MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 
-        if (!isInterface && mv != null && !"<init>".equals(name) && !"<clinit>".equals(name)) {
-            mv = new MethodAdapter(mv, owner, access, name, desc, signature, exceptions);
-        }
-        return mv;
+        return super.visitMethod(access, name, desc, signature, exceptions);
     }
 
 
