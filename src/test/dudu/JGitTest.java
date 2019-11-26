@@ -87,7 +87,7 @@ public class JGitTest {
         Integer projectId = 1;
         String projectName = "test";
         String baseBranch = "v1.0";
-        String compareBranch = "3.0";
+        String compareBranch = "v3.0";
         String serverAddress = "127.0.0.1";
         Integer serverPort = 4399;
 

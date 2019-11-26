@@ -47,54 +47,30 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
     @Override
     public void callCoverageService(ProjectDO projectDO) {
 
-        CoverageBO coverageBO = createCoverageBO(projectDO);
+        CoverageBO coverageBO = preMethod(projectDO);
 
-        jGitManager.cloneRepository(coverageBO);
+        Map<String, List<Integer>> branchDiffMap = comparisonBranch(coverageBO);
 
-        Map<String, List<Integer>> branchDiffMap = jGitManager.comparisonBranch(coverageBO);
-
-        Map<String, Map<String, String>> matchMethod = adapterManager.matchMethod(branchDiffMap, coverageBO.getProjectPath());
-
-        System.out.println("=========================");
-        for (Map.Entry<String, Map<String, String>> classEntry : matchMethod.entrySet()) {
-            for (Map.Entry<String, String> methodEntry : classEntry.getValue().entrySet()) {
-                System.out.println(classEntry.getKey() + " : " + methodEntry.getKey());
-            }
-        }
-        System.out.println("=========================");
-
-        coverageManager.calculationChangeCoverage();
-
-        // 保存覆盖率数据
-
+        postMethod(branchDiffMap, coverageBO);
     }
 
     @Override
     public void callCoverageServiceTag(ProjectDO projectDO) {
 
+        CoverageBO coverageBO = preMethod(projectDO);
+
+        Map<String, List<Integer>> tagDiffMap = comparisonTag(coverageBO);
+
+        postMethod(tagDiffMap, coverageBO);
+    }
+
+    private CoverageBO preMethod(ProjectDO projectDO) {
+
         CoverageBO coverageBO = createCoverageBO(projectDO);
 
         jGitManager.cloneRepository(coverageBO);
 
-        Map<String, List<Integer>> tagDiffMap = jGitManager.comparisonTag(coverageBO);
-
-        jGitManager.checkoutLocalBranch(coverageBO);
-
-        Map<String, Map<String, String>> matchMethod = adapterManager.matchMethod(tagDiffMap, coverageBO.getProjectPath());
-
-        System.out.println("=========================");
-        for (Map.Entry<String, Map<String, String>> classEntry : matchMethod.entrySet()) {
-            for (Map.Entry<String, String> methodEntry : classEntry.getValue().entrySet()) {
-                System.out.println(classEntry.getKey() + " : " + methodEntry.getKey());
-            }
-        }
-
-        System.out.println("=========================");
-
-        coverageManager.calculationChangeCoverage();
-
-        // 保存覆盖率数据
-
+        return coverageBO;
     }
 
     private CoverageBO createCoverageBO(ProjectDO projectDO) {
@@ -148,6 +124,38 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
         return projectPath + File.separatorChar
                 + directory + File.separatorChar
                 + defaultName;
+    }
+
+    private Map<String,List<Integer>> comparisonBranch(CoverageBO coverageBO) {
+        return jGitManager.comparisonBranch(coverageBO);
+    }
+
+    private Map<String,List<Integer>> comparisonTag(CoverageBO coverageBO) {
+
+        Map<String, List<Integer>> tagDiffMap = jGitManager.comparisonTag(coverageBO);
+
+        jGitManager.checkoutLocalBranch(coverageBO);
+
+        return tagDiffMap;
+    }
+
+    private void postMethod(Map<String, List<Integer>> tagDiffMap, CoverageBO coverageBO) {
+
+        Map<String, Map<String, String>> matchMethod = adapterManager.matchMethod(tagDiffMap, coverageBO.getProjectPath());
+
+        System.out.println("=========================");
+
+        for (Map.Entry<String, Map<String, String>> classEntry : matchMethod.entrySet()) {
+            for (Map.Entry<String, String> methodEntry : classEntry.getValue().entrySet()) {
+                System.out.println(classEntry.getKey() + " : " + methodEntry.getKey());
+            }
+        }
+
+        System.out.println("=========================");
+
+        coverageManager.calculationChangeCoverage();
+
+        // 保存覆盖率数据
     }
 
 }

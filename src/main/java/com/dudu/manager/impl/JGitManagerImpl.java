@@ -43,7 +43,7 @@ public class JGitManagerImpl implements JGitManager {
         try {
             return JGitHelper.compareTagDiff(jGitBO);
         } catch (IOException | GitAPIException e) {
-            throw new BusinessException("branch comparison failed", e);
+            throw new BusinessException("tag comparison failed", e);
         }
     }
 
@@ -52,7 +52,7 @@ public class JGitManagerImpl implements JGitManager {
         try {
             JGitHelper.checkoutLocalBranch(jGitBO);
         } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+            throw new BusinessException("checkout Local branch failed", e);
         }
     }
 }
