@@ -11,6 +11,8 @@ import com.dudu.entity.bo.CoverageBO;
  */
 public interface ResourceManager {
 
-    void prepareCoverageResource(CoverageBO coverageBO);
+    void compileCode(String projectPath);
+
+    void pullExecFileFromServer(String dumpPath, String address, int port);
 
 }

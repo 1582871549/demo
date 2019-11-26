@@ -3,20 +3,13 @@ package com.dudu.service.impl;
 import com.dudu.common.configuration.bean.ExecProperties;
 import com.dudu.common.configuration.bean.GitProperties;
 import com.dudu.entity.bo.CoverageBO;
-import com.dudu.common.git.JGitHelper;
 import com.dudu.entity.bean.ProjectDO;
-import com.dudu.entity.bean.CopyDemo;
-import com.dudu.manager.AdapterManager;
-import com.dudu.manager.ComparatorManager;
-import com.dudu.manager.CoverageManager;
-import com.dudu.manager.ResourceManager;
+import com.dudu.manager.*;
 import com.dudu.service.CoverageSchedulerService;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +25,7 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
     private ExecProperties execProperties;
 
     private ResourceManager resourceManager;
-    private ComparatorManager comparatorManager;
+    private JGitManager jGitManager;
     private AdapterManager adapterManager;
     private CoverageManager coverageManager;
 
@@ -40,13 +33,13 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
     public CoverageSchedulerServiceImpl(GitProperties gitProperties,
                                         ExecProperties execProperties,
                                         ResourceManager resourceManager,
-                                        ComparatorManager comparatorManager,
+                                        JGitManager jGitManager,
                                         AdapterManager adapterManager,
                                         CoverageManager coverageManager) {
         this.gitProperties = gitProperties;
         this.execProperties = execProperties;
         this.resourceManager = resourceManager;
-        this.comparatorManager = comparatorManager;
+        this.jGitManager = jGitManager;
         this.adapterManager = adapterManager;
         this.coverageManager = coverageManager;
     }
@@ -56,11 +49,9 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
 
         CoverageBO coverageBO = createCoverageBO(projectDO);
 
-        resourceManager.prepareCoverageResource(coverageBO);
+        jGitManager.cloneRepository(coverageBO);
 
-        Map<String, List<Integer>> branchDiffMap = comparatorManager.comparisonBranch(coverageBO);
-
-        checkoutBranch(coverageBO);
+        Map<String, List<Integer>> branchDiffMap = jGitManager.comparisonBranch(coverageBO);
 
         Map<String, Map<String, String>> matchMethod = adapterManager.matchMethod(branchDiffMap, coverageBO.getProjectPath());
 
@@ -78,15 +69,32 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
 
     }
 
-    private void checkoutBranch(CoverageBO coverageBO) {
+    @Override
+    public void callCoverageServiceTag(ProjectDO projectDO) {
 
-        String projectPath = coverageBO.getProjectPath();
-        String compareBranch = coverageBO.getCompareBranch();
-        try {
-            JGitHelper.checkoutLocalBranch(projectPath, compareBranch);
-        } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
+        CoverageBO coverageBO = createCoverageBO(projectDO);
+
+        jGitManager.cloneRepository(coverageBO);
+
+        Map<String, List<Integer>> tagDiffMap = jGitManager.comparisonTag(coverageBO);
+
+        jGitManager.checkoutLocalBranch(coverageBO);
+
+        Map<String, Map<String, String>> matchMethod = adapterManager.matchMethod(tagDiffMap, coverageBO.getProjectPath());
+
+        System.out.println("=========================");
+        for (Map.Entry<String, Map<String, String>> classEntry : matchMethod.entrySet()) {
+            for (Map.Entry<String, String> methodEntry : classEntry.getValue().entrySet()) {
+                System.out.println(classEntry.getKey() + " : " + methodEntry.getKey());
+            }
         }
+
+        System.out.println("=========================");
+
+        coverageManager.calculationChangeCoverage();
+
+        // 保存覆盖率数据
+
     }
 
     private CoverageBO createCoverageBO(ProjectDO projectDO) {
@@ -94,24 +102,31 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
         String url = projectDO.getUrl();
         String username = gitProperties.getUsername();
         String password = gitProperties.getPassword();
-        String baseBranch = projectDO.getBaseBranch();
-        String compareBranch = projectDO.getCompareBranch();
+        String defaultBranch = gitProperties.getDefaultBranch();
+        String projectPath = getProjectPath(projectDO);
+
+        String base = projectDO.getBase();
+        String compare = projectDO.getCompare();
         String serverAddress = projectDO.getServerAddress();
         Integer serverPort = projectDO.getServerPort();
-        String projectPath = getProjectPath(projectDO);
         String dumpPath = getDumpPath(projectPath);
 
-        return CoverageBO.builder()
+        CoverageBO.CoverageBOBuilder builder = CoverageBO.builder()
                 .url(url)
                 .username(username)
                 .password(password)
-                .baseBranch(baseBranch)
-                .compareBranch(compareBranch)
+                .defaultBranch(defaultBranch)
+                .projectPath(projectPath)
+                .base(base)
+                .compare(compare)
                 .serverAddress(serverAddress)
                 .serverPort(serverPort)
-                .projectPath(projectPath)
-                .dumpPath(dumpPath)
-                .build();
+                .dumpPath(dumpPath);
+
+        if (projectDO.isBranch()) {
+            builder.defaultBranch(compare);
+        }
+        return builder.build();
     }
 
     private String getProjectPath(ProjectDO projectDO) {

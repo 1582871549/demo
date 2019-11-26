@@ -16,9 +16,11 @@ public class ProjectDO {
     private String projectName;
 
     private String url;
-    private String baseBranch;
-    private String compareBranch;
+    private String base;
+    private String compare;
 
     private String serverAddress;
     private Integer serverPort;
+
+    private boolean branch;
 }

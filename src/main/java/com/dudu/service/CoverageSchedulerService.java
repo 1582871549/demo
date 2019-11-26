@@ -12,4 +12,6 @@ import com.dudu.entity.bean.ProjectDO;
 public interface CoverageSchedulerService {
 
     void callCoverageService(ProjectDO projectDO);
+
+    void callCoverageServiceTag(ProjectDO projectDO);
 }

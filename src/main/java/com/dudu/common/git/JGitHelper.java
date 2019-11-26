@@ -1,5 +1,7 @@
 package com.dudu.common.git;
 
+import com.dudu.common.exception.BusinessException;
+import com.dudu.entity.base.JGitBO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -48,11 +50,14 @@ public final class JGitHelper {
                 .build();
     }
 
-    public static void cloneRepository(String url,
-                                       String username,
-                                       String password,
-                                       String compareBranch,
-                                       String projectPath) throws IOException, GitAPIException {
+    public static void cloneRepository(JGitBO jGitBO) throws IOException, GitAPIException {
+
+        String url = jGitBO.getUrl();
+        String username = jGitBO.getUsername();
+        String password = jGitBO.getPassword();
+        String defaultBranch = jGitBO.getDefaultBranch();
+        String projectPath = jGitBO.getProjectPath();
+
 
         File projectDir = new File(projectPath);
 
@@ -63,56 +68,64 @@ public final class JGitHelper {
             FileUtils.deleteDirectory(projectDir);
         }
 
-        JGitHelper.mkdirsDirectory(projectDir);
+        mkdirsDirectory(projectDir);
 
         try (Git ignored = Git.cloneRepository()
                 .setURI(url)
-                .setBranch(compareBranch)
+                .setBranch(defaultBranch)
                 .setDirectory(projectDir)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
                 .call()) {
 
-            log.info("Cloning from " + url + " to " + projectPath + ", branch : " + compareBranch);
+            log.info("Cloning from " + url + " to " + projectPath + ", branch : " + defaultBranch);
         }
     }
 
-    public static void checkoutLocalBranch(String projectPath, String branchName) throws IOException, GitAPIException {
+    public static void checkoutLocalBranch(JGitBO jGitBO) throws IOException, GitAPIException {
+
+        String projectPath = jGitBO.getProjectPath();
+        String compare = jGitBO.getCompare();
+
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
             try (Git git = new Git(repository)) {
                 git.checkout()
-                        .setName("refs/heads/" + branchName)
+                        .setName("refs/heads/" + compare)
                         .call();
             }
         }
     }
 
-    public static Map<String, List<Integer>> compareBranchDiff(String projectPath,
-                                                               String baseBranch,
-                                                               String compareBranch) throws IOException, GitAPIException {
+    public static Map<String, List<Integer>> compareBranchDiff(JGitBO jGitBO) throws IOException, GitAPIException {
+
+        String projectPath = jGitBO.getProjectPath();
+        String base = jGitBO.getBase();
+        String compare = jGitBO.getCompare();
 
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
 
-            List<DiffEntry> diffEntryList = getDiffAndCreateBranchPoint(repository, baseBranch, compareBranch);
+            List<DiffEntry> diffEntryList = getDiffAndCreateBranchPoint(repository, base, compare);
 
             return getDiffMap(repository, diffEntryList);
         }
     }
 
-    public static Map<String, List<Integer>> compareTagDiff(String projectPath,
-                                                     String baseTag,
-                                                     String compareTag) throws IOException, GitAPIException {
+    public static Map<String, List<Integer>> compareTagDiff(JGitBO jGitBO) throws IOException, GitAPIException {
+
+        String projectPath = jGitBO.getProjectPath();
+        String base = jGitBO.getBase();
+        String compare = jGitBO.getCompare();
 
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
 
-            List<DiffEntry> diffEntryList = getDiffAndCreateTagPoint(repository, baseTag, compareTag);
+            List<DiffEntry> diffEntryList = getDiffAndCreateTagPoint(repository, base, compare);
 
             return getDiffMap(repository, diffEntryList);
         }
     }
 
     private static List<DiffEntry> getDiffAndCreateTagPoint(Repository repository,
-                                                     String baseTag,
-                                                     String compareTag) throws GitAPIException, IOException {
+                                                            String baseTag,
+                                                            String compareTag) throws GitAPIException, IOException {
 
         String baseTagName = "refs/tags/" + baseTag;
         String compareTagName = "refs/tags/" + compareTag;
@@ -122,6 +135,11 @@ public final class JGitHelper {
         try (Git git = new Git(repository)) {
 
             for (Ref ref : git.tagList().call()) {
+
+                System.out.println("--------------");
+                System.out.println(ref.getName());
+                System.out.println("--------------");
+
                 if (baseTagName.equals(ref.getName())) {
                     tagMap.put("baseTag", ref.getObjectId());
                 }
@@ -131,13 +149,18 @@ public final class JGitHelper {
             }
 
             if (tagMap.size() != 2) {
-                return Collections.emptyList();
+                System.out.println("baseTag : " + baseTag + ",  compareTag : " + compareTag + ", tagMap : " +tagMap);
+                throw new BusinessException("tagMap.size() != 2");
             }
 
             try (RevWalk walk = new RevWalk(repository)) {
 
                 RevCommit baseTagCommit = walk.parseCommit(tagMap.get("baseTag"));
                 RevCommit compareTagCommit = walk.parseCommit(tagMap.get("compareTag"));
+
+                git.branchCreate().setName(compareTag).setStartPoint(compareTagCommit).call();
+
+                System.out.println(compareTag + "================================");
 
                 AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, baseTagCommit);
                 AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareTagCommit);
@@ -195,42 +218,59 @@ public final class JGitHelper {
 
                 DiffEntry.ChangeType changeType = diff.getChangeType();
 
-                if (changeType == DiffEntry.ChangeType.ADD
-                        || changeType == DiffEntry.ChangeType.MODIFY
-                        || changeType == DiffEntry.ChangeType.DELETE) {
+                if (changeType == DiffEntry.ChangeType.ADD || changeType == DiffEntry.ChangeType.MODIFY) {
 
-                    // 远程分支中的差异类路径
-                    String newPath = diff.getNewPath();
-                    // 存放差异行信息
+                    System.out.println("[diff] : " + diff.toString());
+
                     List<Integer> lines = new ArrayList<>();
-
-                    branchDiffMap.put(newPath, lines);
-
-                    System.out.println("newpath  ： " + newPath);
 
                     for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
                         for (Edit edit : hunk.toEditList()) {
 
-                            System.out.println("edit  ： " + edit.getType() + "   EndA " + edit.getEndA() + "   EndB " + edit.getEndB());
+                            System.out.println("[edit] : " + edit.toString());
 
                             Edit.Type type = edit.getType();
 
-                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE || type == Edit.Type.DELETE) {
+                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE) {
 
-                                // 当endA == 0 的时候， 说明当前类型为新增类。 在匹配差异方法时添加全部方法
+                                // 当endA == 0 的时候. 说明在基础版本中该类不存在, 属于新增类 在匹配差异方法时添加全部方法
                                 if (edit.getEndA() != 0) {
                                     // 记录远程分支中的每个差异代码块的结束行, 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
                                     lines.add(edit.getEndB());
                                     System.out.println("====================================edit.getEndB() " + edit.getEndB());
                                 }
                             }
+
+                            if (type == Edit.Type.DELETE) {
+
+                                lines.add(edit.getEndB());
+                                System.out.println("^^^^^^^^^^^^^^^^^^^^edit.getEndA() " + edit.getEndB());
+                            }
                         }
                     }
+                    String newPath = diff.getNewPath();
+                    branchDiffMap.put(newPath, lines);
                 }
             }
         }
         return branchDiffMap;
     }
+
+    /*
+
+    newpath  ： src/main/java/com/dudu/common/asm/ClassAdapter.java
+    edit  ： DELETE   EndA 76   EndB 75
+
+    newpath  ： /dev/null
+    edit  ： DELETE   EndA 62   EndB 0
+
+    newpath  ： src/main/java/com/dudu/manager/impl/ComparatorManagerImpl.java
+    edit  ： DELETE   EndA 39   EndB 35
+
+    newpath  ： /dev/null
+    edit  ： DELETE   EndA 19   EndB 0
+
+     */
 
     /**
      * 官方提供的方法, 请勿修改

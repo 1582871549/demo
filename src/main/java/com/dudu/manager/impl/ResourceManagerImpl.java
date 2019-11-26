@@ -2,12 +2,9 @@ package com.dudu.manager.impl;
 
 import com.dudu.common.configuration.bean.MavenProperties;
 import com.dudu.common.exception.BusinessException;
-import com.dudu.entity.bo.CoverageBO;
-import com.dudu.common.git.JGitHelper;
 import com.dudu.manager.ResourceManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.shared.invoker.*;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,33 +33,7 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public void prepareCoverageResource(CoverageBO coverageBO) {
-
-        String projectPath = coverageBO.getProjectPath();
-
-        cloneCode(coverageBO);
-
-        compileCode(projectPath);
-
-        // pullExecFileFromServer(coverageBO);
-    }
-
-    private void cloneCode(CoverageBO coverageBO) {
-
-        String url = coverageBO.getUrl();
-        String username = coverageBO.getUsername();
-        String password = coverageBO.getPassword();
-        String compareBranch = coverageBO.getCompareBranch();
-        String projectPath = coverageBO.getProjectPath();
-
-        try {
-            JGitHelper.cloneRepository(url, username, password, compareBranch, projectPath);
-        } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void compileCode(String projectPath) {
+    public void compileCode(String projectPath) {
         try {
             executeCommand(projectPath);
         } catch (MavenInvocationException e) {
@@ -100,19 +71,16 @@ public class ResourceManagerImpl implements ResourceManager {
         }
     }
 
-    private void pullExecFileFromServer(CoverageBO coverageBO) {
+    @Override
+    public void pullExecFileFromServer(String dumpPath, String address, int port) {
         try {
-            pullExecFile(coverageBO);
+            pullExecFile(dumpPath, address, port);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void pullExecFile(CoverageBO coverageBO) throws IOException {
-
-        String dumpPath = coverageBO.getDumpPath();
-        String address = coverageBO.getServerAddress();
-        Integer port = coverageBO.getServerPort();
+    private void pullExecFile(String dumpPath, String address, int port) throws IOException {
 
         try (Socket socket = new Socket(InetAddress.getByName(address), port)) {
             if (!socket.isConnected()) {

@@ -1,5 +1,6 @@
 import com.dudu.DemoApplication;
 import com.dudu.entity.bean.ProjectDO;
+import com.dudu.entity.bo.CoverageBO;
 import com.dudu.service.CoverageSchedulerService;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -70,12 +71,37 @@ public class JGitTest {
         projectDO.setUrl(url);
         projectDO.setProjectId(projectId);
         projectDO.setProjectName(projectName);
-        projectDO.setBaseBranch(baseBranch);
-        projectDO.setCompareBranch(compareBranch);
+        projectDO.setBase(baseBranch);
+        projectDO.setCompare(compareBranch);
         projectDO.setServerAddress(serverAddress);
         projectDO.setServerPort(serverPort);
+        projectDO.setBranch(true);
 
         coverageSchedulerService.callCoverageService(projectDO);
+    }
+
+    @Test
+    public void cloneRepositoryTest2() {
+
+        String url = "https://github.com/1582871549/demo.git";
+        Integer projectId = 1;
+        String projectName = "test";
+        String baseBranch = "v1.0";
+        String compareBranch = "3.0";
+        String serverAddress = "127.0.0.1";
+        Integer serverPort = 4399;
+
+        ProjectDO projectDO = new ProjectDO();
+        projectDO.setUrl(url);
+        projectDO.setProjectId(projectId);
+        projectDO.setProjectName(projectName);
+        projectDO.setBase(baseBranch);
+        projectDO.setCompare(compareBranch);
+        projectDO.setServerAddress(serverAddress);
+        projectDO.setServerPort(serverPort);
+        projectDO.setBranch(false);
+
+        coverageSchedulerService.callCoverageServiceTag(projectDO);
     }
 
     @Test
@@ -98,7 +124,50 @@ public class JGitTest {
             // System.out.println(ref.getObjectId());
 
         }
+    }
 
+    @Test
+    public void listBranchs() throws GitAPIException {
+
+        System.out.println("Listing remote repository " + REMOTE_URL);
+
+        Collection<Ref> refs = Git.lsRemoteRepository()
+                .setHeads(true)
+                .setRemote(REMOTE_URL)
+                .call();
+
+        for (Ref ref : refs) {
+            System.out.println("Ref: " + ref);
+
+            String refName = ref.getName();
+            String branchName = refName.substring(11, refName.length());
+
+            System.out.println(branchName);
+            System.out.println(ref.getObjectId());
+
+        }
+
+    }
+
+    @Test
+    public void aa(){
+        CoverageBO coverageBO = CoverageBO.builder()
+                .url("url")
+                .username("username")
+                .password("password")
+                .defaultBranch("defaultBranch")
+                .projectPath("projectPath")
+                .base("base")
+                .compare("compare")
+                .serverAddress("serverAddress")
+                .serverPort(1111)
+                .dumpPath("dumpPath")
+                .build();
+
+        String url = coverageBO.getUrl();
+
+
+        System.out.println(coverageBO);
     }
 
     @Test
