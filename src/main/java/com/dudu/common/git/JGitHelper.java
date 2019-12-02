@@ -2,6 +2,7 @@ package com.dudu.common.git;
 
 import com.dudu.common.exception.BusinessException;
 import com.dudu.entity.base.JGitBO;
+import com.dudu.entity.bo.DiffClassBO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -256,6 +257,65 @@ public final class JGitHelper {
         return branchDiffMap;
     }
 
+    public static Map<String, List<DiffClassBO>> compareDiffTest(JGitBO jGitBO) throws IOException, GitAPIException {
+
+        String projectPath = jGitBO.getProjectPath();
+        String base = jGitBO.getBase();
+        String compare = jGitBO.getCompare();
+
+        try (Repository repository = JGitHelper.openRepository(projectPath)) {
+
+            List<DiffEntry> diffEntryList = getDiffAndCreateBranchPoint(repository, base, compare);
+
+            return getDiffClassBO(repository, diffEntryList);
+        }
+    }
+
+    private static Map<String, List<DiffClassBO>> getDiffClassBO(Repository repository,
+                                                                 List<DiffEntry> diffEntryList) throws IOException {
+
+        Map<String, List<DiffClassBO>> diffClassBOMap = new HashMap<>(16);
+
+        try (DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
+
+            formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
+            formatter.setRepository(repository);
+
+            for (DiffEntry diff : diffEntryList) {
+
+                formatter.format(diff);
+                DiffEntry.ChangeType changeType = diff.getChangeType();
+
+                if (changeType == DiffEntry.ChangeType.ADD || changeType == DiffEntry.ChangeType.MODIFY) {
+
+                    String classPath = diff.getNewPath();
+
+                    System.out.println("1 " + classPath);
+
+                    List<DiffClassBO> diffClassBOS = new ArrayList<>(30);
+
+                    for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
+                        for (Edit edit : hunk.toEditList()) {
+
+                            Edit.Type type = edit.getType();
+
+                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE || type == Edit.Type.DELETE) {
+
+                                int beginB = edit.getBeginB();
+                                int endB = edit.getEndB();
+
+                                DiffClassBO diffClassBO = new DiffClassBO(beginB, endB);
+
+                                diffClassBOS.add(diffClassBO);
+                            }
+                        }
+                    }
+                    diffClassBOMap.put(classPath, diffClassBOS);
+                }
+            }
+        }
+        return diffClassBOMap;
+    }
     /*
 
     newpath  ： src/main/java/com/dudu/common/asm/ClassAdapter.java

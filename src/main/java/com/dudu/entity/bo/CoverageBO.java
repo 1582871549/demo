@@ -1,12 +1,3 @@
-/**
- * FileName: JGitBean
- * Author:   大橙子
- * Date:     2019/9/20 15:24
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package com.dudu.entity.bo;
 
 import com.dudu.entity.base.JGitBO;

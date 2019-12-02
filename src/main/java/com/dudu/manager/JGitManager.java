@@ -1,6 +1,7 @@
 package com.dudu.manager;
 
 import com.dudu.entity.base.JGitBO;
+import com.dudu.entity.bo.DiffClassBO;
 
 import java.util.List;
 import java.util.Map;
@@ -21,4 +22,6 @@ public interface JGitManager {
     Map<String, List<Integer>> comparisonTag(JGitBO jGitBO);
 
     void checkoutLocalBranch(JGitBO jGitBO);
+
+    Map<String, List<DiffClassBO>> compareDiffTest(JGitBO jGitBO);
 }

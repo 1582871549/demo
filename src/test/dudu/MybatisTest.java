@@ -27,8 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -166,14 +165,26 @@ public class MybatisTest {
 
         InvocationRequest request = new DefaultInvocationRequest();
         // request.setPomFile(new File("D:\\Soft_Package\\coverage\\demo\\pom.xml"));
-        request.setPomFile(new File("D:\\aaa\\repository\\pom.xml"));
+        request.setPomFile(new File("D:\\aaa\\1\\test\\pom.xml"));
         request.setGoals(Collections.singletonList("install"));
 
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(new File("D:\\Soft_Package\\maven\\apache-maven-3.5.3"));
 
-        invoker.setLogger(new PrintStreamLogger(System.err,  InvokerLogger.ERROR){} );
-        invoker.setOutputHandler(s -> { });
+        File file = new File("D:\\aaa\\mvn.txt");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        invoker.setLogger(new PrintStreamLogger(System.out,  InvokerLogger.ERROR){} );
+        invoker.setOutputHandler(new InvocationOutputHandler() {
+            @Override
+            public void consumeLine(String s) throws IOException {
+                System.out.println(s);
+                // outputStream.write();
+                System.out.println("=================");
+            }
+        });
+
 
 
         try {

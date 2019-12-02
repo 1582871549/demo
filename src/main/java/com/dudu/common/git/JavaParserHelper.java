@@ -9,6 +9,8 @@
  */
 package com.dudu.common.git;
 
+import com.dudu.entity.bo.DiffClassBO;
+import com.dudu.entity.bo.MethodBO;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Range;
@@ -80,6 +82,18 @@ public class JavaParserHelper {
 
             Optional<PackageDeclaration> packageDeclaration = unit.getPackageDeclaration();
 
+            CompilationUnit.Storage storage = unit.getStorage().get();
+
+            String filePath = storage.getPath().toString();
+
+            String substring = filePath.substring(repositoryPath.length() + 1);
+
+            String replace1 = substring.replace("\\", "/");
+
+            System.out.println("=======================");
+            System.out.println(replace1);
+            System.out.println("=======================");
+
             Optional<PackageDeclaration> o = Optional.empty();
 
             // 测试包中的文件无法获取包名, 所以跳过比对
@@ -135,4 +149,68 @@ public class JavaParserHelper {
         }
         return incrementalClass;
     }
+
+
+    public static Map<String, MethodBO> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap,
+                                                        String projectPath) throws FileNotFoundException {
+
+        Map<String, MethodBO> methodBOMap = new HashMap<>(16);
+
+        for (Map.Entry<String, List<DiffClassBO>> entry : diffClassBOMap.entrySet()) {
+
+            String classPath = entry.getKey();
+
+            System.out.println("2 " + classPath);
+
+            File classFile = new File(projectPath, classPath);
+
+            if (!classFile.exists()) {
+                System.out.println("classFile : " + classFile.getPath());
+                continue;
+            }
+
+            JavaParser javaParser = new JavaParser();
+
+            ParseResult<CompilationUnit> parseResult = javaParser.parse(classFile);
+
+            Optional<CompilationUnit> result = parseResult.getResult();
+
+            CompilationUnit unit = result.get();
+
+            Optional<PackageDeclaration> packageDeclaration = unit.getPackageDeclaration();
+
+            Optional<PackageDeclaration> o = Optional.empty();
+
+            // 测试包中的文件无法获取包名, 所以跳过比对
+            if (packageDeclaration == o) {
+                continue;
+            }
+
+            TypeDeclaration<?> type = unit.getType(0);
+
+            List<MethodDeclaration> methodList = type.getMethods();
+
+            for (MethodDeclaration method : methodList) {
+
+                Range range = method.getRange().get();
+                int begin = range.begin.line;
+                int end = range.end.line;
+                String methodName = method.getNameAsString();
+
+                MethodBO methodBO = new MethodBO(begin, end, methodName);
+                methodBOMap.put(classPath, methodBO);
+            }
+        }
+
+        System.out.println("000000000000000000000000000000");
+
+        for (Map.Entry<String, MethodBO> entry : methodBOMap.entrySet()) {
+            System.out.println("3 " + entry.getKey());
+        }
+
+        System.out.println("000000000000000000000000000000");
+
+        return methodBOMap;
+    }
+
 }

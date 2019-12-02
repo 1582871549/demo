@@ -5,7 +5,7 @@ coverage-resource:
     default-branch: master
     repository-path: D:\aaa
   maven:
-    command: install
+    command: compile
     home-path: D:\Soft_Package\maven\apache-maven-3.5.3
   exec:
     default-name: dump.exec

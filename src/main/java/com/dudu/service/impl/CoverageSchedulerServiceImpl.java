@@ -4,12 +4,15 @@ import com.dudu.common.configuration.bean.ExecProperties;
 import com.dudu.common.configuration.bean.GitProperties;
 import com.dudu.entity.bo.CoverageBO;
 import com.dudu.entity.bean.ProjectDO;
+import com.dudu.entity.bo.DiffClassBO;
+import com.dudu.entity.bo.MethodBO;
 import com.dudu.manager.*;
 import com.dudu.service.CoverageSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -156,6 +159,84 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
         coverageManager.calculationChangeCoverage();
 
         // 保存覆盖率数据
+    }
+
+
+    @Override
+    public void callCoverageServiceTest(ProjectDO projectDO) {
+
+        CoverageBO coverageBO = preMethod(projectDO);
+
+        Map<String, List<DiffClassBO>> diffClassBOMap = jGitManager.compareDiffTest(coverageBO);
+
+        postMethodTest(diffClassBOMap, coverageBO);
+    }
+
+    private Map<String, Map<String, String>> postMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, CoverageBO coverageBO) {
+
+        Map<String, MethodBO> methodBOMap = adapterManager.matchMethodTest(diffClassBOMap, coverageBO.getProjectPath());
+
+        Map<String, Map<String, String>> diffClassMap = new HashMap<>(16);
+
+        for (Map.Entry<String, List<DiffClassBO>> diffClassBOEntry : diffClassBOMap.entrySet()) {
+
+            String classPath = diffClassBOEntry.getKey();
+
+            System.out.println("11111111111111111111111");
+            System.out.println("key  " + classPath);
+
+            if (methodBOMap.get(classPath) == null) {
+                continue;
+            }
+
+            MethodBO methodBO = methodBOMap.get(classPath);
+
+            int methodBegin = methodBO.getMethodBegin();
+            int methodEnd = methodBO.getMethodEnd();
+            String methodName = methodBO.getMethodName();
+            Map<String, String> diffMethodMap = new HashMap<>();
+
+            for (DiffClassBO diffClassBO : diffClassBOEntry.getValue()) {
+
+                int diffBegin = diffClassBO.getDiffBegin();
+                int diffEnd = diffClassBO.getDiffEnd();
+
+                /* 1、差异块小于等于方法块
+                 * 2、差异块大于方法块
+                 * 3、差异块只占用方法块的上半部分
+                 * 4、差异块只占用方法块的下半部分
+                 */
+                if (diffBegin >= methodBegin && diffEnd <= methodEnd
+                        || diffBegin < methodBegin && diffEnd > methodEnd
+                        || diffBegin < methodBegin && diffEnd > methodBegin && diffEnd < methodEnd
+                        || diffBegin > methodBegin && diffBegin < methodEnd && diffEnd > methodEnd) {
+
+                    diffMethodMap.put(methodName, null);
+                }
+            }
+            diffClassMap.put(classPath, diffMethodMap);
+        }
+
+        System.out.println("======================");
+        System.out.println("======================");
+
+        for (Map.Entry<String, Map<String, String>> stringMapEntry : diffClassMap.entrySet()) {
+
+            System.out.println("------------------------");
+            System.out.println("class : " + stringMapEntry.getKey());
+
+            for (Map.Entry<String, String> entry : stringMapEntry.getValue().entrySet()) {
+
+                String methodName = entry.getKey();
+                System.out.println("method : " + methodName);
+            }
+            System.out.println("------------------------");
+        }
+
+        System.out.println("======================");
+        System.out.println("======================");
+
+        return diffClassMap;
     }
 
 }

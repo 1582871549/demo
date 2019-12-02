@@ -1,6 +1,7 @@
 import com.dudu.DemoApplication;
 import com.dudu.entity.bean.ProjectDO;
 import com.dudu.entity.bo.CoverageBO;
+import com.dudu.entity.bo.MethodBO;
 import com.dudu.service.CoverageSchedulerService;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -20,10 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 测试驱动开发
@@ -78,6 +76,30 @@ public class JGitTest {
         projectDO.setBranch(true);
 
         coverageSchedulerService.callCoverageService(projectDO);
+    }
+
+    @Test
+    public void cloneRepositoryTest3() {
+
+        String url = "https://github.com/1582871549/demo.git";
+        Integer projectId = 2;
+        String projectName = "demo";
+        String baseBranch = "master";
+        String compareBranch = "dev";
+        String serverAddress = "127.0.0.1";
+        Integer serverPort = 4399;
+
+        ProjectDO projectDO = new ProjectDO();
+        projectDO.setUrl(url);
+        projectDO.setProjectId(projectId);
+        projectDO.setProjectName(projectName);
+        projectDO.setBase(baseBranch);
+        projectDO.setCompare(compareBranch);
+        projectDO.setServerAddress(serverAddress);
+        projectDO.setServerPort(serverPort);
+        projectDO.setBranch(true);
+
+        coverageSchedulerService.callCoverageServiceTest(projectDO);
     }
 
     @Test

@@ -3,7 +3,7 @@ package com.dudu.manager.impl;
 import com.dudu.common.exception.BusinessException;
 import com.dudu.common.git.JGitHelper;
 import com.dudu.entity.base.JGitBO;
-import com.dudu.entity.bo.CoverageBO;
+import com.dudu.entity.bo.DiffClassBO;
 import com.dudu.manager.JGitManager;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Service;
@@ -55,4 +55,14 @@ public class JGitManagerImpl implements JGitManager {
             throw new BusinessException("checkout Local branch failed", e);
         }
     }
+
+    public Map<String, List<DiffClassBO>> compareDiffTest(JGitBO jGitBO) {
+        try {
+            return JGitHelper.compareDiffTest(jGitBO);
+        } catch (IOException | GitAPIException e) {
+            throw new BusinessException("branch comparison failed", e);
+        }
+    }
+
+
 }
