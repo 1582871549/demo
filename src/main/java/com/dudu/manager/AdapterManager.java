@@ -17,6 +17,6 @@ public interface AdapterManager {
 
     Map<String, Map<String, String>> matchMethod(Map<String, List<Integer>> insertMap, String repositoryPath);
 
-    Map<String, MethodBO> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath);
+    Map<String, List<MethodBO>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath);
 
 }

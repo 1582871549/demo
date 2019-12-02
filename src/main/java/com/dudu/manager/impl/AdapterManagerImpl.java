@@ -29,7 +29,7 @@ public class AdapterManagerImpl implements AdapterManager {
     }
 
     @Override
-    public Map<String, MethodBO> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath) {
+    public Map<String, List<MethodBO>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath) {
         try {
             return JavaParserHelper.matchMethodTest(diffClassBOMap, repositoryPath);
         } catch (FileNotFoundException e) {

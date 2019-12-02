@@ -22,10 +22,7 @@ import com.github.javaparser.ast.comments.CommentsCollection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -151,21 +148,18 @@ public class JavaParserHelper {
     }
 
 
-    public static Map<String, MethodBO> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap,
-                                                        String projectPath) throws FileNotFoundException {
+    public static Map<String, List<MethodBO>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap,
+                                                              String projectPath) throws FileNotFoundException {
 
-        Map<String, MethodBO> methodBOMap = new HashMap<>(16);
+        Map<String, List<MethodBO>> methodBOMap = new HashMap<>(16);
 
         for (Map.Entry<String, List<DiffClassBO>> entry : diffClassBOMap.entrySet()) {
 
             String classPath = entry.getKey();
 
-            System.out.println("2 " + classPath);
-
             File classFile = new File(projectPath, classPath);
 
             if (!classFile.exists()) {
-                System.out.println("classFile : " + classFile.getPath());
                 continue;
             }
 
@@ -190,6 +184,8 @@ public class JavaParserHelper {
 
             List<MethodDeclaration> methodList = type.getMethods();
 
+            List<MethodBO> methodBOS = new ArrayList<>();
+
             for (MethodDeclaration method : methodList) {
 
                 Range range = method.getRange().get();
@@ -198,18 +194,11 @@ public class JavaParserHelper {
                 String methodName = method.getNameAsString();
 
                 MethodBO methodBO = new MethodBO(begin, end, methodName);
-                methodBOMap.put(classPath, methodBO);
+
+                methodBOS.add(methodBO);
             }
+            methodBOMap.put(classPath, methodBOS);
         }
-
-        System.out.println("000000000000000000000000000000");
-
-        for (Map.Entry<String, MethodBO> entry : methodBOMap.entrySet()) {
-            System.out.println("3 " + entry.getKey());
-        }
-
-        System.out.println("000000000000000000000000000000");
-
         return methodBOMap;
     }
 

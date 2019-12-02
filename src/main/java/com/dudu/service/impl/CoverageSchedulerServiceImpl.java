@@ -174,7 +174,7 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
 
     private Map<String, Map<String, String>> postMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, CoverageBO coverageBO) {
 
-        Map<String, MethodBO> methodBOMap = adapterManager.matchMethodTest(diffClassBOMap, coverageBO.getProjectPath());
+        Map<String, List<MethodBO>> methodBOMap = adapterManager.matchMethodTest(diffClassBOMap, coverageBO.getProjectPath());
 
         Map<String, Map<String, String>> diffClassMap = new HashMap<>(16);
 
@@ -182,36 +182,34 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
 
             String classPath = diffClassBOEntry.getKey();
 
-            System.out.println("11111111111111111111111");
-            System.out.println("key  " + classPath);
-
             if (methodBOMap.get(classPath) == null) {
                 continue;
             }
 
-            MethodBO methodBO = methodBOMap.get(classPath);
+            List<MethodBO> methodBOS = methodBOMap.get(classPath);
 
-            int methodBegin = methodBO.getMethodBegin();
-            int methodEnd = methodBO.getMethodEnd();
-            String methodName = methodBO.getMethodName();
             Map<String, String> diffMethodMap = new HashMap<>();
 
-            for (DiffClassBO diffClassBO : diffClassBOEntry.getValue()) {
+            for (MethodBO methodBO : methodBOS) {
 
-                int diffBegin = diffClassBO.getDiffBegin();
-                int diffEnd = diffClassBO.getDiffEnd();
+                int methodBegin = methodBO.getMethodBegin();
+                int methodEnd = methodBO.getMethodEnd();
+                String methodName = methodBO.getMethodName();
 
+                for (DiffClassBO diffClassBO : diffClassBOEntry.getValue()) {
+
+                    int diffBegin = diffClassBO.getDiffBegin();
+                    int diffEnd = diffClassBO.getDiffEnd();
                 /* 1、差异块小于等于方法块
                  * 2、差异块大于方法块
                  * 3、差异块只占用方法块的上半部分
                  * 4、差异块只占用方法块的下半部分
-                 */
-                if (diffBegin >= methodBegin && diffEnd <= methodEnd
-                        || diffBegin < methodBegin && diffEnd > methodEnd
                         || diffBegin < methodBegin && diffEnd > methodBegin && diffEnd < methodEnd
-                        || diffBegin > methodBegin && diffBegin < methodEnd && diffEnd > methodEnd) {
-
-                    diffMethodMap.put(methodName, null);
+                        || diffBegin > methodBegin && diffBegin < methodEnd && diffEnd > methodEnd
+                 */
+                    if (diffBegin >= methodBegin && diffEnd <= methodEnd || diffBegin <= methodBegin && diffEnd >= methodEnd) {
+                        diffMethodMap.put(methodName, null);
+                    }
                 }
             }
             diffClassMap.put(classPath, diffMethodMap);

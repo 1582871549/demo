@@ -290,8 +290,6 @@ public final class JGitHelper {
 
                     String classPath = diff.getNewPath();
 
-                    System.out.println("1 " + classPath);
-
                     List<DiffClassBO> diffClassBOS = new ArrayList<>(30);
 
                     for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
