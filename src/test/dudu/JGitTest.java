@@ -84,8 +84,8 @@ public class JGitTest {
         String url = "https://github.com/1582871549/demo.git";
         Integer projectId = 2;
         String projectName = "demo";
-        String baseBranch = "dev";
-        String compareBranch = "test";
+        String baseBranch = "test";
+        String compareBranch = "dev";
         String serverAddress = "127.0.0.1";
         Integer serverPort = 4399;
 

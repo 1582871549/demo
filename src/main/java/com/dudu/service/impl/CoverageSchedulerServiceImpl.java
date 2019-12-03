@@ -207,7 +207,10 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
                         || diffBegin < methodBegin && diffEnd > methodBegin && diffEnd < methodEnd
                         || diffBegin > methodBegin && diffBegin < methodEnd && diffEnd > methodEnd
                  */
-                    if (diffBegin >= methodBegin && diffEnd <= methodEnd || diffBegin <= methodBegin && diffEnd >= methodEnd) {
+                    if (diffBegin >= methodBegin && diffEnd <= methodEnd
+                            || diffBegin <= methodBegin && diffEnd >= methodEnd
+                            || diffBegin < methodBegin && diffEnd >= methodBegin
+                            || diffBegin < methodEnd && diffEnd >= methodEnd) {
                         diffMethodMap.put(methodName, null);
                     }
                 }
