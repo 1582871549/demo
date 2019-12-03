@@ -297,14 +297,34 @@ public final class JGitHelper {
 
                             Edit.Type type = edit.getType();
 
-                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE || type == Edit.Type.DELETE) {
+                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE) {
 
                                 int beginB = edit.getBeginB();
                                 int endB = edit.getEndB();
+                                // 实际差异开始行
+                                int realBeginB = beginB + 1;
 
-                                DiffClassBO diffClassBO = new DiffClassBO(beginB, endB);
+                                DiffClassBO diffClassBO = new DiffClassBO(realBeginB, endB);
 
                                 diffClassBOS.add(diffClassBO);
+                            }
+
+                            if (type == Edit.Type.DELETE) {
+
+                                int beginB = edit.getBeginB();
+                                int endB = edit.getEndB();
+                                // 实际差异开始行
+                                int realBeginB = beginB + 1;
+
+                                if (beginB == endB) {
+
+                                    DiffClassBO diffClassBO = new DiffClassBO(realBeginB, realBeginB);
+                                    diffClassBOS.add(diffClassBO);
+                                } else {
+
+                                    DiffClassBO diffClassBO = new DiffClassBO(realBeginB, endB);
+                                    diffClassBOS.add(diffClassBO);
+                                }
                             }
                         }
                     }
