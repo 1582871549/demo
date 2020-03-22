@@ -7,7 +7,7 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.dudu.service;
+package com.dudu.service.db;
 
 import com.dudu.entity.dto.UserDTO;
 

@@ -171,21 +171,23 @@ public class MybatisTest {
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(new File("D:\\Soft_Package\\maven\\apache-maven-3.5.3"));
 
+
         File file = new File("D:\\aaa\\mvn.txt");
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (PrintStream printStream = new PrintStream(new FileOutputStream(file))) {
 
-        invoker.setLogger(new PrintStreamLogger(System.out,  InvokerLogger.ERROR){} );
-        invoker.setOutputHandler(new InvocationOutputHandler() {
-            @Override
-            public void consumeLine(String s) throws IOException {
-                System.out.println(s);
-                // outputStream.write();
-                System.out.println("=================");
-            }
-        });
+            invoker.setLogger(new PrintStreamLogger(System.out,  InvokerLogger.ERROR){} );
+            invoker.setOutputHandler(new InvocationOutputHandler() {
+                @Override
+                public void consumeLine(String s) throws IOException {
+                    printStream.append(s);
+                    printStream.flush();
+                }
+            });
 
-
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
         try {
             invoker.execute(request);

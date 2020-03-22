@@ -1,4 +1,4 @@
-package com.dudu.service;
+package com.dudu.service.db;
 
 import java.util.List;
 

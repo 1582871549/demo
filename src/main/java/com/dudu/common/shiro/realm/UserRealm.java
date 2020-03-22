@@ -10,9 +10,9 @@
 package com.dudu.common.shiro.realm;
 
 import com.dudu.entity.dto.UserDTO;
-import com.dudu.service.ResourceService;
-import com.dudu.service.RoleService;
-import com.dudu.service.UserService;
+import com.dudu.service.db.ResourceService;
+import com.dudu.service.db.RoleService;
+import com.dudu.service.db.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

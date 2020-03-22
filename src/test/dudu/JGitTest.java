@@ -1,8 +1,5 @@
 import com.dudu.DemoApplication;
 import com.dudu.entity.bean.ProjectDO;
-import com.dudu.entity.bo.CoverageBO;
-import com.dudu.entity.bo.MethodBO;
-import com.dudu.service.CoverageSchedulerService;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Range;
@@ -16,12 +13,14 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 测试驱动开发
@@ -51,55 +50,28 @@ public class JGitTest {
 
     private static final String REMOTE_URL = "https://github.com/1582871549/demo.git";
 
-    @Autowired
-    private CoverageSchedulerService coverageSchedulerService;
-
-    @Test
-    public void cloneRepositoryTest() {
-
-        String url = "https://github.com/1582871549/demo.git";
-        Integer projectId = 1;
-        String projectName = "test";
-        String baseBranch = "master";
-        String compareBranch = "dev";
-        String serverAddress = "127.0.0.1";
-        Integer serverPort = 4399;
-
-        ProjectDO projectDO = new ProjectDO();
-        projectDO.setUrl(url);
-        projectDO.setProjectId(projectId);
-        projectDO.setProjectName(projectName);
-        projectDO.setBase(baseBranch);
-        projectDO.setCompare(compareBranch);
-        projectDO.setServerAddress(serverAddress);
-        projectDO.setServerPort(serverPort);
-        projectDO.setBranch(true);
-
-        coverageSchedulerService.callCoverageService(projectDO);
-    }
-
     @Test
     public void cloneRepositoryTest3() {
 
         String url = "https://github.com/1582871549/demo.git";
         Integer projectId = 2;
         String projectName = "demo";
-        String baseBranch = "test";
-        String compareBranch = "dev";
+        String baseBranch = "dev";
+        String compareBranch = "test";
         String serverAddress = "127.0.0.1";
         Integer serverPort = 4399;
 
-        ProjectDO projectDO = new ProjectDO();
-        projectDO.setUrl(url);
-        projectDO.setProjectId(projectId);
-        projectDO.setProjectName(projectName);
-        projectDO.setBase(baseBranch);
-        projectDO.setCompare(compareBranch);
-        projectDO.setServerAddress(serverAddress);
-        projectDO.setServerPort(serverPort);
-        projectDO.setBranch(true);
-
-        coverageSchedulerService.callCoverageServiceTest(projectDO);
+        ProjectDO projectDO = new ProjectDO(
+                projectId,
+                projectName,
+                url,
+                baseBranch,
+                compareBranch,
+                serverAddress,
+                serverPort,
+                true
+        );
+        // coverageSchedulerService.callCoverageServiceByBranch(projectDO);
     }
 
     @Test
@@ -113,17 +85,18 @@ public class JGitTest {
         String serverAddress = "127.0.0.1";
         Integer serverPort = 4399;
 
-        ProjectDO projectDO = new ProjectDO();
-        projectDO.setUrl(url);
-        projectDO.setProjectId(projectId);
-        projectDO.setProjectName(projectName);
-        projectDO.setBase(baseBranch);
-        projectDO.setCompare(compareBranch);
-        projectDO.setServerAddress(serverAddress);
-        projectDO.setServerPort(serverPort);
-        projectDO.setBranch(false);
+        ProjectDO projectDO = new ProjectDO(
+                projectId,
+                projectName,
+                url,
+                baseBranch,
+                compareBranch,
+                serverAddress,
+                serverPort,
+                true
+        );
 
-        coverageSchedulerService.callCoverageServiceTag(projectDO);
+        // coverageSchedulerService.callCoverageServiceByTag(projectDO);
     }
 
     @Test
@@ -169,27 +142,6 @@ public class JGitTest {
 
         }
 
-    }
-
-    @Test
-    public void aa(){
-        CoverageBO coverageBO = CoverageBO.builder()
-                .url("url")
-                .username("username")
-                .password("password")
-                .defaultBranch("defaultBranch")
-                .projectPath("projectPath")
-                .base("base")
-                .compare("compare")
-                .serverAddress("serverAddress")
-                .serverPort(1111)
-                .dumpPath("dumpPath")
-                .build();
-
-        String url = coverageBO.getUrl();
-
-
-        System.out.println(coverageBO);
     }
 
     @Test

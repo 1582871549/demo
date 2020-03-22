@@ -3,7 +3,6 @@ package com.dudu.manager.impl;
 import com.dudu.common.exception.BusinessException;
 import com.dudu.common.git.JavaParserHelper;
 import com.dudu.entity.bo.DiffClassBO;
-import com.dudu.entity.bo.MethodBO;
 import com.dudu.manager.AdapterManager;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,7 @@ public class AdapterManagerImpl implements AdapterManager {
     }
 
     @Override
-    public Map<String, List<MethodBO>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath) {
+    public Map<String, Map<String, String>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath) {
         try {
             return JavaParserHelper.matchMethodTest(diffClassBOMap, repositoryPath);
         } catch (FileNotFoundException e) {

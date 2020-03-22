@@ -7,14 +7,14 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.dudu.service.impl;
+package com.dudu.service.db.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dudu.common.exception.BusinessException;
 import com.dudu.dao.UserMapper;
 import com.dudu.entity.dto.UserDTO;
-import com.dudu.service.UserService;
+import com.dudu.service.db.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;

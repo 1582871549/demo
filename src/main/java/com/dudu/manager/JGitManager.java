@@ -17,11 +17,11 @@ public interface JGitManager {
 
     void cloneRepository(JGitBO jGitBO);
 
-    Map<String, List<Integer>> comparisonBranch(JGitBO jGitBO);
+    Map<String, List<DiffClassBO>> comparisonBranch(JGitBO jGitBO);
 
-    Map<String, List<Integer>> comparisonTag(JGitBO jGitBO);
+    Map<String, List<DiffClassBO>> comparisonTag(JGitBO jGitBO);
 
     void checkoutLocalBranch(JGitBO jGitBO);
 
-    Map<String, List<DiffClassBO>> compareDiffTest(JGitBO jGitBO);
+
 }

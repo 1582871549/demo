@@ -96,7 +96,7 @@ public final class JGitHelper {
         }
     }
 
-    public static Map<String, List<Integer>> compareBranchDiff(JGitBO jGitBO) throws IOException, GitAPIException {
+    public static Map<String, List<DiffClassBO>> compareBranchDiff(JGitBO jGitBO) throws IOException, GitAPIException {
 
         String projectPath = jGitBO.getProjectPath();
         String base = jGitBO.getBase();
@@ -106,11 +106,11 @@ public final class JGitHelper {
 
             List<DiffEntry> diffEntryList = getDiffAndCreateBranchPoint(repository, base, compare);
 
-            return getDiffMap(repository, diffEntryList);
+            return getDiffClassBO(repository, diffEntryList);
         }
     }
 
-    public static Map<String, List<Integer>> compareTagDiff(JGitBO jGitBO) throws IOException, GitAPIException {
+    public static Map<String, List<DiffClassBO>> compareTagDiff(JGitBO jGitBO) throws IOException, GitAPIException {
 
         String projectPath = jGitBO.getProjectPath();
         String base = jGitBO.getBase();
@@ -120,7 +120,7 @@ public final class JGitHelper {
 
             List<DiffEntry> diffEntryList = getDiffAndCreateTagPoint(repository, base, compare);
 
-            return getDiffMap(repository, diffEntryList);
+            return getDiffClassBO(repository, diffEntryList);
         }
     }
 
@@ -200,74 +200,6 @@ public final class JGitHelper {
                     .setNewTree(newTreeParser)
                     .setPathFilter(PathSuffixFilter.create(".java"))
                     .call();
-        }
-    }
-
-    private static Map<String, List<Integer>> getDiffMap(Repository repository,
-                                                         List<DiffEntry> diffEntryList) throws IOException {
-
-        Map<String, List<Integer>> branchDiffMap = new HashMap<>(16);
-
-        try (DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
-
-            formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
-            formatter.setRepository(repository);
-
-            for (DiffEntry diff : diffEntryList) {
-
-                formatter.format(diff);
-
-                DiffEntry.ChangeType changeType = diff.getChangeType();
-
-                if (changeType == DiffEntry.ChangeType.ADD || changeType == DiffEntry.ChangeType.MODIFY) {
-
-                    System.out.println("[diff] : " + diff.toString());
-
-                    List<Integer> lines = new ArrayList<>();
-
-                    for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
-                        for (Edit edit : hunk.toEditList()) {
-
-                            System.out.println("[edit] : " + edit.toString());
-
-                            Edit.Type type = edit.getType();
-
-                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE) {
-
-                                // 当endA == 0 的时候. 说明在基础版本中该类不存在, 属于新增类 在匹配差异方法时添加全部方法
-                                if (edit.getEndA() != 0) {
-                                    // 记录远程分支中的每个差异代码块的结束行, 因为开始行等于实际行-1, 为避免误测我们选择以结束行来确定所属方法
-                                    lines.add(edit.getEndB());
-                                    System.out.println("====================================edit.getEndB() " + edit.getEndB());
-                                }
-                            }
-
-                            if (type == Edit.Type.DELETE) {
-
-                                lines.add(edit.getEndB());
-                                System.out.println("^^^^^^^^^^^^^^^^^^^^edit.getEndA() " + edit.getEndB());
-                            }
-                        }
-                    }
-                    String newPath = diff.getNewPath();
-                    branchDiffMap.put(newPath, lines);
-                }
-            }
-        }
-        return branchDiffMap;
-    }
-
-    public static Map<String, List<DiffClassBO>> compareDiffTest(JGitBO jGitBO) throws IOException, GitAPIException {
-
-        String projectPath = jGitBO.getProjectPath();
-        String base = jGitBO.getBase();
-        String compare = jGitBO.getCompare();
-
-        try (Repository repository = JGitHelper.openRepository(projectPath)) {
-
-            List<DiffEntry> diffEntryList = getDiffAndCreateBranchPoint(repository, base, compare);
-
-            return getDiffClassBO(repository, diffEntryList);
         }
     }
 

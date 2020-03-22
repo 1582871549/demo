@@ -1,8 +1,5 @@
 package com.dudu.entity.base;
 
-import lombok.Getter;
-import lombok.ToString;
-
 import java.io.Serializable;
 
 /**
@@ -10,8 +7,6 @@ import java.io.Serializable;
  * @create 2019/11/25
  * @since 1.0.0
  */
-@Getter
-@ToString
 public class JGitBO implements Serializable {
 
     private static final long serialVersionUID = 5467154959546816889L;
@@ -37,5 +32,46 @@ public class JGitBO implements Serializable {
         this.base = base;
         this.compare = compare;
         this.projectPath = projectPath;
+    }
+
+    @Override
+    public String toString() {
+        return "JGitBO{" +
+                "url='" + url + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", defaultBranch='" + defaultBranch + '\'' +
+                ", base='" + base + '\'' +
+                ", compare='" + compare + '\'' +
+                ", projectPath='" + projectPath + '\'' +
+                '}';
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getDefaultBranch() {
+        return defaultBranch;
+    }
+
+    public String getBase() {
+        return base;
+    }
+
+    public String getCompare() {
+        return compare;
+    }
+
+    public String getProjectPath() {
+        return projectPath;
     }
 }

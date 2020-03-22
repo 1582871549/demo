@@ -1,7 +1,6 @@
 package com.dudu.entity.bo;
 
 import com.dudu.entity.base.JGitBO;
-import lombok.*;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -11,115 +10,61 @@ import lombok.*;
  * @create 2019/9/20
  * @since 1.0.0
  */
-@Getter
-@ToString(callSuper = true)
-public class CoverageBO extends JGitBO {
+public class CoverageBO {
 
-    private static final long serialVersionUID = -5961902587615842543L;
-    private final String serverAddress;
-    private final Integer serverPort;
-    private final String dumpPath;
+    private String serverAddress;
+    private Integer serverPort;
+    private String dumpPath;
 
-    private CoverageBO(String url,
-                       String username,
-                       String password,
-                       String defaultBranch,
-                       String base,
-                       String compare,
-                       String projectPath,
-                       String serverAddress,
-                       Integer serverPort,
-                       String dumpPath) {
-        super(url, username, password, defaultBranch, base, compare, projectPath);
+    private JGitBO jGitBO;
+
+    public CoverageBO(String serverAddress, Integer serverPort, String dumpPath, JGitBO jGitBO) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
         this.dumpPath = dumpPath;
+        this.jGitBO = jGitBO;
     }
 
-    public static CoverageBO.CoverageBOBuilder builder() {
-        return new CoverageBO.CoverageBOBuilder();
+    @Override
+    public String toString() {
+        return "CoverageBO{" +
+                "serverAddress='" + serverAddress + '\'' +
+                ", serverPort=" + serverPort +
+                ", dumpPath='" + dumpPath + '\'' +
+                ", jGitBO=" + jGitBO +
+                '}';
     }
 
-    public static class CoverageBOBuilder {
+    public String getServerAddress() {
+        return serverAddress;
+    }
 
-        private String url;
-        private String username;
-        private String password;
-        private String defaultBranch;
-        private String base;
-        private String compare;
-        private String projectPath;
+    public void setServerAddress(String serverAddress) {
+        this.serverAddress = serverAddress;
+    }
 
-        private String serverAddress;
-        private Integer serverPort;
-        private String dumpPath;
+    public Integer getServerPort() {
+        return serverPort;
+    }
 
-        public CoverageBOBuilder() {
-        }
+    public void setServerPort(Integer serverPort) {
+        this.serverPort = serverPort;
+    }
 
-        public CoverageBO.CoverageBOBuilder url(String url) {
-            this.url = url;
-            return this;
-        }
+    public String getDumpPath() {
+        return dumpPath;
+    }
 
-        public CoverageBO.CoverageBOBuilder username(String username) {
-            this.username = username;
-            return this;
-        }
+    public void setDumpPath(String dumpPath) {
+        this.dumpPath = dumpPath;
+    }
 
-        public CoverageBO.CoverageBOBuilder password(String password) {
-            this.password = password;
-            return this;
-        }
+    public JGitBO getjGitBO() {
+        return jGitBO;
+    }
 
-        public CoverageBO.CoverageBOBuilder defaultBranch(String defaultBranch) {
-            this.defaultBranch = defaultBranch;
-            return this;
-        }
-
-        public CoverageBO.CoverageBOBuilder base(String base) {
-            this.base = base;
-            return this;
-        }
-
-        public CoverageBO.CoverageBOBuilder compare(String compare) {
-            this.compare = compare;
-            return this;
-        }
-
-        public CoverageBO.CoverageBOBuilder projectPath(String projectPath) {
-            this.projectPath = projectPath;
-            return this;
-        }
-
-        public CoverageBO.CoverageBOBuilder serverAddress(String serverAddress) {
-            this.serverAddress = serverAddress;
-            return this;
-        }
-
-        public CoverageBO.CoverageBOBuilder serverPort(Integer serverPort) {
-            this.serverPort = serverPort;
-            return this;
-        }
-
-        public CoverageBO.CoverageBOBuilder dumpPath(String dumpPath) {
-            this.dumpPath = dumpPath;
-            return this;
-        }
-
-        public CoverageBO build() {
-            return new CoverageBO(
-                    this.url,
-                    this.username,
-                    this.password,
-                    this.defaultBranch,
-                    this.base,
-                    this.compare,
-                    this.projectPath,
-                    this.serverAddress,
-                    this.serverPort,
-                    this.dumpPath);
-        }
+    public void setjGitBO(JGitBO jGitBO) {
+        this.jGitBO = jGitBO;
     }
 
 }

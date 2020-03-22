@@ -7,9 +7,9 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.dudu.service.impl;
+package com.dudu.service.db.impl;
 
-import com.dudu.service.ResourceService;
+import com.dudu.service.db.ResourceService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

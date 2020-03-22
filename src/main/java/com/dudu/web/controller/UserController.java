@@ -4,7 +4,7 @@ import com.dudu.common.base.BaseController;
 import com.dudu.common.shiro.token.UsernamePasswordPhoneToken;
 import com.dudu.dao.RoleMapper;
 import com.dudu.entity.bean.RolePO;
-import com.dudu.service.UserService;
+import com.dudu.service.db.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;

@@ -25,4 +25,4 @@ spring:
       username: dudu
       password: dudu
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/music?characterEncoding=utf8&useSSL=false&autoReconnect=true&serverTimezone=UTC
+      url: jdbc:mysql://localhost:3306/meng?characterEncoding=utf8&useSSL=false&autoReconnect=true&serverTimezone=UTC

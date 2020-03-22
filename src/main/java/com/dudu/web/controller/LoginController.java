@@ -14,7 +14,7 @@ import com.dudu.common.enums.ReturnCodeEnum;
 import com.dudu.common.shiro.util.ShiroKit;
 import com.dudu.entity.dto.UserDTO;
 import com.dudu.entity.vo.UserVO;
-import com.dudu.service.UserService;
+import com.dudu.service.db.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.session.Session;

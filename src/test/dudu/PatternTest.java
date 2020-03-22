@@ -1,21 +1,9 @@
 import com.dudu.DemoApplication;
-import com.dudu.pattern.bridge.RefinedPhoneStyle;
-import com.dudu.pattern.bridge.brand.HuaweiPhone;
-import com.dudu.pattern.bridge.brand.IPhone;
-import com.dudu.pattern.bridge.style.MaxStyle;
-import com.dudu.pattern.bridge.style.ProStyle;
 import com.dudu.pattern.builder.Computer;
-import com.dudu.pattern.strategy.StationContext;
-import com.dudu.pattern.strategy.impl.Bus;
-import com.dudu.pattern.strategy.impl.SharedBicycle;
-import com.dudu.pattern.strategy.impl.Taxi;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 测试驱动开发
@@ -43,45 +31,6 @@ import java.util.Map;
 @SpringBootTest(classes = DemoApplication.class)
 public class PatternTest {
 
-    /**
-     * 桥接模式
-     */
-    @Test
-    public void bridgePatternIPhoneTest() {
-
-        RefinedPhoneStyle iPhoneMax = new MaxStyle(new IPhone());
-        iPhoneMax.checkPhoneQuality();
-        iPhoneMax.orderPhoneStyle("xs");
-
-        RefinedPhoneStyle huaweiPhonePro = new ProStyle(new HuaweiPhone());
-        huaweiPhonePro.checkPhoneQuality();
-        huaweiPhonePro.orderPhoneStyle("p30");
-
-    }
-
-    /**
-     * 策略模式
-     */
-    @Test
-    public void strategyPatternTest() {
-
-        StationContext stationContext = new StationContext();
-        int distance = 15;
-        int peopleNumber = 2;
-
-        double busAmount = stationContext.goToThePark(new Bus(), distance, peopleNumber);
-        double sharedBicycleAmount = stationContext.goToThePark(new SharedBicycle(), distance, peopleNumber);
-        double taxiAmount = stationContext.goToThePark(new Taxi(), distance, peopleNumber);
-
-        System.out.println(String.format("乘坐公交车到天津之眼的花费为：%f人民币", busAmount));
-        System.out.println(String.format("乘坐共享单车到天津之眼的花费为：%f人民币", sharedBicycleAmount));
-        System.out.println(String.format("乘坐出租车到天津之眼的花费为：%f人民币", taxiAmount));
-
-    }
-
-    /**
-     * 策略模式
-     */
     @Test
     public void buildPatternTest() {
 

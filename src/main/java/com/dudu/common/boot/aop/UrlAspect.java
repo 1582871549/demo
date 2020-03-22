@@ -10,6 +10,7 @@
 package com.dudu.common.boot.aop;
 
 import com.dudu.common.boot.annotation.UrlAction;
+import com.dudu.service.db.impl.RoleServiceImpl;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -43,7 +44,7 @@ public class UrlAspect {
     @Pointcut("@annotation(com.dudu.common.boot.annotation.UrlAction)")
     public void annotationUrl(){};
 
-    @Pointcut("execution(* com.dudu.service.impl.RoleServiceImpl.addUrl2(..))")
+    @Pointcut("execution(* com.dudu.service.db.impl.RoleServiceImpl.addUrl2(..))")
     public void annotationMethod(){};
 
     @After("annotationUrl()")

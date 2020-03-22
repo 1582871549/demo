@@ -7,10 +7,10 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.dudu.service.impl;
+package com.dudu.service.db.impl;
 
 import com.dudu.common.boot.annotation.UrlAction;
-import com.dudu.service.RoleService;
+import com.dudu.service.db.RoleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

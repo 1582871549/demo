@@ -10,7 +10,6 @@
 package com.dudu.common.git;
 
 import com.dudu.entity.bo.DiffClassBO;
-import com.dudu.entity.bo.MethodBO;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Range;
@@ -148,10 +147,12 @@ public class JavaParserHelper {
     }
 
 
-    public static Map<String, List<MethodBO>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap,
-                                                              String projectPath) throws FileNotFoundException {
+    public static Map<String, Map<String, String>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap,
+                                                                   String projectPath) throws FileNotFoundException {
 
-        Map<String, List<MethodBO>> methodBOMap = new HashMap<>(16);
+        Map<String, Map<String, String>> diffClassMap = new HashMap<>(16);
+
+        StringBuilder builder = new StringBuilder();
 
         for (Map.Entry<String, List<DiffClassBO>> entry : diffClassBOMap.entrySet()) {
 
@@ -180,26 +181,53 @@ public class JavaParserHelper {
                 continue;
             }
 
+            String packageName = packageDeclaration.get().getNameAsString();
+
             TypeDeclaration<?> type = unit.getType(0);
+
+            String className = type.getNameAsString();
+
+            List<DiffClassBO> diffClassBOS = entry.getValue();
+
+            if (diffClassBOS == null || diffClassBOS.isEmpty()) {
+                continue;
+            }
 
             List<MethodDeclaration> methodList = type.getMethods();
 
-            List<MethodBO> methodBOS = new ArrayList<>();
+            Map<String, String> diffMethodMap = new HashMap<>();
 
             for (MethodDeclaration method : methodList) {
 
                 Range range = method.getRange().get();
-                int begin = range.begin.line;
-                int end = range.end.line;
+                int methodBegin = range.begin.line;
+                int methodEnd = range.end.line;
                 String methodName = method.getNameAsString();
 
-                MethodBO methodBO = new MethodBO(begin, end, methodName);
+                for (DiffClassBO diffClassBO : diffClassBOS) {
 
-                methodBOS.add(methodBO);
+                    int diffBegin = diffClassBO.getDiffBegin();
+                    int diffEnd = diffClassBO.getDiffEnd();
+
+                    if (diffBegin >= methodBegin && diffEnd <= methodEnd
+                            || diffBegin <= methodBegin && diffEnd >= methodEnd
+                            || diffBegin < methodBegin && diffEnd >= methodBegin
+                            || diffBegin < methodEnd && diffEnd >= methodEnd) {
+                        diffMethodMap.put(methodName, null);
+                    }
+                }
             }
-            methodBOMap.put(classPath, methodBOS);
+
+            String allClassName = builder.append(packageName)
+                    .append(".")
+                    .append(className)
+                    .toString();
+
+            diffClassMap.put(allClassName, diffMethodMap);
+
+            builder.delete(0, builder.length());
         }
-        return methodBOMap;
+        return diffClassMap;
     }
 
 }
