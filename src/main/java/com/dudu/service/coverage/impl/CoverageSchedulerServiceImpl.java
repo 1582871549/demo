@@ -8,11 +8,9 @@ import com.dudu.manager.AdapterManager;
 import com.dudu.manager.CoverageManager;
 import com.dudu.service.coverage.CodeComparisonStrategy;
 import com.dudu.service.coverage.CoverageSchedulerService;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +46,7 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
 
         JGitBO jGitBO = coverageProperty.createJGitBO(projectDO);
 
-        cloneRepository(jGitBO);
+        JGitHelper.createRepository(jGitBO);
 
         Map<String, List<DiffClassBO>> diffMap = comparisonStrategy.comparisonCode(jGitBO);
 
@@ -59,14 +57,6 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
         coverageManager.calculationChangeCoverage();
 
         // 保存覆盖率数据
-    }
-
-    private void cloneRepository(JGitBO jGitBO) {
-        try {
-            JGitHelper.cloneRepository(jGitBO);
-        } catch (IOException | GitAPIException e) {
-            e.printStackTrace();
-        }
     }
 
     private void show(Map<String, Map<String, String>> matchMethod) {

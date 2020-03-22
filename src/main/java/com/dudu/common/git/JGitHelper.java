@@ -1,5 +1,6 @@
 package com.dudu.common.git;
 
+import com.dudu.common.exception.BusinessException;
 import com.dudu.entity.base.JGitBO;
 import com.dudu.entity.bo.DiffClassBO;
 import com.dudu.service.coverage.CodeDiffGetStrategy;
@@ -39,13 +40,47 @@ public final class JGitHelper {
      * 如果目录不存在
      * 不会抛出异常, 也不会输出任何存储库信息
      */
-    private static Repository openRepository(String projectPath) throws IOException {
+    public static Repository openRepository(String projectPath) {
+        try {
+            return openLocalRepository(projectPath);
+        } catch (IOException e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    public static void createRepository(JGitBO jGitBO) {
+        try {
+            cloneRepository(jGitBO);
+        } catch (IOException | GitAPIException e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    public static void checkoutBranch(JGitBO jGitBO) {
+        try {
+            checkoutLocalBranch(jGitBO);
+        } catch (GitAPIException e) {
+            throw new BusinessException("checkout Local branch failed", e);
+        }
+    }
+
+    public static Map<String, List<DiffClassBO>> compareCodeDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) {
+
+        try {
+            return compareDiff(codeDiffGetStrategy, jGitBO);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Repository openLocalRepository(String projectPath) throws IOException {
         return new FileRepositoryBuilder()
                 .setGitDir(new File(projectPath, ".git"))
                 .build();
     }
 
-    public static void cloneRepository(JGitBO jGitBO) throws IOException, GitAPIException {
+    private static void cloneRepository(JGitBO jGitBO) throws IOException, GitAPIException {
 
         String url = jGitBO.getUrl();
         String username = jGitBO.getUsername();
@@ -76,12 +111,12 @@ public final class JGitHelper {
         }
     }
 
-    public static void checkoutLocalBranch(JGitBO jGitBO) throws IOException, GitAPIException {
+    private static void checkoutLocalBranch(JGitBO jGitBO) throws GitAPIException {
 
         String projectPath = jGitBO.getProjectPath();
         String compare = jGitBO.getCompare();
 
-        try (Repository repository = JGitHelper.openRepository(projectPath)) {
+        try (Repository repository = openRepository(projectPath)) {
             try (Git git = new Git(repository)) {
                 git.checkout()
                         .setName("refs/heads/" + compare)
@@ -90,23 +125,13 @@ public final class JGitHelper {
         }
     }
 
-    public static Map<String, List<DiffClassBO>> compareCodeDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) {
-
-        try {
-            return compareDiff(codeDiffGetStrategy, jGitBO);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private static Map<String, List<DiffClassBO>> compareDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) throws IOException{
 
         String projectPath = jGitBO.getProjectPath();
         String base = jGitBO.getBase();
         String compare = jGitBO.getCompare();
 
-        try (Repository repository = JGitHelper.openRepository(projectPath)) {
+        try (Repository repository = openRepository(projectPath)) {
 
             List<DiffEntry> diffEntrys = codeDiffGetStrategy.getCodeDiff(repository, base, compare);
 
@@ -177,11 +202,6 @@ public final class JGitHelper {
         }
         return diffClassBOMap;
     }
-
-
-
-
-
 
     /**
      * 创建多级目录
