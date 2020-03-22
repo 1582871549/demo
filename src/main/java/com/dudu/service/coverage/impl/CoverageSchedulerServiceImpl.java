@@ -50,7 +50,7 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
 
         Map<String, List<DiffClassBO>> diffMap = comparisonStrategy.comparisonCode(jGitBO);
 
-        Map<String, Map<String, String>> matchMethod = adapterManager.matchMethodTest(diffMap, jGitBO.getProjectPath());
+        Map<String, Map<String, String>> matchMethod = adapterManager.matchMethod(diffMap, jGitBO.getProjectPath());
 
         show(matchMethod);
 

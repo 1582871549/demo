@@ -19,18 +19,9 @@ import java.util.Map;
 public class AdapterManagerImpl implements AdapterManager {
 
     @Override
-    public Map<String, Map<String, String>> matchMethod(Map<String, List<Integer>> insertMap, String repositoryPath) {
+    public Map<String, Map<String, String>> matchMethod(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath) {
         try {
-            return JavaParserHelper.matchMethod(insertMap, repositoryPath);
-        } catch (FileNotFoundException e) {
-            throw new BusinessException("match method failed", e);
-        }
-    }
-
-    @Override
-    public Map<String, Map<String, String>> matchMethodTest(Map<String, List<DiffClassBO>> diffClassBOMap, String repositoryPath) {
-        try {
-            return JavaParserHelper.matchMethodTest(diffClassBOMap, repositoryPath);
+            return JavaParserHelper.matchMethod(diffClassBOMap, repositoryPath);
         } catch (FileNotFoundException e) {
             throw new BusinessException("match method failed", e);
         }
