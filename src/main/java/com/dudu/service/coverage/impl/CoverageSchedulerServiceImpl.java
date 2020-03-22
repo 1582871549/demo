@@ -44,7 +44,7 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
     @Override
     public void callCoverageService(CodeComparisonStrategy comparisonStrategy, ProjectDO projectDO) {
 
-        // CoverageBO coverageBO = coveragePropertyService.createCoverageBO(projectDO);
+        // CoverageBO coverageBO = coverageProperty.createCoverageBO(projectDO);
 
         JGitBO jGitBO = coverageProperty.createJGitBO(projectDO);
 
