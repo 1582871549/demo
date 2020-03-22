@@ -5,6 +5,7 @@ import com.dudu.common.git.JGitHelper;
 import com.dudu.entity.base.JGitBO;
 import com.dudu.entity.bo.DiffClassBO;
 import com.dudu.service.coverage.CodeComparisonStrategy;
+import com.dudu.service.coverage.CodeDiffGetStrategy;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
@@ -21,20 +22,11 @@ public class TagCodeComparisonStrategy implements CodeComparisonStrategy {
     @Override
     public Map<String, List<DiffClassBO>> comparisonCode(JGitBO jGitBO) {
 
-        Map<String, List<DiffClassBO>> listMap = comparisonTag(jGitBO);
+        Map<String, List<DiffClassBO>> listMap = JGitHelper.compareCodeDiff(new TagCodeDiffGetStrategy(), jGitBO);
 
         checkoutLocalBranch(jGitBO);
 
         return listMap;
-    }
-
-
-    public Map<String, List<DiffClassBO>> comparisonTag(JGitBO jGitBO) {
-        try {
-            return JGitHelper.compareTagDiff(jGitBO);
-        } catch (IOException | GitAPIException e) {
-            throw new BusinessException("tag comparison failed", e);
-        }
     }
 
     public void checkoutLocalBranch(JGitBO jGitBO) {

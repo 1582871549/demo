@@ -1,8 +1,8 @@
 package com.dudu.common.git;
 
-import com.dudu.common.exception.BusinessException;
 import com.dudu.entity.base.JGitBO;
 import com.dudu.entity.bo.DiffClassBO;
+import com.dudu.service.coverage.CodeDiffGetStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -11,24 +11,18 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.patch.HunkHeader;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -96,7 +90,17 @@ public final class JGitHelper {
         }
     }
 
-    public static Map<String, List<DiffClassBO>> compareBranchDiff(JGitBO jGitBO) throws IOException, GitAPIException {
+    public static Map<String, List<DiffClassBO>> compareCodeDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) {
+
+        try {
+            return compareDiff(codeDiffGetStrategy, jGitBO);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Map<String, List<DiffClassBO>> compareDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) throws IOException{
 
         String projectPath = jGitBO.getProjectPath();
         String base = jGitBO.getBase();
@@ -104,102 +108,9 @@ public final class JGitHelper {
 
         try (Repository repository = JGitHelper.openRepository(projectPath)) {
 
-            List<DiffEntry> diffEntryList = getDiffAndCreateBranchPoint(repository, base, compare);
+            List<DiffEntry> diffEntrys = codeDiffGetStrategy.getCodeDiff(repository, base, compare);
 
-            return getDiffClassBO(repository, diffEntryList);
-        }
-    }
-
-    public static Map<String, List<DiffClassBO>> compareTagDiff(JGitBO jGitBO) throws IOException, GitAPIException {
-
-        String projectPath = jGitBO.getProjectPath();
-        String base = jGitBO.getBase();
-        String compare = jGitBO.getCompare();
-
-        try (Repository repository = JGitHelper.openRepository(projectPath)) {
-
-            List<DiffEntry> diffEntryList = getDiffAndCreateTagPoint(repository, base, compare);
-
-            return getDiffClassBO(repository, diffEntryList);
-        }
-    }
-
-    private static List<DiffEntry> getDiffAndCreateTagPoint(Repository repository,
-                                                            String baseTag,
-                                                            String compareTag) throws GitAPIException, IOException {
-
-        String baseTagName = "refs/tags/" + baseTag;
-        String compareTagName = "refs/tags/" + compareTag;
-
-        Map<String, ObjectId> tagMap = new HashMap<>();
-
-        try (Git git = new Git(repository)) {
-
-            for (Ref ref : git.tagList().call()) {
-
-                System.out.println("--------------");
-                System.out.println(ref.getName());
-                System.out.println("--------------");
-
-                if (baseTagName.equals(ref.getName())) {
-                    tagMap.put("baseTag", ref.getObjectId());
-                }
-                if (compareTagName.equals(ref.getName())) {
-                    tagMap.put("compareTag", ref.getObjectId());
-                }
-            }
-
-            if (tagMap.size() != 2) {
-                System.out.println("baseTag : " + baseTag + ",  compareTag : " + compareTag + ", tagMap : " +tagMap);
-                throw new BusinessException("tagMap.size() != 2");
-            }
-
-            try (RevWalk walk = new RevWalk(repository)) {
-
-                RevCommit baseTagCommit = walk.parseCommit(tagMap.get("baseTag"));
-                RevCommit compareTagCommit = walk.parseCommit(tagMap.get("compareTag"));
-
-                git.branchCreate().setName(compareTag).setStartPoint(compareTagCommit).call();
-
-                System.out.println(compareTag + "================================");
-
-                AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, baseTagCommit);
-                AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareTagCommit);
-
-                return git.diff()
-                        .setOldTree(oldTreeParser)
-                        .setNewTree(newTreeParser)
-                        .setPathFilter(PathSuffixFilter.create(".java"))
-                        .call();
-            }
-        }
-    }
-
-    private static List<DiffEntry> getDiffAndCreateBranchPoint(Repository repository,
-                                                               String baseBranch,
-                                                               String compareBranch) throws IOException, GitAPIException {
-
-        String baseBranchName = "refs/heads/" + baseBranch;
-        String compareBranchName = "refs/heads/" + compareBranch;
-
-        try (Git git = new Git(repository)) {
-
-            if(repository.exactRef(baseBranchName) == null) {
-                git.branchCreate().setName(baseBranch).setStartPoint("origin/" + baseBranch).call();
-            }
-
-            if(repository.exactRef(compareBranchName) == null) {
-                git.branchCreate().setName(compareBranch).setStartPoint("origin/" + compareBranch).call();
-            }
-
-            AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, baseBranchName);
-            AbstractTreeIterator newTreeParser = prepareTreeParser(repository, compareBranchName);
-
-            return git.diff()
-                    .setOldTree(oldTreeParser)
-                    .setNewTree(newTreeParser)
-                    .setPathFilter(PathSuffixFilter.create(".java"))
-                    .call();
+            return getDiffClassBO(repository, diffEntrys);
         }
     }
 
@@ -266,59 +177,10 @@ public final class JGitHelper {
         }
         return diffClassBOMap;
     }
-    /*
 
-    newpath  ： src/main/java/com/dudu/common/asm/ClassAdapter.java
-    edit  ： DELETE   EndA 76   EndB 75
 
-    newpath  ： /dev/null
-    edit  ： DELETE   EndA 62   EndB 0
 
-    newpath  ： src/main/java/com/dudu/manager/impl/ComparatorManagerImpl.java
-    edit  ： DELETE   EndA 39   EndB 35
 
-    newpath  ： /dev/null
-    edit  ： DELETE   EndA 19   EndB 0
-
-     */
-
-    /**
-     * 官方提供的方法, 请勿修改
-     *
-     * @param repository 存储库实例
-     * @param branchName 分支名称
-     * @return 返回git生成的结构树
-     */
-    private static AbstractTreeIterator prepareTreeParser(Repository repository, String branchName) throws IOException {
-        // from the commit we can build the tree which allows us to construct the TreeParser
-        Ref branchRef = repository.exactRef(branchName);
-        try (RevWalk walk = new RevWalk(repository)) {
-            RevCommit commit = walk.parseCommit(branchRef.getObjectId());
-            RevTree tree = walk.parseTree(commit.getTree().getId());
-            CanonicalTreeParser treeParser = new CanonicalTreeParser();
-            try (ObjectReader reader = repository.newObjectReader()) {
-                treeParser.reset(reader, tree.getId());
-            }
-            walk.dispose();
-            return treeParser;
-        }
-    }
-
-    private static AbstractTreeIterator prepareTreeParser(Repository repository, RevCommit objectId) throws IOException {
-        // from the commit we can build the tree which allows us to construct the TreeParser
-        //noinspection Duplicates
-        try (RevWalk walk = new RevWalk(repository)) {
-            RevCommit commit = walk.parseCommit(objectId);
-            RevTree tree = walk.parseTree(commit.getTree().getId());
-
-            CanonicalTreeParser treeParser = new CanonicalTreeParser();
-            try (ObjectReader reader = repository.newObjectReader()) {
-                treeParser.reset(reader, tree.getId());
-            }
-            walk.dispose();
-            return treeParser;
-        }
-    }
 
 
     /**

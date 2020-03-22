@@ -16,9 +16,9 @@ import java.util.Map;
 public interface CodeComparisonStrategy {
 
     /**
-     * 调用覆盖率任务，获取覆盖率报告
      *
      * @param jGitBO 将要执行覆盖率的项目信息
+     * @return
      */
     Map<String, List<DiffClassBO>> comparisonCode(JGitBO jGitBO);
 
