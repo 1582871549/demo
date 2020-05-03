@@ -18,7 +18,7 @@ public class TagCodeComparisonStrategy implements CodeComparisonStrategy {
     @Override
     public Map<String, List<DiffClassBO>> comparisonCode(JGitBO jGitBO) {
 
-        Map<String, List<DiffClassBO>> listMap = JGitHelper.compareCodeDiff(new TagCodeDiffGetStrategy(), jGitBO);
+        Map<String, List<DiffClassBO>> listMap = new TagCompareDiffTemplate().compareDiff(jGitBO);
 
         JGitHelper.checkoutBranch(jGitBO);
 

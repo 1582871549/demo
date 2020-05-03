@@ -1,6 +1,5 @@
 package com.dudu.service.coverage.impl;
 
-import com.dudu.common.git.JGitHelper;
 import com.dudu.entity.base.JGitBO;
 import com.dudu.entity.bo.DiffClassBO;
 import com.dudu.service.coverage.CodeComparisonStrategy;
@@ -17,7 +16,7 @@ public class BranchCodeComparisonStrategy implements CodeComparisonStrategy {
 
     @Override
     public Map<String, List<DiffClassBO>> comparisonCode(JGitBO jGitBO) {
-        return JGitHelper.compareCodeDiff(new BranchCodeDiffGetStrategy(), jGitBO);
+        return new BranchCompareDiffTemplate().compareDiff(jGitBO);
     }
 
 }

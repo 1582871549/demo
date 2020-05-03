@@ -1,7 +1,6 @@
 package com.dudu.service.coverage.impl;
 
 import com.dudu.common.exception.BusinessException;
-import com.dudu.service.coverage.CodeDiffGetStrategy;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -23,13 +22,14 @@ import java.util.Map;
 
 /**
  * @author mengli
- * @create 2020/3/22
+ * @create 2020/5/1
  * @since 1.0.0
  */
-public class TagCodeDiffGetStrategy implements CodeDiffGetStrategy {
+public class TagCompareDiffTemplate extends AbstractCompareDiffTemplate {
+
 
     @Override
-    public List<DiffEntry> getCodeDiff(Repository repository, String base, String compare) {
+    protected List<DiffEntry> getCodeDiff(Repository repository, String base, String compare) {
 
         try {
             return getDiffAndCreateTagPoint(repository, base, compare);
@@ -41,8 +41,8 @@ public class TagCodeDiffGetStrategy implements CodeDiffGetStrategy {
     }
 
     private List<DiffEntry> getDiffAndCreateTagPoint(Repository repository,
-                                                            String baseTag,
-                                                            String compareTag) throws GitAPIException, IOException {
+                                                     String baseTag,
+                                                     String compareTag) throws GitAPIException, IOException {
 
         String baseTagName = "refs/tags/" + baseTag;
         String compareTagName = "refs/tags/" + compareTag;

@@ -1,9 +1,11 @@
 import com.dudu.DemoApplication;
 import com.dudu.entity.bean.ProjectDO;
 import com.dudu.service.coverage.CodeComparisonStrategy;
-import com.dudu.service.coverage.impl.CoverageSchedulerServiceImpl;
 import com.dudu.service.coverage.impl.BranchCodeComparisonStrategy;
+import com.dudu.service.coverage.impl.CoverageFacadeImpl;
 import com.dudu.service.coverage.impl.TagCodeComparisonStrategy;
+import com.dudu.service.coverage.impl.BranchCompareDiffTemplate;
+import com.dudu.service.coverage.impl.TagCompareDiffTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class CoverageTest {
 
     @Autowired
-    CoverageSchedulerServiceImpl context;
+    CoverageFacadeImpl facade;
 
     /**
      * 测试覆盖率, 策略模式
@@ -47,9 +49,34 @@ public class CoverageTest {
 
         ProjectDO projectDO = preMethod();
 
-        CodeComparisonStrategy branchCodeComparisonStrategy = getCoverageStrategy(projectDO.isBranch());
+        CodeComparisonStrategy comparisonStrategy = getCoverageStrategy(projectDO.isBranch());
 
-        context.callCoverageService(branchCodeComparisonStrategy, projectDO);
+        facade.callCoverageService(comparisonStrategy, projectDO);
+    }
+
+
+    /**
+     * 测试覆盖率, 模板模式
+     */
+    @Test
+    public void CoverageStrategyContextTest2() {
+
+
+        BranchCompareDiffTemplate coverageManager = new BranchCompareDiffTemplate();
+
+        coverageManager.compareDiff(null);
+    }
+
+    /**
+     * 测试覆盖率, 模板模式
+     */
+    @Test
+    public void CoverageStrategyContextTest3() {
+
+
+        TagCompareDiffTemplate coverageManager = new TagCompareDiffTemplate();
+
+        coverageManager.compareDiff(null);
     }
 
 
@@ -90,7 +117,6 @@ public class CoverageTest {
         } else {
             return new TagCodeComparisonStrategy();
         }
-
     }
 
 }

@@ -1,6 +1,5 @@
 package com.dudu.service.coverage.impl;
 
-import com.dudu.service.coverage.CodeDiffGetStrategy;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -19,13 +18,14 @@ import java.util.List;
 
 /**
  * @author mengli
- * @create 2020/3/22
+ * @create 2020/5/1
  * @since 1.0.0
  */
-public class BranchCodeDiffGetStrategy implements CodeDiffGetStrategy {
+public class BranchCompareDiffTemplate extends AbstractCompareDiffTemplate {
+
 
     @Override
-    public List<DiffEntry> getCodeDiff(Repository repository, String base, String compare) {
+    protected List<DiffEntry> getCodeDiff(Repository repository, String base, String compare) {
 
         try {
             return getDiffAndCreateBranchPoint(repository, base, compare);
@@ -36,8 +36,8 @@ public class BranchCodeDiffGetStrategy implements CodeDiffGetStrategy {
     }
 
     private List<DiffEntry> getDiffAndCreateBranchPoint(Repository repository,
-                                                               String baseBranch,
-                                                               String compareBranch) throws IOException, GitAPIException {
+                                                        String baseBranch,
+                                                        String compareBranch) throws IOException, GitAPIException {
 
         String baseBranchName = "refs/heads/" + baseBranch;
         String compareBranchName = "refs/heads/" + compareBranch;

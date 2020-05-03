@@ -10,6 +10,7 @@
 package com.dudu.common.file;
 
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dudu.entity.dto.UserDTO;
 
@@ -27,7 +28,9 @@ public class JsonDemo2 {
 
     public static void main(String args[]) throws IOException {
 
-        analysisJsonBean();
+        // analysisJsonBean();
+
+        analysisJsonBean2();
     }
 
     /**
@@ -53,6 +56,27 @@ public class JsonDemo2 {
         System.out.println(userDTO.toString());
     }
 
+    /**
+     * 解析json字符串
+     */
+    public static void analysisJsonBean2() {
 
+        String jsonStr = "[{\"name\":\"张三\",\"password\":\"123456\",\"username\":\"zhangsan\"}]";
+
+        JSONArray array = JSONObject.parseArray(jsonStr);
+
+        int len = array.size();
+
+        for (int i = 0; i < len; i++) {
+            JSONObject jsonObject = array.getJSONObject(i);
+
+            UserDTO userDTO = JSONObject.toJavaObject(jsonObject, UserDTO.class);
+
+            System.out.println("--------------------" + userDTO);
+            System.out.println("--------------------" + jsonObject.getString("name"));
+        }
+
+
+    }
 
 }

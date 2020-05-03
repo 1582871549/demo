@@ -7,7 +7,7 @@ import com.dudu.entity.bo.DiffClassBO;
 import com.dudu.manager.AdapterManager;
 import com.dudu.manager.CoverageManager;
 import com.dudu.service.coverage.CodeComparisonStrategy;
-import com.dudu.service.coverage.CoverageSchedulerService;
+import com.dudu.service.coverage.CoverageFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,14 +20,14 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Service
-public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
+public class CoverageFacadeImpl implements CoverageFacade {
 
     private final AdapterManager adapterManager;
     private final CoverageManager coverageManager;
     private final CoverageProperty coverageProperty;
 
     @Autowired
-    public CoverageSchedulerServiceImpl(AdapterManager adapterManager, CoverageManager coverageManager, CoverageProperty coverageProperty) {
+    public CoverageFacadeImpl(AdapterManager adapterManager, CoverageManager coverageManager, CoverageProperty coverageProperty) {
         this.adapterManager = adapterManager;
         this.coverageManager = coverageManager;
         this.coverageProperty = coverageProperty;

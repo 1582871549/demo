@@ -2,28 +2,16 @@ package com.dudu.common.git;
 
 import com.dudu.common.exception.BusinessException;
 import com.dudu.entity.base.JGitBO;
-import com.dudu.entity.bo.DiffClassBO;
-import com.dudu.service.coverage.CodeDiffGetStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.diff.Edit;
-import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.patch.HunkHeader;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br> 
@@ -48,36 +36,18 @@ public final class JGitHelper {
         }
     }
 
+    private static Repository openLocalRepository(String projectPath) throws IOException {
+        return new FileRepositoryBuilder()
+                .setGitDir(new File(projectPath, ".git"))
+                .build();
+    }
+
     public static void createRepository(JGitBO jGitBO) {
         try {
             cloneRepository(jGitBO);
         } catch (IOException | GitAPIException e) {
             throw new BusinessException(e);
         }
-    }
-
-    public static void checkoutBranch(JGitBO jGitBO) {
-        try {
-            checkoutLocalBranch(jGitBO);
-        } catch (GitAPIException e) {
-            throw new BusinessException("checkout Local branch failed", e);
-        }
-    }
-
-    public static Map<String, List<DiffClassBO>> compareCodeDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) {
-
-        try {
-            return compareDiff(codeDiffGetStrategy, jGitBO);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static Repository openLocalRepository(String projectPath) throws IOException {
-        return new FileRepositoryBuilder()
-                .setGitDir(new File(projectPath, ".git"))
-                .build();
     }
 
     private static void cloneRepository(JGitBO jGitBO) throws IOException, GitAPIException {
@@ -111,6 +81,14 @@ public final class JGitHelper {
         }
     }
 
+    public static void checkoutBranch(JGitBO jGitBO) {
+        try {
+            checkoutLocalBranch(jGitBO);
+        } catch (GitAPIException e) {
+            throw new BusinessException("checkout Local branch failed", e);
+        }
+    }
+
     private static void checkoutLocalBranch(JGitBO jGitBO) throws GitAPIException {
 
         String projectPath = jGitBO.getProjectPath();
@@ -125,83 +103,6 @@ public final class JGitHelper {
         }
     }
 
-    private static Map<String, List<DiffClassBO>> compareDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) throws IOException{
-
-        String projectPath = jGitBO.getProjectPath();
-        String base = jGitBO.getBase();
-        String compare = jGitBO.getCompare();
-
-        try (Repository repository = openRepository(projectPath)) {
-
-            List<DiffEntry> diffEntrys = codeDiffGetStrategy.getCodeDiff(repository, base, compare);
-
-            return getDiffClassBO(repository, diffEntrys);
-        }
-    }
-
-    private static Map<String, List<DiffClassBO>> getDiffClassBO(Repository repository,
-                                                                 List<DiffEntry> diffEntryList) throws IOException {
-
-        Map<String, List<DiffClassBO>> diffClassBOMap = new HashMap<>(16);
-
-        try (DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
-
-            formatter.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
-            formatter.setRepository(repository);
-
-            for (DiffEntry diff : diffEntryList) {
-
-                formatter.format(diff);
-                DiffEntry.ChangeType changeType = diff.getChangeType();
-
-                if (changeType == DiffEntry.ChangeType.ADD || changeType == DiffEntry.ChangeType.MODIFY) {
-
-                    String classPath = diff.getNewPath();
-
-                    List<DiffClassBO> diffClassBOS = new ArrayList<>(30);
-
-                    for (HunkHeader hunk : formatter.toFileHeader(diff).getHunks()) {
-                        for (Edit edit : hunk.toEditList()) {
-
-                            Edit.Type type = edit.getType();
-
-                            if (type == Edit.Type.INSERT || type == Edit.Type.REPLACE) {
-
-                                int beginB = edit.getBeginB();
-                                int endB = edit.getEndB();
-                                // 实际差异开始行
-                                int realBeginB = beginB + 1;
-
-                                DiffClassBO diffClassBO = new DiffClassBO(realBeginB, endB);
-
-                                diffClassBOS.add(diffClassBO);
-                            }
-
-                            if (type == Edit.Type.DELETE) {
-
-                                int beginB = edit.getBeginB();
-                                int endB = edit.getEndB();
-                                // 实际差异开始行
-                                int realBeginB = beginB + 1;
-
-                                if (beginB == endB) {
-
-                                    DiffClassBO diffClassBO = new DiffClassBO(realBeginB, realBeginB);
-                                    diffClassBOS.add(diffClassBO);
-                                } else {
-
-                                    DiffClassBO diffClassBO = new DiffClassBO(realBeginB, endB);
-                                    diffClassBOS.add(diffClassBO);
-                                }
-                            }
-                        }
-                    }
-                    diffClassBOMap.put(classPath, diffClassBOS);
-                }
-            }
-        }
-        return diffClassBOMap;
-    }
 
     /**
      * 创建多级目录

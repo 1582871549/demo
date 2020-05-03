@@ -10,7 +10,7 @@ import com.dudu.entity.bean.ProjectDO;
  * @create 2019/10/24
  * @since 1.0.0
  */
-public interface CoverageSchedulerService {
+public interface CoverageFacade {
 
     /**
      *
