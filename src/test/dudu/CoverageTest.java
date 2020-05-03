@@ -1,9 +1,7 @@
 import com.dudu.DemoApplication;
 import com.dudu.entity.bean.ProjectDO;
 import com.dudu.service.coverage.CodeComparisonStrategy;
-import com.dudu.service.coverage.impl.BranchCodeComparisonStrategy;
-import com.dudu.service.coverage.impl.CoverageFacadeImpl;
-import com.dudu.service.coverage.impl.TagCodeComparisonStrategy;
+import com.dudu.service.coverage.CoverageFacade;
 import com.dudu.service.coverage.impl.BranchCompareDiffTemplate;
 import com.dudu.service.coverage.impl.TagCompareDiffTemplate;
 import org.junit.Test;
@@ -39,7 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class CoverageTest {
 
     @Autowired
-    CoverageFacadeImpl facade;
+    CoverageFacade facade;
 
     /**
      * 测试覆盖率, 策略模式
@@ -49,7 +47,7 @@ public class CoverageTest {
 
         ProjectDO projectDO = preMethod();
 
-        CodeComparisonStrategy comparisonStrategy = getCoverageStrategy(projectDO.isBranch());
+        CodeComparisonStrategy comparisonStrategy = CodeComparisonStrategy.getComparisonStrategy(projectDO.isBranch());
 
         facade.callCoverageService(comparisonStrategy, projectDO);
     }
@@ -102,21 +100,6 @@ public class CoverageTest {
         );
     }
 
-    /**
-     * 创建不同的算法策略
-     *
-     * 简单工厂模式
-     *
-     * @param isBranch 是否测试分支覆盖率项目
-     * @return 算法
-     */
-    public CodeComparisonStrategy getCoverageStrategy(boolean isBranch) {
 
-        if (isBranch) {
-            return new BranchCodeComparisonStrategy();
-        } else {
-            return new TagCodeComparisonStrategy();
-        }
-    }
 
 }

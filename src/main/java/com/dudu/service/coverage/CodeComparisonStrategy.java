@@ -2,6 +2,8 @@ package com.dudu.service.coverage;
 
 import com.dudu.entity.base.JGitBO;
 import com.dudu.entity.bo.DiffClassBO;
+import com.dudu.service.coverage.impl.BranchCodeComparisonStrategy;
+import com.dudu.service.coverage.impl.TagCodeComparisonStrategy;
 
 import java.util.List;
 import java.util.Map;
@@ -22,5 +24,21 @@ public interface CodeComparisonStrategy {
      */
     Map<String, List<DiffClassBO>> comparisonCode(JGitBO jGitBO);
 
+
+    /**
+     * 创建不同的算法策略
+     *
+     * 简单工厂模式
+     *
+     * @param isBranch 是否测试分支覆盖率项目
+     * @return 算法
+     */
+    static CodeComparisonStrategy getComparisonStrategy(boolean isBranch) {
+        if (isBranch) {
+            return new BranchCodeComparisonStrategy();
+        } else {
+            return new TagCodeComparisonStrategy();
+        }
+    }
 
 }
