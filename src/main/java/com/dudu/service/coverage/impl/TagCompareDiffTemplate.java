@@ -1,6 +1,5 @@
 package com.dudu.service.coverage.impl;
 
-import com.dudu.common.exception.BusinessException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -67,7 +66,8 @@ public class TagCompareDiffTemplate extends AbstractCompareDiffTemplate {
 
             if (tagMap.size() != 2) {
                 System.out.println("baseTag : " + baseTag + ",  compareTag : " + compareTag + ", tagMap : " +tagMap);
-                throw new BusinessException("tagMap.size() != 2");
+                // throw new BusinessException("tagMap.size() != 2");
+                throw new RuntimeException();
             }
 
             try (RevWalk walk = new RevWalk(repository)) {

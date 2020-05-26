@@ -15,7 +15,7 @@
  */
 package com.dudu.common.shiro.util;
 
-import com.dudu.entity.other.UserInfo;
+import com.jcraft.jsch.UserInfo;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -76,11 +76,11 @@ public class ShiroKit {
      *
      * @return ShiroUser
      */
-    public static UserInfo getUser() {
+    public static UserInfoBO getUser() {
         if (isGuest()) {
             return null;
         } else {
-            return (UserInfo) getSubject().getPrincipals().getPrimaryPrincipal();
+            return (UserInfoBO) getSubject().getPrincipals().getPrimaryPrincipal();
         }
     }
 

@@ -9,7 +9,7 @@
  */
 package com.dudu.web.controller;
 
-import com.dudu.service.db.RoleService;
+import com.dudu.service.system.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

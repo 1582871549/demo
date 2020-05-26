@@ -9,8 +9,8 @@
  */
 package com.dudu.common.shiro.realm;
 
-import com.dudu.entity.dto.UserDTO;
-import com.dudu.service.db.PhoneService;
+import com.dudu.service.system.entity.UserDTO;
+import com.dudu.service.system.PhoneService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;

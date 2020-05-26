@@ -10,7 +10,6 @@
 package com.dudu.common.boot.aop;
 
 import com.dudu.common.boot.annotation.UrlAction;
-import com.dudu.service.db.impl.RoleServiceImpl;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;

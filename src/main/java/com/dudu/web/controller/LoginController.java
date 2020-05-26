@@ -9,14 +9,16 @@
  */
 package com.dudu.web.controller;
 
-import com.dudu.common.base.BaseController;
-import com.dudu.common.enums.ReturnCodeEnum;
 import com.dudu.common.shiro.util.ShiroKit;
-import com.dudu.entity.dto.UserDTO;
-import com.dudu.entity.vo.UserVO;
-import com.dudu.service.db.UserService;
+import com.dudu.service.system.entity.UserDTO;
+import com.dudu.service.system.UserService;
+import com.dudu.web.entity.vo.UserVO;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.LockedAccountException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -43,7 +45,7 @@ import javax.servlet.http.HttpSession;
  * @since 1.0.0
  */
 @Controller
-public class LoginController extends BaseController {
+public class LoginController {
 
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
@@ -71,7 +73,7 @@ public class LoginController extends BaseController {
 
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(userVO, userDTO);
-        success(ReturnCodeEnum.BASE_SUCCESS.getCode(), "");
+        // success(ReturnCodeEnum.BASE_SUCCESS.getCode(), "");
         userService.login(userDTO);
         return "login";
     }

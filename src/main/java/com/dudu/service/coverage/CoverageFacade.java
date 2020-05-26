@@ -1,7 +1,7 @@
 package com.dudu.service.coverage;
 
 
-import com.dudu.entity.bean.ProjectDO;
+import com.dudu.manager.system.repository.entity.ProjectDO;
 
 /**
  * 覆盖率调度服务

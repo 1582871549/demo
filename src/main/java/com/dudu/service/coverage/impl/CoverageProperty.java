@@ -2,9 +2,9 @@ package com.dudu.service.coverage.impl;
 
 import com.dudu.common.configuration.bean.ExecProperties;
 import com.dudu.common.configuration.bean.GitProperties;
-import com.dudu.entity.base.JGitBO;
-import com.dudu.entity.bean.ProjectDO;
-import com.dudu.entity.bo.CoverageBO;
+import com.dudu.manager.coverage.git.bo.JGitBO;
+import com.dudu.manager.system.repository.entity.ProjectDO;
+import com.dudu.manager.coverage.git.bo.CoverageBO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 

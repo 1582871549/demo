@@ -1,9 +1,7 @@
 import com.dudu.DemoApplication;
-import com.dudu.entity.bean.ProjectDO;
+import com.dudu.manager.system.repository.entity.ProjectDO;
 import com.dudu.service.coverage.CodeComparisonStrategy;
 import com.dudu.service.coverage.CoverageFacade;
-import com.dudu.service.coverage.impl.BranchCompareDiffTemplate;
-import com.dudu.service.coverage.impl.TagCompareDiffTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,31 +48,6 @@ public class CoverageTest {
         CodeComparisonStrategy comparisonStrategy = CodeComparisonStrategy.getComparisonStrategy(projectDO.isBranch());
 
         facade.callCoverageService(comparisonStrategy, projectDO);
-    }
-
-
-    /**
-     * 测试覆盖率, 模板模式
-     */
-    @Test
-    public void CoverageStrategyContextTest2() {
-
-
-        BranchCompareDiffTemplate coverageManager = new BranchCompareDiffTemplate();
-
-        coverageManager.compareDiff(null);
-    }
-
-    /**
-     * 测试覆盖率, 模板模式
-     */
-    @Test
-    public void CoverageStrategyContextTest3() {
-
-
-        TagCompareDiffTemplate coverageManager = new TagCompareDiffTemplate();
-
-        coverageManager.compareDiff(null);
     }
 
 

@@ -1,8 +1,8 @@
 package com.dudu.service.coverage.impl;
 
-import com.dudu.common.git.JGitHelper;
-import com.dudu.entity.base.JGitBO;
-import com.dudu.entity.bo.DiffClassBO;
+import com.dudu.manager.coverage.git.JGitHelper;
+import com.dudu.manager.coverage.git.bo.JGitBO;
+import com.dudu.manager.coverage.git.bo.DiffClassBO;
 import com.dudu.service.coverage.CodeComparisonStrategy;
 
 import java.util.List;

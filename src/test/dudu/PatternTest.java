@@ -1,5 +1,5 @@
 import com.dudu.DemoApplication;
-import com.dudu.pattern.builder.Computer;
+import com.dudu.common.other.pattern.builder.Computer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
