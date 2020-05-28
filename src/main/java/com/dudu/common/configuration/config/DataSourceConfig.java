@@ -30,7 +30,7 @@ import javax.sql.DataSource;
  * @since 1.0.0
  */
 @Configuration
-@MapperScan(basePackages = {"com.dudu.dao"})
+@MapperScan(basePackages = {"com.dudu.manager.system.repository.mapper"})
 @EnableTransactionManagement
 public class DataSourceConfig {
 

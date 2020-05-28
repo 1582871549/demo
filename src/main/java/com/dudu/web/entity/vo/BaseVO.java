@@ -11,6 +11,7 @@ package com.dudu.web.entity.vo;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -22,6 +23,7 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
+@ToString
 public abstract class BaseVO implements Serializable {
 
     private static final long serialVersionUID = 5400231419912515438L;
@@ -33,9 +35,9 @@ public abstract class BaseVO implements Serializable {
     /**
      * 修改时间
      */
-    private String updateTime;
+    private String modifiedTime;
     /**
-     * 是否锁定(0:false 1:true)
+     * 是否可用 (0:false 1:true)
      */
-    private Boolean locked;
+    private Boolean available;
 }

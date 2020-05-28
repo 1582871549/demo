@@ -1,7 +1,7 @@
 package com.dudu.web.controller;
 
 import com.dudu.common.shiro.token.UsernamePasswordPhoneToken;
-import com.dudu.manager.system.repository.entity.RolePO;
+import com.dudu.manager.system.repository.entity.RoleDO;
 import com.dudu.manager.system.repository.mapper.RoleMapper;
 import com.dudu.service.system.UserService;
 import org.apache.shiro.SecurityUtils;
@@ -53,14 +53,14 @@ public class UserController {
     @RequestMapping("/list")
     public String count(@RequestParam String name) {
 
-        List<RolePO> roleList = roleMapper.selectList(null);
+        List<RoleDO> roleList = roleMapper.selectList(null);
 
         StringBuffer sb = new StringBuffer();
 
         System.out.println("-----------------------------------");
-        for (RolePO rolePO : roleList) {
-            System.out.println(rolePO);
-            sb.append(rolePO);
+        for (RoleDO roleDO : roleList) {
+            System.out.println(roleDO);
+            sb.append(roleDO);
             sb.append("----");
         }
         System.out.println("-----------------------------------");

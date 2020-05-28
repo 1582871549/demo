@@ -1,7 +1,7 @@
 import com.dudu.DemoApplication;
 import com.dudu.manager.system.repository.entity.ProjectDO;
-import com.dudu.service.coverage.CodeComparisonStrategy;
-import com.dudu.service.coverage.CoverageFacade;
+import com.dudu.manager.git.service.GetDiffCodeBlockStrategy;
+import com.dudu.service.coverage.CoverageService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class CoverageTest {
 
     @Autowired
-    CoverageFacade facade;
+    CoverageService coverageService;
 
     /**
      * 测试覆盖率, 策略模式
@@ -45,9 +45,9 @@ public class CoverageTest {
 
         ProjectDO projectDO = preMethod();
 
-        CodeComparisonStrategy comparisonStrategy = CodeComparisonStrategy.getComparisonStrategy(projectDO.isBranch());
+        GetDiffCodeBlockStrategy comparisonStrategy = GetDiffCodeBlockStrategy.createStrategy(projectDO.isBranch());
 
-        facade.callCoverageService(comparisonStrategy, projectDO);
+        coverageService.callCoverageTask(comparisonStrategy, projectDO);
     }
 
 

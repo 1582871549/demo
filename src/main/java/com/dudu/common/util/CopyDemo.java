@@ -9,7 +9,7 @@
  */
 package com.dudu.common.util;
 
-import com.dudu.manager.system.repository.entity.RolePO;
+import com.dudu.manager.system.repository.entity.RoleDO;
 import com.dudu.manager.system.repository.entity.UserPO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -34,7 +34,7 @@ public class CopyDemo {
         UserPO user = new UserPO();
         user.setUpdateTime(DateUtil.getDateTimeStr());
 
-        RolePO role = new RolePO();
+        RoleDO role = new RoleDO();
         role.setCreateTime(DateUtil.getDateTimeStr());
 
         System.out.println("user   :   " + user);

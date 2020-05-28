@@ -43,7 +43,7 @@ public class UrlAspect {
     @Pointcut("@annotation(com.dudu.common.boot.annotation.UrlAction)")
     public void annotationUrl(){};
 
-    @Pointcut("execution(* com.dudu.service.db.impl.RoleServiceImpl.addUrl2(..))")
+    @Pointcut("execution(* com.dudu.service.system.impl.RoleServiceImpl.addUrl2(..))")
     public void annotationMethod(){};
 
     @After("annotationUrl()")

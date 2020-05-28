@@ -13,23 +13,27 @@ import com.dudu.DemoApplication;
 import com.dudu.common.configuration.bean.ExecProperties;
 import com.dudu.common.configuration.bean.GitProperties;
 import com.dudu.common.configuration.bean.MavenProperties;
+import com.dudu.common.util.CopyDemo;
 import com.dudu.common.util.DateUtil;
+import com.dudu.manager.system.repository.entity.RoleDO;
 import com.dudu.manager.system.repository.mapper.RoleMapper;
-import com.dudu.manager.system.repository.entity.RolePO;
-import com.dudu.web.entity.vo.UserVO;
+import com.dudu.web.entity.vo.RoleVO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.shared.invoker.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  *  测试驱动开发
@@ -76,23 +80,23 @@ public class MybatisTest {
     @Test
     public void listRolesTest() {
 
-        List<RolePO> roleList = roleMapper.selectList(null);
+        List<RoleDO> roleList = roleMapper.selectList(null);
 
-        for (RolePO rolePO : roleList) {
-            System.out.println(rolePO);
+        for (RoleDO roleDO : roleList) {
+            System.out.println(roleDO);
         }
 
         System.out.println();
         System.out.println();
 
-        QueryWrapper<RolePO> wrapper = new QueryWrapper<>();
+        QueryWrapper<RoleDO> wrapper = new QueryWrapper<>();
         wrapper.eq("role_name", "测试");
 
-        RolePO rolePO = roleMapper.selectOne(wrapper);
+        RoleDO roleDO = roleMapper.selectOne(wrapper);
 
-        assert rolePO != null : "role is null";
+        assert roleDO != null : "role is null";
 
-        System.out.println(rolePO);
+        System.out.println(roleDO);
     }
 
     @Test
@@ -100,30 +104,16 @@ public class MybatisTest {
 
         String timeStr = DateUtil.getDateTimeStr();
 
-        RolePO rolePO = new RolePO();
-        rolePO.setRoleId("123");
-        rolePO.setLocked(false);
-        rolePO.setCreateTime(timeStr);
-        rolePO.setModifiedTime(timeStr);
-        rolePO.setRoleName("444");
-        rolePO.setComment("描述");
+        RoleDO roleDO = new RoleDO();
+        roleDO.setRoleId(6L);
+        roleDO.setAvailable(false);
+        roleDO.setCreateTime(timeStr);
+        roleDO.setModifiedTime(timeStr);
+        roleDO.setRoleName("444");
+        roleDO.setDescription("描述");
 
-        int insert = roleMapper.insert(rolePO);
+        int insert = roleMapper.insert(roleDO);
         System.out.println(insert);
-    }
-
-
-    @Test
-    public void file(){
-
-        RolePO rolePO = new RolePO();
-        rolePO.setRoleId("2222");
-        rolePO.setComment("2222");
-        rolePO.setRoleName("2222");
-        rolePO.setLocked(true);
-        int insert = roleMapper.insert(rolePO);
-        System.out.println(insert);
-
     }
 
     @Test
@@ -136,77 +126,8 @@ public class MybatisTest {
 
         StringUtils.isBlank("");
 
-
-
     }
 
-    @Test
-    public void aaa(){
-
-
-
-        File file = new File("D:\\aaa", "ccc");
-
-        String path = file.getPath();
-
-        if (file.exists()) {
-            if (!file.delete()) {
-                System.out.println("删除失败");
-            }
-            System.out.println("删除成功");
-        }
-
-        System.out.println("path " + path);
-
-    }
-
-    @Test
-    public void maven(){
-
-        InvocationRequest request = new DefaultInvocationRequest();
-        // request.setPomFile(new File("D:\\Soft_Package\\coverage\\demo\\pom.xml"));
-        request.setPomFile(new File("D:\\aaa\\1\\test\\pom.xml"));
-        request.setGoals(Collections.singletonList("install"));
-
-        Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File("D:\\Soft_Package\\maven\\apache-maven-3.5.3"));
-
-
-        File file = new File("D:\\aaa\\mvn.txt");
-
-        try (PrintStream printStream = new PrintStream(new FileOutputStream(file))) {
-
-            invoker.setLogger(new PrintStreamLogger(System.out,  InvokerLogger.ERROR){} );
-            invoker.setOutputHandler(new InvocationOutputHandler() {
-                @Override
-                public void consumeLine(String s) throws IOException {
-                    printStream.append(s);
-                    printStream.flush();
-                }
-            });
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            invoker.execute(request);
-        } catch (MavenInvocationException e) {
-            e.printStackTrace();
-        }
-
-
-        try{
-            if (invoker.execute(request).getExitCode() == 0) {
-                System.out.println("success");
-            } else {
-                System.err.println("error");
-            }
-        } catch (MavenInvocationException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     @Test
     public void number() {
@@ -221,37 +142,7 @@ public class MybatisTest {
 
     }
 
-    @Test
-    public void testBean() {
 
-        UserVO userVO = new UserVO()
-                .setName("aaa")
-                .setPhone("123456")
-                .setSex("男")
-                .setUsername("qwe");
-
-        UserVO user = new UserVO();
-        user.setName("aaa");
-        user.setSex("男");
-        user.setPhone("123456");
-        user.setUsername("qwe");
-
-
-        UserVO user1 = user.setName("aaa");
-
-        UserVO user2 = user1.setPhone("123456");
-
-        UserVO user3 = user2.setSex("男");
-
-        int i=12;
-        System.out.println(i+=i-=i*=i);
-
-        System.out.println(user);
-        System.out.println(user1);
-        System.out.println(user2);
-        System.out.println(user3);
-
-    }
 
     public void convert(List<String> methods) {
 
@@ -277,6 +168,30 @@ public class MybatisTest {
         }
     }
 
+    @Test
+    public void VOConvertDTOStreamTest() {
 
+        List<RoleDO> roleDOList = roleMapper.selectList(null);
+
+        roleDOList.forEach(System.out::println);
+
+        System.out.println("=================================");
+
+        List<RoleVO> roleVOList = roleDOList.stream().map(roleDO -> {
+
+            RoleVO roleVO = new RoleVO();
+
+            CopyDemo.copyPropertiesIgnoreNull(roleDO, roleVO);
+
+            System.out.println(roleVO);
+
+            return roleVO;
+
+        }).collect(Collectors.toList());
+
+        System.out.println("-------------------------------");
+
+        roleVOList.forEach(System.out::println);
+    }
 
 }
