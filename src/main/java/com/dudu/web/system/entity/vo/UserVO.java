@@ -1,39 +1,31 @@
-package com.dudu.web.entity.vo;
+package com.dudu.web.system.entity.vo;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
+@Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = true)
-@Getter
-@Setter
-@ToString(callSuper = true)
-public class UserVO extends BaseVO {
+public class UserVO implements Serializable {
 
     private static final long serialVersionUID = -6923768443982647649L;
     /**
      * 主键
      */
-    private String userId;
+    private Long userId;
     /**
      * 用户名
      */
     private String username;
     /**
-     * 密码
-     */
-    private String password;
-    /**
-     * 盐
-     */
-    private String salt;
-    /**
      * 姓名
      */
     private String name;
+    /**
+     * 性别
+     */
+    private String sex;
     /**
      * 手机号
      */
@@ -43,11 +35,19 @@ public class UserVO extends BaseVO {
      */
     private String photo;
     /**
-     * 性别(0:女 1:男 2:不详)
+     * 创建时间
      */
-    private String sex;
+    private String createTime;
+    /**
+     * 修改时间
+     */
+    private String modifiedTime;
     /**
      * 最后登陆时间
      */
     private String lastTime;
+    /**
+     * 是否锁定
+     */
+    private Boolean locked;
 }

@@ -1,7 +1,5 @@
 package com.dudu.service.system;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dudu.service.system.entity.UserDTO;
 
 import java.util.List;
@@ -41,14 +39,6 @@ public interface UserService {
      * @return user
      */
     UserDTO getUserByUsername(String username);
-
-    /**
-     * 根据 entity 条件，查询全部记录（并翻页）
-     *
-     * @param page         分页查询条件（可以为 RowBounds.DEFAULT）
-     * @param queryWrapper 实体对象封装操作类（可以为 null）
-     */
-    IPage<UserDTO> listUserByPage(IPage<UserDTO> page, Wrapper<UserDTO> queryWrapper);
 
     /**
      * 修改用户

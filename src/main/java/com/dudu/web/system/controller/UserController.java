@@ -1,4 +1,4 @@
-package com.dudu.web.controller;
+package com.dudu.web.system.controller;
 
 import com.dudu.common.shiro.token.UsernamePasswordPhoneToken;
 import com.dudu.manager.system.repository.entity.RoleDO;
@@ -53,7 +53,7 @@ public class UserController {
     @RequestMapping("/list")
     public String count(@RequestParam String name) {
 
-        List<RoleDO> roleList = roleMapper.selectList(null);
+        List<RoleDO> roleList = roleMapper.listRole();
 
         StringBuffer sb = new StringBuffer();
 

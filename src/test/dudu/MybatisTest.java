@@ -1,23 +1,11 @@
-/**
- * FileName: Test
- * Author:   大橙子
- * Date:     2019/4/4 9:39
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dudu.DemoApplication;
 import com.dudu.common.configuration.bean.ExecProperties;
 import com.dudu.common.configuration.bean.GitProperties;
 import com.dudu.common.configuration.bean.MavenProperties;
 import com.dudu.common.util.CopyDemo;
-import com.dudu.common.util.DateUtil;
 import com.dudu.manager.system.repository.entity.RoleDO;
-import com.dudu.manager.system.repository.mapper.RoleMapper;
-import com.dudu.web.entity.vo.RoleVO;
+import com.dudu.manager.system.service.RoleManager;
+import com.dudu.web.system.entity.vo.RoleVO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
@@ -57,12 +46,13 @@ import java.util.stream.Collectors;
  *      可读、可维护、单元测试
  *      不要重复、单一职责、表达力
  */
+@ActiveProfiles("dev")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DemoApplication.class)
 public class MybatisTest {
 
     @Autowired
-    private RoleMapper roleMapper;
+    private RoleManager roleManager;
     @Autowired
     private GitProperties gitProperties;
     @Autowired
@@ -71,7 +61,7 @@ public class MybatisTest {
     private ExecProperties execProperties;
 
     @Test
-    public void aa() {
+    public void showPropertiesTest() {
         System.out.println(gitProperties.toString());
         System.out.println(mavenProperties.toString());
         System.out.println(execProperties.toString());
@@ -80,21 +70,19 @@ public class MybatisTest {
     @Test
     public void listRolesTest() {
 
-        List<RoleDO> roleList = roleMapper.selectList(null);
+        List<RoleDO> roleList = roleManager.listRole();
 
-        for (RoleDO roleDO : roleList) {
-            System.out.println(roleDO);
-        }
+        roleList.forEach(roleDO ->  System.out.println(roleDO));
 
-        System.out.println();
-        System.out.println();
+    }
 
-        QueryWrapper<RoleDO> wrapper = new QueryWrapper<>();
-        wrapper.eq("role_name", "测试");
+    /**
+     * 获取单个角色信息
+     */
+    @Test
+    public void getRoleTest() {
 
-        RoleDO roleDO = roleMapper.selectOne(wrapper);
-
-        assert roleDO != null : "role is null";
+        RoleDO roleDO = roleManager.getRole(1L);
 
         System.out.println(roleDO);
     }
@@ -102,18 +90,15 @@ public class MybatisTest {
     @Test
     public void insertRoleTest() {
 
-        String timeStr = DateUtil.getDateTimeStr();
-
         RoleDO roleDO = new RoleDO();
-        roleDO.setRoleId(6L);
-        roleDO.setAvailable(false);
-        roleDO.setCreateTime(timeStr);
-        roleDO.setModifiedTime(timeStr);
+        roleDO.setRoleId(10L);
         roleDO.setRoleName("444");
         roleDO.setDescription("描述");
+        roleDO.setAvailable(false);
+        roleDO.setId(9);
 
-        int insert = roleMapper.insert(roleDO);
-        System.out.println(insert);
+        boolean flag = roleManager.insertRole(roleDO);
+        System.out.println(flag);
     }
 
     @Test
@@ -169,9 +154,9 @@ public class MybatisTest {
     }
 
     @Test
-    public void VOConvertDTOStreamTest() {
+    public void entityConvertTest() {
 
-        List<RoleDO> roleDOList = roleMapper.selectList(null);
+        List<RoleDO> roleDOList = roleManager.listRole();
 
         roleDOList.forEach(System.out::println);
 

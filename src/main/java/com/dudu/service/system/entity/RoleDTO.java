@@ -1,19 +1,35 @@
 package com.dudu.service.system.entity;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * @author 大橙子
  */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class RoleDTO extends BaseDTO {
+public class RoleDTO {
 
-    private static final long serialVersionUID = -8532970873838122778L;
-    private String roleId;
+    /**
+     * 主键
+     */
+    private Long roleId;
+    /**
+     * 角色名称
+     */
     private String roleName;
-    private String comment;
+    /**
+     * 角色描述
+     */
+    private String description;
+    /**
+     * 创建时间
+     */
+    private String createTime;
+    /**
+     * 修改时间
+     */
+    private String modifiedTime;
+    /**
+     * 是否可用（0：false，1：true）
+     */
+    private Boolean available;
 }

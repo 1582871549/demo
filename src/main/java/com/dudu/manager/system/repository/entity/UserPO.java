@@ -1,9 +1,5 @@
 package com.dudu.manager.system.repository.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,14 +7,12 @@ import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName(value = "sys_user")
-public class UserPO extends Model<UserPO> {
+public class UserPO {
 
     private static final long serialVersionUID = 7838569805393187805L;
     /**
      * 主键
      */
-    @TableId(value = "user_id")
     private String userId;
     /**
      * 用户名
@@ -51,7 +45,6 @@ public class UserPO extends Model<UserPO> {
     /**
      * 是否锁定(0:false 1:true)
      */
-    @TableField("is_locked")
     private Boolean locked;
     /**
      * 创建时间
@@ -66,8 +59,4 @@ public class UserPO extends Model<UserPO> {
      */
     private String lastTime;
 
-    @Override
-    protected Serializable pkVal() {
-        return this.userId;
-    }
 }

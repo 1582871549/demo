@@ -1,10 +1,17 @@
 package com.dudu.manager.system.repository.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dudu.manager.system.repository.entity.RoleDO;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-@Repository
-public interface RoleMapper extends BaseMapper<RoleDO> {
+import java.util.List;
 
+@Mapper
+public interface RoleMapper {
+
+    RoleDO getRole(@Param("roleId") Long roleId);
+
+    List<RoleDO> listRole();
+
+    int insertRole(RoleDO roleDO);
 }

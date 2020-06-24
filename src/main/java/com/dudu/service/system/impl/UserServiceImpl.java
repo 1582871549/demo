@@ -9,8 +9,6 @@
  */
 package com.dudu.service.system.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dudu.manager.system.repository.mapper.UserMapper;
 import com.dudu.service.system.entity.UserDTO;
 import com.dudu.service.system.UserService;
@@ -62,11 +60,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserByUsername(String username) {
-        return null;
-    }
-
-    @Override
-    public IPage<UserDTO> listUserByPage(IPage<UserDTO> page, Wrapper<UserDTO> queryWrapper) {
         return null;
     }
 

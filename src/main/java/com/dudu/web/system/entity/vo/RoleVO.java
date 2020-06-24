@@ -1,15 +1,13 @@
-package com.dudu.web.entity.vo;
+package com.dudu.web.system.entity.vo;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 @Data
 @Accessors(chain = true)
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class RoleVO extends BaseVO {
+public class RoleVO implements Serializable {
 
     private static final long serialVersionUID = 5335841599281395125L;
     /**
@@ -24,5 +22,16 @@ public class RoleVO extends BaseVO {
      * 角色描述
      */
     private String description;
-
+    /**
+     * 创建时间
+     */
+    private String createTime;
+    /**
+     * 修改时间
+     */
+    private String modifiedTime;
+    /**
+     * 是否可用
+     */
+    private Boolean available;
 }

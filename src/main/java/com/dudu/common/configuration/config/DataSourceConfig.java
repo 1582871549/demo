@@ -9,11 +9,9 @@
  */
 package com.dudu.common.configuration.config;
 
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.zaxxer.hikari.HikariDataSource;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -34,45 +32,23 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class DataSourceConfig {
 
-    @Bean
-    @Primary
-    @ConfigurationProperties("spring.datasource.first")
-    public DataSourceProperties firstDataSourceProperties() {
-        return new DataSourceProperties();
-    }
+    @Autowired
+    private DruidProperties druidProperties;
 
     @Bean
-    @Primary
-    @ConfigurationProperties("spring.datasource.first")
-    public DataSource firstDataSource() {
-        return firstDataSourceProperties()
-                .initializeDataSourceBuilder()
-                .type(HikariDataSource.class)
-                .build();
-    }
-
-    @Bean
-    @ConfigurationProperties("spring.datasource.second")
-    public DataSourceProperties secondDataSourceProperties() {
-        return new DataSourceProperties();
-    }
-
-    @Bean
-    @ConfigurationProperties("spring.datasource.second")
-    public DataSource secondDataSource() {
-        return secondDataSourceProperties()
-                .initializeDataSourceBuilder()
-                .type(HikariDataSource.class)
-                .build();
+    public DruidDataSource dataSource() {
+        DruidDataSource dataSource = new DruidDataSource();
+        druidProperties.config(dataSource);
+        return dataSource;
     }
 
     /**
      * 分页插件
      */
-    @Bean
-    public PaginationInterceptor paginationInterceptor() {
-        return new PaginationInterceptor();
-    }
+    // @Bean
+    // public PaginationInterceptor paginationInterceptor() {
+    //     return new PaginationInterceptor();
+    // }
 
     /**
      * 配置事务管理器

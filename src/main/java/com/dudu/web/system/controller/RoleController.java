@@ -1,13 +1,4 @@
-/**
- * FileName: RoleController
- * Author:   大橙子
- * Date:     2019/3/23 15:43
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
-package com.dudu.web.controller;
+package com.dudu.web.system.controller;
 
 import com.dudu.service.system.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;

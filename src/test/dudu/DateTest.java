@@ -1,15 +1,4 @@
-/**
- * FileName: Test
- * Author:   大橙子
- * Date:     2019/4/4 9:39
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
-
 import com.dudu.DemoApplication;
-import com.dudu.common.util.DateUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,32 +34,37 @@ import java.util.Date;
 @SpringBootTest(classes = DemoApplication.class)
 public class DateTest {
 
+    /**
+     * 计算日期
+     */
     @Test
-    public void dateTest() {
+    public void computationTimeTest() {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date now = new Date();
-
-        System.out.println("--------------------");
-
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Calendar calendar = Calendar.getInstance();
+
+
+        String time = format.format(calendar.getTime());
+
         calendar.add(Calendar.MINUTE, 5);
 
-        System.out.println(sdf.format(calendar.getTime()));
-
-        Date afterDate = new Date(now .getTime() + 600000);
-
-        System.out.println(sdf.format(afterDate));
+        String afterTime = format.format(calendar.getTime());
 
 
         System.out.println("--------------------");
-
+        System.out.println(time);
+        System.out.println(afterTime);
     }
 
+    /**
+     * 比较日期
+     */
     @Test
-    public void aaa(){
+    public void compareTo() {
+
         Date d1 = new Date(System.currentTimeMillis()-1000);
         Date d2 = new Date(System.currentTimeMillis());
+
         System.out.println(d1.compareTo(d2));
         System.out.println(d2.compareTo(d1));
     }

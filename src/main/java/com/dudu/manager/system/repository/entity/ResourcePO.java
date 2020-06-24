@@ -1,27 +1,19 @@
 package com.dudu.manager.system.repository.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.io.Serializable;
 
 /**
  * @author 大橙子
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName(value = "sys_resource")
-public class ResourcePO extends Model<ResourcePO> {
+public class ResourcePO {
 
     private static final long serialVersionUID = -3734186975559806202L;
     /**
      * 主键
      */
-    @TableId(value = "resource_id")
     private String resourceId;
     /**
      * 资源名称
@@ -66,11 +58,5 @@ public class ResourcePO extends Model<ResourcePO> {
     /**
      * 是否锁定
      */
-    @TableField("is_locked")
     private Boolean locked;
-
-    @Override
-    protected Serializable pkVal() {
-        return this.resourceId;
-    }
 }

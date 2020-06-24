@@ -1,18 +1,9 @@
-/**
- * FileName: LoginController
- * Author:   大橙子
- * Date:     2019/3/25 22:13
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
-package com.dudu.web.controller;
+package com.dudu.web.system.controller;
 
 import com.dudu.common.shiro.util.ShiroKit;
-import com.dudu.service.system.entity.UserDTO;
 import com.dudu.service.system.UserService;
-import com.dudu.web.entity.vo.UserVO;
+import com.dudu.service.system.entity.UserDTO;
+import com.dudu.web.system.entity.vo.UserVO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
