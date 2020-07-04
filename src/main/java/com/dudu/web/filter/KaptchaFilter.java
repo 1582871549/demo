@@ -1,18 +1,8 @@
-/**
- * FileName: KaptchaFilter
- * Author:   大橙子
- * Date:     2019/4/12 16:02
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package com.dudu.web.filter;
 
-import com.dudu.common.exception.BusinessException;
 import com.dudu.common.shiro.token.CaptchaUsernamePasswordToken;
 import com.dudu.common.shiro.util.ShiroKit;
-import com.dudu.entity.other.UserInfo;
+import com.dudu.common.shiro.util.UserInfoBO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -51,7 +41,7 @@ public class KaptchaFilter extends FormAuthenticationFilter {
             subject.login(token);//正常验证
 
             //到这里就算验证成功了,把用户信息放到session中
-            UserInfo user = ShiroKit.getUser();
+            UserInfoBO user = ShiroKit.getUser();
             ((HttpServletRequest) request).getSession().setAttribute("user", user);
 
             return onLoginSuccess(token, subject, request, response);
@@ -83,7 +73,7 @@ public class KaptchaFilter extends FormAuthenticationFilter {
 
         //比对
         if (captcha == null || !captcha.equalsIgnoreCase(token.getCaptcha())) {
-            throw new BusinessException("验证码错误");
+            // throw new BusinessException("验证码错误");
         }
     }
 

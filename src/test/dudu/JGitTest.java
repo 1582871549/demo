@@ -1,5 +1,5 @@
 import com.dudu.DemoApplication;
-import com.dudu.entity.bean.ProjectDO;
+import com.dudu.manager.system.repository.entity.ProjectDO;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.Range;

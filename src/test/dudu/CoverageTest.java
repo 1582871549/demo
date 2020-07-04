@@ -1,9 +1,7 @@
 import com.dudu.DemoApplication;
-import com.dudu.entity.bean.ProjectDO;
-import com.dudu.service.coverage.CodeComparisonStrategy;
-import com.dudu.service.coverage.impl.CoverageSchedulerServiceImpl;
-import com.dudu.service.coverage.impl.BranchCodeComparisonStrategy;
-import com.dudu.service.coverage.impl.TagCodeComparisonStrategy;
+import com.dudu.manager.system.repository.entity.ProjectDO;
+import com.dudu.manager.git.service.GetDiffCodeBlockStrategy;
+import com.dudu.service.coverage.CoverageService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class CoverageTest {
 
     @Autowired
-    CoverageSchedulerServiceImpl context;
+    CoverageService coverageService;
 
     /**
      * 测试覆盖率, 策略模式
@@ -47,9 +45,9 @@ public class CoverageTest {
 
         ProjectDO projectDO = preMethod();
 
-        CodeComparisonStrategy branchCodeComparisonStrategy = getCoverageStrategy(projectDO.isBranch());
+        GetDiffCodeBlockStrategy comparisonStrategy = GetDiffCodeBlockStrategy.createStrategy(projectDO.isBranch());
 
-        context.callCoverageService(branchCodeComparisonStrategy, projectDO);
+        coverageService.callCoverageTask(comparisonStrategy, projectDO);
     }
 
 
@@ -75,22 +73,6 @@ public class CoverageTest {
         );
     }
 
-    /**
-     * 创建不同的算法策略
-     * <p>
-     * 简单工厂模式
-     *
-     * @param isBranch 是否测试分支覆盖率项目
-     * @return 算法
-     */
-    public CodeComparisonStrategy getCoverageStrategy(boolean isBranch) {
 
-        if (isBranch) {
-            return new BranchCodeComparisonStrategy();
-        } else {
-            return new TagCodeComparisonStrategy();
-        }
-
-    }
 
 }
