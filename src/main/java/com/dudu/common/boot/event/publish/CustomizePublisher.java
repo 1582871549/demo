@@ -10,7 +10,7 @@
 package com.dudu.common.boot.event.publish;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
@@ -49,9 +49,9 @@ public class CustomizePublisher implements ApplicationEventPublisherAware, Appli
     /**
      * 发送一条广播
      */
-    public void publishEvent(){
+    public void publishEvent() {
         System.out.println("自定义事件发布                : " + this.getClass().getName() + "."
-                + Thread.currentThread() .getStackTrace()[1].getMethodName());
+                + Thread.currentThread().getStackTrace()[1].getMethodName());
         this.applicationEventPublisher.publishEvent(new CustomizeEvent(applicationContext));
     }
 }

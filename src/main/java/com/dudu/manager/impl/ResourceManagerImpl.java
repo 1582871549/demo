@@ -53,8 +53,10 @@ public class ResourceManagerImpl implements ResourceManager {
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(new File(homePath));
 
-        invoker.setLogger(new PrintStreamLogger(System.err,  InvokerLogger.ERROR){});
-        invoker.setOutputHandler(s -> { });
+        invoker.setLogger(new PrintStreamLogger(System.err, InvokerLogger.ERROR) {
+        });
+        invoker.setOutputHandler(s -> {
+        });
 
         InvocationResult execute = invoker.execute(request);
         int exitCode = execute.getExitCode();

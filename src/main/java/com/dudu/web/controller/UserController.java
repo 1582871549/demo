@@ -31,6 +31,7 @@ public class UserController extends BaseController {
 
     /**
      * 短信验证码登录
+     *
      * @param phone
      * @return
      */
@@ -42,7 +43,7 @@ public class UserController extends BaseController {
         try {
             subject.login(token);
             return 1;
-        }  catch (Exception e) {
+        } catch (Exception e) {
             return -1;
         }
     }

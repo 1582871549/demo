@@ -32,26 +32,26 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- *  测试驱动开发
- *
- *      没有测试之前不要写任何功能代码
- *      只编写恰好能够体现一个失败情况的测试代码
- *      只编写恰好能通过测试的功能代码
- *
- *  测试的FIRST准则
- *
- *      快速（Fast）测试应该够快，尽量自动化。
- *      独立（Independent） 测试应该应该独立。不要相互依赖
- *      可重复（Repeatable） 测试应该在任何环境上都能重复通过。
- *      自我验证（Self-Validating） 测试应该有bool输出。不要通过查看日志这种低效率方式来判断测试是否通过
- *      及时（Timely） 测试应该及时编写，在其对应的生产代码之前编写
- *
- *  整洁代码准则
- *
- *      优雅且高效、直截了当、减少依赖、只做好一件事
- *      简单直接
- *      可读、可维护、单元测试
- *      不要重复、单一职责、表达力
+ * 测试驱动开发
+ * <p>
+ * 没有测试之前不要写任何功能代码
+ * 只编写恰好能够体现一个失败情况的测试代码
+ * 只编写恰好能通过测试的功能代码
+ * <p>
+ * 测试的FIRST准则
+ * <p>
+ * 快速（Fast）测试应该够快，尽量自动化。
+ * 独立（Independent） 测试应该应该独立。不要相互依赖
+ * 可重复（Repeatable） 测试应该在任何环境上都能重复通过。
+ * 自我验证（Self-Validating） 测试应该有bool输出。不要通过查看日志这种低效率方式来判断测试是否通过
+ * 及时（Timely） 测试应该及时编写，在其对应的生产代码之前编写
+ * <p>
+ * 整洁代码准则
+ * <p>
+ * 优雅且高效、直截了当、减少依赖、只做好一件事
+ * 简单直接
+ * 可读、可维护、单元测试
+ * 不要重复、单一职责、表达力
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DemoApplication.class)
@@ -114,7 +114,7 @@ public class MybatisTest {
 
 
     @Test
-    public void file(){
+    public void file() {
 
         RolePO rolePO = new RolePO();
         rolePO.setRoleId("2222");
@@ -137,12 +137,10 @@ public class MybatisTest {
         StringUtils.isBlank("");
 
 
-
     }
 
     @Test
-    public void aaa(){
-
+    public void aaa() {
 
 
         File file = new File("D:\\aaa", "ccc");
@@ -161,7 +159,7 @@ public class MybatisTest {
     }
 
     @Test
-    public void maven(){
+    public void maven() {
 
         InvocationRequest request = new DefaultInvocationRequest();
         // request.setPomFile(new File("D:\\Soft_Package\\coverage\\demo\\pom.xml"));
@@ -176,7 +174,8 @@ public class MybatisTest {
 
         try (PrintStream printStream = new PrintStream(new FileOutputStream(file))) {
 
-            invoker.setLogger(new PrintStreamLogger(System.out,  InvokerLogger.ERROR){} );
+            invoker.setLogger(new PrintStreamLogger(System.out, InvokerLogger.ERROR) {
+            });
             invoker.setOutputHandler(new InvocationOutputHandler() {
                 @Override
                 public void consumeLine(String s) throws IOException {
@@ -196,7 +195,7 @@ public class MybatisTest {
         }
 
 
-        try{
+        try {
             if (invoker.execute(request).getExitCode() == 0) {
                 System.out.println("success");
             } else {
@@ -243,8 +242,8 @@ public class MybatisTest {
 
         UserVO user3 = user2.setSex("男");
 
-        int i=12;
-        System.out.println(i+=i-=i*=i);
+        int i = 12;
+        System.out.println(i += i -= i *= i);
 
         System.out.println(user);
         System.out.println(user1);
@@ -276,7 +275,6 @@ public class MybatisTest {
             }
         }
     }
-
 
 
 }

@@ -42,9 +42,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @TODO 多个realm配置  在securityManager中   以及多realm的认证策略
- *
  * @author 大橙子
+ * @TODO 多个realm配置  在securityManager中   以及多realm的认证策略
  * @date 2019/3/25
  * @since 1.0.0
  */
@@ -54,6 +53,7 @@ public class ShiroConfig {
 
     /**
      * 配置kaptcha图片验证码框架提供的Servlet,,这是个坑,很多人忘记注册(注意)
+     *
      * @return kaptchaServlet
      */
     @Bean
@@ -98,19 +98,18 @@ public class ShiroConfig {
      * ShiroFilterFactoryBean 处理拦截资源文件问题。
      * 注意：单独一个ShiroFilterFactoryBean配置是会报错的，
      * 因为在初始化ShiroFilterFactoryBean的时候需要注入：SecurityManager
-     *
+     * <p>
      * Filter Chain定义说明
      * 1、一个URL可以配置多个Filter，使用逗号分隔
      * 2、当设置多个过滤器时，全部验证通过，才视为通过
      * 3、部分过滤器可指定参数，如perms，roles
-     *
+     * <p>
      * hiroFilterFactoryBean，是个factorybean，为了生成ShiroFilter。
      * 它主要保持了三项数据，securityManager，filters，filterChainDefinitionManager。
      */
     @Bean(name = "shiroFilterFactoryBean")
     public ShiroFilterFactoryBean shiroFilterFactoryBean(
-            SecurityManager securityManager, CustomFilter customFilter, KaptchaFilter kaptchaFilter)
-    {
+            SecurityManager securityManager, CustomFilter customFilter, KaptchaFilter kaptchaFilter) {
 
         ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
         bean.setSecurityManager(securityManager);
@@ -157,14 +156,13 @@ public class ShiroConfig {
     /**
      * 权限管理，这个类组合了登陆，登出，权限，session的处理，是个比较重要的类。
      *
-     * @param userRealm 自定义用户域
+     * @param userRealm      自定义用户域
      * @param ehCacheManager 缓存管理器
      * @return securityManager
      */
     @Bean(name = "securityManager")
     public SecurityManager securityManager(
-            UserRealm userRealm, EhCacheManager ehCacheManager, RememberMeManager rememberMeManager)
-    {
+            UserRealm userRealm, EhCacheManager ehCacheManager, RememberMeManager rememberMeManager) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(userRealm);
         securityManager.setCacheManager(ehCacheManager);
@@ -184,11 +182,12 @@ public class ShiroConfig {
 
     /**
      * 用户认证类
+     *
      * @return userRealm
      */
     @Bean(name = "userRealm")
     @DependsOn("lifecycleBeanPostProcessor")
-    public UserRealm userRealm(HashedCredentialsMatcher hashedCredentialsMatcher){
+    public UserRealm userRealm(HashedCredentialsMatcher hashedCredentialsMatcher) {
         UserRealm userRealm = new UserRealm();
         userRealm.setCredentialsMatcher(hashedCredentialsMatcher);
         return userRealm;
@@ -212,6 +211,7 @@ public class ShiroConfig {
     /**
      * EhCacheManager，缓存管理，用户登陆成功后，把用户信息和权限信息缓存起来，
      * 然后每次用户请求时，放入用户的session中，如果不设置这个bean，每个请求都会查询一次数据库。
+     *
      * @return ehCacheManager
      */
     @Bean(name = "ehCacheManager")
@@ -237,6 +237,7 @@ public class ShiroConfig {
     /**
      * rememberMe 是cookie的名称，对应前端的checkbox的name = rememberMe
      * 记住我cookie生效时间30天 ,单位秒
+     *
      * @return rememberMeCookie
      */
     @Bean(name = "rememberMeCookie")
@@ -311,6 +312,7 @@ public class ShiroConfig {
 
     /**
      * shiro无权异常处理类
+     *
      * @return customShiroExceptionResolver
      */
     @Bean(name = "customShiroExceptionResolver")
@@ -326,7 +328,7 @@ public class ShiroConfig {
      * @return filterRegistrationBean
      */
     @Bean(name = "filterRegistrationBean")
-    public FilterRegistrationBean<Filter> filterRegistrationBean(CustomFilter customFilter){
+    public FilterRegistrationBean<Filter> filterRegistrationBean(CustomFilter customFilter) {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>(customFilter);
         registration.setEnabled(false);
         return registration;
@@ -338,7 +340,7 @@ public class ShiroConfig {
      * @return customFilter
      */
     @Bean(name = "customFilter")
-    public CustomFilter customFilter(){
+    public CustomFilter customFilter() {
         return new CustomFilter();
     }
 
@@ -348,7 +350,7 @@ public class ShiroConfig {
      * @return kaptchaFilter
      */
     @Bean(name = "kaptchaFilter")
-    public KaptchaFilter kaptchaFilter(){
+    public KaptchaFilter kaptchaFilter() {
         return new KaptchaFilter();
     }
 

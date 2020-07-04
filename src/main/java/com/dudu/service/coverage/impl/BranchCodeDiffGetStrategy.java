@@ -36,19 +36,19 @@ public class BranchCodeDiffGetStrategy implements CodeDiffGetStrategy {
     }
 
     private List<DiffEntry> getDiffAndCreateBranchPoint(Repository repository,
-                                                               String baseBranch,
-                                                               String compareBranch) throws IOException, GitAPIException {
+                                                        String baseBranch,
+                                                        String compareBranch) throws IOException, GitAPIException {
 
         String baseBranchName = "refs/heads/" + baseBranch;
         String compareBranchName = "refs/heads/" + compareBranch;
 
         try (Git git = new Git(repository)) {
 
-            if(repository.exactRef(baseBranchName) == null) {
+            if (repository.exactRef(baseBranchName) == null) {
                 git.branchCreate().setName(baseBranch).setStartPoint("origin/" + baseBranch).call();
             }
 
-            if(repository.exactRef(compareBranchName) == null) {
+            if (repository.exactRef(compareBranchName) == null) {
                 git.branchCreate().setName(compareBranch).setStartPoint("origin/" + compareBranch).call();
             }
 

@@ -10,7 +10,6 @@
 package com.dudu.common.boot.aop;
 
 import com.dudu.common.boot.annotation.UrlAction;
-import com.dudu.service.db.impl.RoleServiceImpl;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -26,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
@@ -42,13 +41,13 @@ import java.lang.reflect.Method;
 public class UrlAspect {
 
     @Pointcut("@annotation(com.dudu.common.boot.annotation.UrlAction)")
-    public void annotationUrl(){};
+    public void annotationUrl() { }
 
     @Pointcut("execution(* com.dudu.service.db.impl.RoleServiceImpl.addUrl2(..))")
-    public void annotationMethod(){};
+    public void annotationMethod() { }
 
     @After("annotationUrl()")
-    public void after(JoinPoint joinPoint){
+    public void after(JoinPoint joinPoint) {
 
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         Assert.notNull(attributes, "attributes must not be null");
@@ -56,14 +55,14 @@ public class UrlAspect {
         String url = request.getRequestURL().toString();
         System.out.println("url   :   " + url);
 
-        MethodSignature signature = (MethodSignature)joinPoint.getSignature();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         UrlAction urlAction = signature.getMethod().getAnnotation(UrlAction.class);
 
         System.out.println("拦截器拦截   :" + urlAction.name());
     }
 
     @Before("annotationMethod()")
-    public void before(JoinPoint joinPoint){
+    public void before(JoinPoint joinPoint) {
 
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         Assert.notNull(attributes, "attributes must not be null");
@@ -71,7 +70,7 @@ public class UrlAspect {
         String url = request.getRequestURL().toString();
         System.out.println("url   :   " + url);
 
-        MethodSignature signature = (MethodSignature)joinPoint.getSignature();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
         System.out.println("类方法拦截   :" + method.getName());

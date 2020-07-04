@@ -10,7 +10,7 @@
 package com.dudu.common.boot.event.message;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子

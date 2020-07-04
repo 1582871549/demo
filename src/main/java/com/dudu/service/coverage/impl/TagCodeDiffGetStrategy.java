@@ -41,8 +41,8 @@ public class TagCodeDiffGetStrategy implements CodeDiffGetStrategy {
     }
 
     private List<DiffEntry> getDiffAndCreateTagPoint(Repository repository,
-                                                            String baseTag,
-                                                            String compareTag) throws GitAPIException, IOException {
+                                                     String baseTag,
+                                                     String compareTag) throws GitAPIException, IOException {
 
         String baseTagName = "refs/tags/" + baseTag;
         String compareTagName = "refs/tags/" + compareTag;
@@ -66,7 +66,7 @@ public class TagCodeDiffGetStrategy implements CodeDiffGetStrategy {
             }
 
             if (tagMap.size() != 2) {
-                System.out.println("baseTag : " + baseTag + ",  compareTag : " + compareTag + ", tagMap : " +tagMap);
+                System.out.println("baseTag : " + baseTag + ",  compareTag : " + compareTag + ", tagMap : " + tagMap);
                 throw new BusinessException("tagMap.size() != 2");
             }
 

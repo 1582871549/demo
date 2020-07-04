@@ -14,9 +14,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * <p>
- *     根据不同的环境来注入该bean
+ * 根据不同的环境来注入该bean
  * </p>
  *
  * @author 大橙子

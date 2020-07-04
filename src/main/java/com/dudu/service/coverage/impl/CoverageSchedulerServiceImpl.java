@@ -37,7 +37,7 @@ public class CoverageSchedulerServiceImpl implements CoverageSchedulerService {
      * 根据项目执行不同的覆盖率获取方法
      *
      * @param comparisonStrategy 覆盖率算法
-     * @param projectDO git资源
+     * @param projectDO          git资源
      */
     @Override
     public void callCoverageService(CodeComparisonStrategy comparisonStrategy, ProjectDO projectDO) {

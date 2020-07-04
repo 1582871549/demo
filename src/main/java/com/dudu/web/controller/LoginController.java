@@ -35,7 +35,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * <p>
- *     登陆接口
+ * 登陆接口
  * </p>
  *
  * @author 大橙子
@@ -52,8 +52,8 @@ public class LoginController extends BaseController {
 
     /**
      * 跳转登陆页
-     *      已通过验证的用户跳转主页(不包含 记住我 的用户)
-     *      未通过验证的用户重定向到登陆页
+     * 已通过验证的用户跳转主页(不包含 记住我 的用户)
+     * 未通过验证的用户重定向到登陆页
      *
      * @return path
      */
@@ -67,7 +67,7 @@ public class LoginController extends BaseController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public String login(@RequestBody UserVO userVO, HttpSession session){
+    public String login(@RequestBody UserVO userVO, HttpSession session) {
 
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(userVO, userDTO);
@@ -86,6 +86,7 @@ public class LoginController extends BaseController {
 
     /**
      * 主页
+     *
      * @param session
      * @param model
      * @return
@@ -113,7 +114,7 @@ public class LoginController extends BaseController {
         return "welcome";
     }
 
-    public void aaa(){
+    public void aaa() {
         // 获取当前用户
         Subject currentUser = SecurityUtils.getSubject();
 

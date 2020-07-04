@@ -14,14 +14,14 @@ import lombok.EqualsAndHashCode;
 import org.apache.shiro.authc.UsernamePasswordToken;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * shiro框架提供了一个UsernamePasswordToken令牌，
  * 用来验证用户名和密码类的登录。那如果想要通过替他方式登录认证，
  * 例如通过手机验证码接口，就需要通过自定义token、自定义realm等来实现。
- *
+ * <p>
  * 1、首先   自定义一个token继承UsernamePasswordToken，
- *          为什么要继承这个类而不是AuthenticationToken？，
- *          是因为这样做保证了用户名密码认证方式任然能正常使用
+ * 为什么要继承这个类而不是AuthenticationToken？，
+ * 是因为这样做保证了用户名密码认证方式任然能正常使用
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

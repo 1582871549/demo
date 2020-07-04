@@ -16,7 +16,6 @@ import java.util.Map;
 public interface CodeComparisonStrategy {
 
     /**
-     *
      * @param jGitBO 将要执行覆盖率的项目信息
      * @return
      */

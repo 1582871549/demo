@@ -217,7 +217,7 @@ public class JGitTest {
 
             Range range = range2.get();
 
-            System.out.println("methodName:   " + method.getNameAsString()  +"   begin:   " + range.begin + "   end:   " +range.end);
+            System.out.println("methodName:   " + method.getNameAsString() + "   begin:   " + range.begin + "   end:   " + range.end);
 
             System.out.println(method);
         }

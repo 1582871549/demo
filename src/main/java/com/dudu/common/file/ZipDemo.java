@@ -18,8 +18,8 @@ import java.util.zip.ZipOutputStream;
  * 〈一句话功能简述〉<br>
  *
  * <p>
- *      程序实现了ZIP压缩[compression]
- *      大致功能包括用了多态，递归等JAVA核心技术，可以对单个文件和任意级联文件夹进行压缩和解压。 需在代码中自定义源输入路径和目标输出路径。
+ * 程序实现了ZIP压缩[compression]
+ * 大致功能包括用了多态，递归等JAVA核心技术，可以对单个文件和任意级联文件夹进行压缩和解压。 需在代码中自定义源输入路径和目标输出路径。
  * <p>
  *
  * @author 大橙子
@@ -49,9 +49,9 @@ public class ZipDemo {
     /**
      * 创建压缩点
      *
-     * @param zout 压缩文件输出流
+     * @param zout   压缩文件输出流
      * @param inFile 需要进行压缩的文件或目录
-     * @param base 当前文件路径
+     * @param base   当前文件路径
      * @throws IOException 创建压缩点失败或写入流错误时抛出异常
      */
     private void compress(ZipOutputStream zout, File inFile, String base) throws IOException {
@@ -104,7 +104,7 @@ public class ZipDemo {
     /**
      * 将压缩包解压到指定路径
      *
-     * @param zin 压缩包流
+     * @param zin       压缩包流
      * @param unzipPath 解压到指定路径
      * @throws Exception
      */
@@ -129,7 +129,7 @@ public class ZipDemo {
         }
     }
 
-    public static void main (String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         ZipDemo book = new ZipDemo();
 

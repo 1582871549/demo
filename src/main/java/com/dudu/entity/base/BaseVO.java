@@ -13,10 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- *
  * @author 大橙子
  * @create 2019/3/25
  * @since 1.0.0

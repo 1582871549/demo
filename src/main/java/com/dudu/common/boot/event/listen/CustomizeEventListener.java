@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
@@ -34,7 +34,7 @@ public class CustomizeEventListener implements ApplicationListener<CustomizeEven
     public void onApplicationEvent(CustomizeEvent event) {
 
         System.out.println("自定义事件监听                : " + this.getClass().getName() + "."
-                + Thread.currentThread() .getStackTrace()[1].getMethodName());
+                + Thread.currentThread().getStackTrace()[1].getMethodName());
         // ApplicationContext context = (ApplicationContext) event.getSource();
         //
         // System.out.println(" === " + context.getApplicationName());

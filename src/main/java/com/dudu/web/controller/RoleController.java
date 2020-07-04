@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
@@ -31,18 +31,22 @@ public class RoleController {
     private RoleService roleService;
 
     @RequestMapping("/getName")
-    public String getRoleNameByRid(@RequestParam String rid){
+    public String getRoleNameByRid(@RequestParam String rid) {
         return "";
     }
 
     @RequestMapping("/a-url")
-    public String url1(){
+    public String url1() {
         return null;
-    };
+    }
+
+    ;
 
     @RequestMapping("/b-url")
-    public String url2(){
+    public String url2() {
         return null;
-    };
+    }
+
+    ;
 
 }

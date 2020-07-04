@@ -12,7 +12,7 @@ package com.dudu.service.db;
 import com.dudu.entity.dto.UserDTO;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
@@ -23,6 +23,7 @@ public interface PhoneService {
 
     /**
      * 通过手机号获取用户
+     *
      * @param phone 手机号
      * @return 实体对象
      */

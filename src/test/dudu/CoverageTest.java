@@ -77,7 +77,7 @@ public class CoverageTest {
 
     /**
      * 创建不同的算法策略
-     *
+     * <p>
      * 简单工厂模式
      *
      * @param isBranch 是否测试分支覆盖率项目

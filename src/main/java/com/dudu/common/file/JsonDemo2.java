@@ -16,7 +16,7 @@ import com.dudu.entity.dto.UserDTO;
 import java.io.IOException;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
@@ -43,7 +43,7 @@ public class JsonDemo2 {
         Integer password = jsonObject.getInteger("password");
         int value = jsonObject.getIntValue("password");
 
-        System.out.println("--- " + password + "--- " +value);
+        System.out.println("--- " + password + "--- " + value);
 
         System.out.println(jsonObject.toString());
 
@@ -52,7 +52,6 @@ public class JsonDemo2 {
         System.out.println("--------------------");
         System.out.println(userDTO.toString());
     }
-
 
 
 }

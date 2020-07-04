@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
@@ -115,7 +115,7 @@ public class JsonDemo {
         obj.put("sex", "male");
         obj.put("age", 22);
         obj.put("is_student", true);
-        obj.put("hobbies", new String[] {"hiking", "swimming"});
+        obj.put("hobbies", new String[]{"hiking", "swimming"});
         System.out.println(obj.toString());
     }
 
@@ -128,7 +128,7 @@ public class JsonDemo {
         data.put("sex", "male");
         data.put("age", 22);
         data.put("is_student", true);
-        data.put("hobbies", new String[] {"hiking", "swimming"});
+        data.put("hobbies", new String[]{"hiking", "swimming"});
 
         JSONObject obj = JSONObject.fromObject(data);
         System.out.println(obj.toString());
@@ -136,7 +136,7 @@ public class JsonDemo {
 
     /**
      * 将javabean转换为json对象
-     *
+     * <p>
      * JavaBean一定要有getter方法，否则会无法访问存储的数据。
      */
     private static void createJsonByJavaBean() {

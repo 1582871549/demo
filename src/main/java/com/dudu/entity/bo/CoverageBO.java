@@ -3,7 +3,7 @@ package com.dudu.entity.bo;
 import com.dudu.entity.base.JGitBO;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子

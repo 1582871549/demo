@@ -18,8 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
- *     自定义shiro异常处理类
+ * 自定义shiro异常处理类
  * </p>
+ *
  * @author 大橙子
  * @date 2019/4/12
  * @since 1.0.0

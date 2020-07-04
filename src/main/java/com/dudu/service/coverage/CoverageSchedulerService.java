@@ -13,8 +13,6 @@ import com.dudu.entity.bean.ProjectDO;
 public interface CoverageSchedulerService {
 
     /**
-     *
-     *
      * @param comparisonStrategy
      * @param projectDO
      */

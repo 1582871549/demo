@@ -17,6 +17,7 @@ public class GlobalExceptionHandler extends BaseController {
 
     /**
      * 处理所有不可知的异常
+     *
      * @param e 异常
      * @return json
      */
@@ -32,6 +33,7 @@ public class GlobalExceptionHandler extends BaseController {
 
     /**
      * 处理自定义异常
+     *
      * @param e 异常
      * @return json
      */

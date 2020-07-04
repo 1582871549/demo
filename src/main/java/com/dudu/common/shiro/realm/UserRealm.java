@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
+ *
  * @author 大橙子
  * @create 2019/3/25
  * @since 1.0.0
@@ -47,6 +48,7 @@ public class UserRealm extends AuthorizingRealm {
 
     /**
      * 授权
+     *
      * @param principalCollection 1
      * @return 1
      */
@@ -75,9 +77,9 @@ public class UserRealm extends AuthorizingRealm {
     private Set<String> getPermissionsByUserName(String username) {
         // List<String> resourceList = resourceService.listResourceByUsername(username);
         List<String> resourceList = null;
-        if( resourceList != null ){
+        if (resourceList != null) {
             return new HashSet<>(resourceList);
-        }else{
+        } else {
             return null;
         }
     }
@@ -85,15 +87,16 @@ public class UserRealm extends AuthorizingRealm {
     // 根据用户名字从数据库中获取当前用户的角色数据
     private Set<String> getRolesByUsername(String username) {
         List<String> roleList = roleService.listRoleByUsername(username);
-        if( roleList != null ){
+        if (roleList != null) {
             return new HashSet<>(roleList);
-        }else{
+        } else {
             return null;
         }
     }
 
     /**
      * 认证
+     *
      * @param token
      * @return
      * @throws AuthenticationException
@@ -116,7 +119,7 @@ public class UserRealm extends AuthorizingRealm {
         // 实际项目中，这里可以根据实际情况做缓存，如果不做，Shiro自己也是有时间间隔机制，2分钟内不会重复执行该方法
         UserDTO userDTO = userService.getUserByUsername(username);
 
-        if(userDTO == null){
+        if (userDTO == null) {
             throw new UnknownAccountException();
         }
         if (userDTO.getLocked()) {

@@ -17,8 +17,8 @@ import java.io.Serializable;
  * UUID             32位UUID字符串
  * NONE             无状态
  * ID_WORKER_STR    分布式全局唯一ID 字符串类型
- * @author 大橙子
  *
+ * @author 大橙子
  * @TableName(value = "sys_role", resultMap = "RoleResultMap")
  */
 @Data

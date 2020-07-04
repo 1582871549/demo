@@ -6,6 +6,7 @@ public interface RoleService {
 
     /**
      * 根据用户id获取用户对应的权限列表
+     *
      * @param username 用户名
      * @return roleList
      */

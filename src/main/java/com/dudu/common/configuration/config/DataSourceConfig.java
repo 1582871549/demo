@@ -26,7 +26,7 @@ import javax.sql.DataSource;
  * 配置数据源
  *
  * @author 大橙子
- * @date  2019/4/2
+ * @date 2019/4/2
  * @since 1.0.0
  */
 @Configuration
@@ -43,7 +43,6 @@ public class DataSourceConfig {
 
     @Bean
     @Primary
-    @ConfigurationProperties("spring.datasource.first")
     public DataSource firstDataSource() {
         return firstDataSourceProperties()
                 .initializeDataSourceBuilder()
@@ -58,7 +57,6 @@ public class DataSourceConfig {
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.second")
     public DataSource secondDataSource() {
         return secondDataSourceProperties()
                 .initializeDataSourceBuilder()

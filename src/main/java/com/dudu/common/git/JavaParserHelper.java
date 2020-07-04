@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 封装好的抽象语法树
- *
+ * <p>
  * 官方文档 https://www.javadoc.io/doc/com.github.javaparser/javaparser-core/3.14.7
  * github  https://github.com/Javaparser/Javaparser
  *
@@ -33,10 +33,10 @@ public class JavaParserHelper {
      * 根据diff行号匹配抽象语法树中的方法
      *
      * @param diffClassBOMap 差异类信息集合
-     * @param projectPath 本地存储库路径
+     * @param projectPath    本地存储库路径
      */
     public static Map<String, Map<String, String>> matchMethod(Map<String, List<DiffClassBO>> diffClassBOMap,
-                                                                   String projectPath) throws FileNotFoundException {
+                                                               String projectPath) throws FileNotFoundException {
 
         Map<String, Map<String, String>> diffClassMap = new HashMap<>(16);
 

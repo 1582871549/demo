@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 封装了部分源码方法, 方便调用
  *
  * @author du'jian'wei
@@ -125,7 +125,7 @@ public final class JGitHelper {
         }
     }
 
-    private static Map<String, List<DiffClassBO>> compareDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) throws IOException{
+    private static Map<String, List<DiffClassBO>> compareDiff(CodeDiffGetStrategy codeDiffGetStrategy, JGitBO jGitBO) throws IOException {
 
         String projectPath = jGitBO.getProjectPath();
         String base = jGitBO.getBase();

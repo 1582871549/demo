@@ -15,9 +15,6 @@
 <p shiro:guest="">Please <a href="index.html">login</a></p>
 
 
-
-
-
 <!-- 认证通过或已记住的用户。 -->
 
 <p shiro:user="">
@@ -25,7 +22,6 @@
     Welcome back John! Not John? Click <a href="index.html">here</a> to login.
 
 </p>
-
 
 
 <!-- 已认证通过的用户。不包含已记住的用户，这是与user标签的区别所在。 -->
@@ -39,13 +35,12 @@
 <a shiro:authenticated="" href="updateAccount.html">Update your contact information</a>
 
 
-
 <!-- 输出当前用户信息，通常为登录帐号信息。 -->
 
-<p>Hello, <shiro:principal/>, how are you today?</p>
-
-
-
+<p>Hello,
+    <shiro:principal/>
+    , how are you today?
+</p>
 
 
 <!-- 未认证通过用户，与authenticated标签相对应。与guest标签的区别是，该标签包含已记住用户。 -->
@@ -57,11 +52,9 @@
 </p>
 
 
-
 <!-- 验证当前用户是否属于该角色。 -->
 
 <a shiro:hasRole="admin" href="admin.html">Administer the system</a><!-- 拥有该角色 -->
-
 
 
 <!-- 与hasRole标签逻辑相反，当用户不属于该角色时验证通过。 -->
@@ -73,7 +66,6 @@
 </p>
 
 
-
 <!-- 验证当前用户是否属于以下所有角色。 -->
 
 <p shiro:hasAllRoles="developer, 2"><!-- 角色与判断 -->
@@ -81,7 +73,6 @@
     You are a developer and a admin.
 
 </p>
-
 
 
 <!-- 验证当前用户是否属于以下任意一个角色。 -->
@@ -93,11 +84,9 @@
 </p>
 
 
-
 <!--验证当前用户是否拥有指定权限。 -->
 
 <a shiro:hasPermission="userInfo:add" href="createUser.html">添加用户</a><!-- 拥有权限 -->
-
 
 
 <!-- 与hasPermission标签逻辑相反，当前用户没有制定权限时，验证通过。 -->
@@ -109,7 +98,6 @@
 </p>
 
 
-
 <!-- 验证当前用户是否拥有以下所有角色。 -->
 
 <p shiro:hasAllPermissions="userInfo:view, userInfo:add"><!-- 权限与判断 -->
@@ -117,7 +105,6 @@
     You can see or add users.
 
 </p>
-
 
 
 <!-- 验证当前用户是否拥有以下任意一个权限。 -->

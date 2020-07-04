@@ -17,6 +17,7 @@ public class FileUtil {
 
     /**
      * 功能描述：列出某文件夹及其子文件夹下面的文件，并可根据扩展名过滤
+     *
      * @param path 文件夹
      */
     public static void list(File path) {
@@ -72,7 +73,8 @@ public class FileUtil {
             assert dir != null;
             for (File aDir : dir) {
                 copy(aDir, tarpath);
-            } } else {
+            }
+        } else {
             try {
                 // 用于读取文件的原始字节流
                 InputStream is = new FileInputStream(source);
@@ -83,8 +85,11 @@ public class FileUtil {
 
                 int len = 0;
                 while ((len = is.read(buf)) != -1) {
-                    os.write(buf, 0, len); }is.close();
-                os.close(); } catch (IOException e) {
+                    os.write(buf, 0, len);
+                }
+                is.close();
+                os.close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

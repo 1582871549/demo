@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈〉
  *
  * @author 大橙子
