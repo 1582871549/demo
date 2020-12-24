@@ -9,8 +9,6 @@
  */
 package com.dudu.common.util;
 
-import com.dudu.manager.system.repository.entity.RoleDO;
-import com.dudu.manager.system.repository.entity.UserPO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -31,20 +29,20 @@ public class CopyDemo {
 
     public static void main(String[] args) {
 
-        UserPO user = new UserPO();
-        user.setUpdateTime(DateUtil.getDateTimeStr());
-
-        RoleDO role = new RoleDO();
-        role.setCreateTime(DateUtil.getDateTimeStr());
-
-        System.out.println("user   :   " + user);
-        System.out.println("role   :   " + role);
-        System.out.println();
-
-        copyPropertiesIgnoreNull(user, role);
-
-        System.out.println("user   :   " + user);
-        System.out.println("role   :   " + role);
+        // UserPO user = new UserPO();
+        // user.setUpdateTime(DateUtil.getDateTimeStr());
+        //
+        // RoleDO role = new RoleDO();
+        // role.setCreateTime(DateUtil.getDateTimeStr());
+        //
+        // System.out.println("user   :   " + user);
+        // System.out.println("role   :   " + role);
+        // System.out.println();
+        //
+        // copyPropertiesIgnoreNull(user, role);
+        //
+        // System.out.println("user   :   " + user);
+        // System.out.println("role   :   " + role);
     }
 
     public static String[] getNullPropertyNames(Object source) {

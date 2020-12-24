@@ -1,7 +1,7 @@
 package com.dudu.service.coverage;
 
-import com.dudu.manager.system.repository.entity.ProjectDO;
-import com.dudu.manager.git.service.GetDiffCodeBlockStrategy;
+import com.dudu.manager.coverage.repository.entity.ProjectDO;
+import com.dudu.manager.resource.git.service.GetDiffCodeBlockStrategy;
 
 /**
  * 覆盖率服务接口

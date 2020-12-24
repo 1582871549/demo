@@ -10,19 +10,3 @@ coverage-resource:
   exec:
     default-name: dump.exec
     directory: exec
-
-
-
-
-spring:
-  datasource:
-    first:
-      username: root
-      password: dujianwei
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/test?characterEncoding=utf8&useSSL=false&autoReconnect=true&serverTimezone=UTC
-    second:
-      username: root
-      password: dujianwei
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/test?characterEncoding=utf8&useSSL=false&autoReconnect=true&serverTimezone=UTC

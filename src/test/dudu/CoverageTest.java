@@ -1,6 +1,6 @@
 import com.dudu.DemoApplication;
-import com.dudu.manager.system.repository.entity.ProjectDO;
-import com.dudu.manager.git.service.GetDiffCodeBlockStrategy;
+import com.dudu.manager.coverage.repository.entity.ProjectDO;
+import com.dudu.manager.resource.git.service.GetDiffCodeBlockStrategy;
 import com.dudu.service.coverage.CoverageService;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,151 +1,155 @@
-/**
- * FileName: JsonDemo
- * Author:   大橙子
- * Date:     2019/4/17 9:17
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package com.dudu.common.other.json;
 
-import com.dudu.service.system.entity.UserDTO;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
 
 /**
- * 〈一句话功能简述〉<br>
- * 〈〉
- *
- * @author 大橙子
- * @create 2019/4/17
- * @since 1.0.0
+ * 〈一句话功能简述〉<br> 
  */
 public class JsonDemo {
 
     public static void main(String args[]) throws IOException {
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName("张三");
-        userDTO.setPassword("123456");
+        JsonDemo jsonDemo = new JsonDemo();
 
-        JSONArray array = JSONArray.fromObject(userDTO);
+        // jsonDemo2.analysisJsonBean();
 
-        userDTO.setPhone("222222222");
-        array.add(userDTO);
-
-        String s = array.toString();
-
-        System.out.println(s);
-
-        JSONArray array2 = JSONArray.fromObject(s);
-
-        for (Object o : array2) {
-            UserDTO user = (UserDTO) JSONObject.toBean(JSONObject.fromObject(o), UserDTO.class);
-
-            System.out.println(user);
-        }
+        // jsonDemo2.analysisJsonBean2();
 
 
-        // String value = "[{\"tomcatPath\":\"sdfs/tomcat1\",\"port\":\"6666\",\"ip\":\"123.123.123\",\"projectSrc\":\"com.*\"}," +
-        //         "{\"tomcatPath\":\"sdfs/tomcat2\",\"port\":\"7777\",\"ip\":\"456.456.456\",\"projectSrc\":\"com.*\"}," +
-        //         "{\"tomcatPath\":\"sdfs/tomcat3\",\"port\":\"8888\",\"ip\":\"789.789.789\",\"projectSrc\":\"com.*\"}]";
-        //
-        // JSONArray jsonArray = JSONArray.fromObject(value);
-        // for (Object o : jsonArray) {
-        //     JSONObject jsonObject = JSONObject.fromObject(o);
-        //
-        //     System.out.println(jsonObject.getString("ip") + "----" + jsonObject.getInt("port"));
-        // }
+        jsonDemo.analysisJsonFile();
 
-
-        // analysisJsonFile();
     }
 
     /**
      * 解析json字符串文件
      */
-    public static void analysisJsonFile() throws IOException {
+    public void analysisJsonFile() throws IOException {
 
-        File file = new File("src/main/java/demo.json");
+        File file = new File("src/main/java/com/dudu/common/other/json/demo.json");
         String content = FileUtils.readFileToString(file, "utf-8");
 
-        JSONObject obj = JSONObject.fromObject(content);
+        JSONObject obj = JSONObject.parseObject(content);
 
         System.out.println("name : " + obj.getString("name"));
         System.out.println("sex : " + obj.getString("sex"));
-        System.out.println("age : " + obj.getInt("age"));
+        System.out.println("age : " + obj.getInteger("age"));
         System.out.println("locked : " + obj.getBoolean("locked"));
 
         //对数组的解析
         JSONArray hobbies = obj.getJSONArray("hobbies");
         System.out.println("hobbies : ");
         for (Object hobby : hobbies) {
-            System.out.println(String.valueOf(hobby));
+            System.out.println(hobby);
         }
     }
 
     /**
      * 解析json字符串
      */
-    public static void analysisJson() {
+    public void analysisJsonBean() {
 
-        String json = "{\"name\":\"张三\",\"password\":\"123456\",\"username\":\"zhangsan\"}";
+        String jsonStr = "{\"name\":\"张三\",\"password\":\"123456\",\"username\":\"zhangsan\"}";
 
-        JSONObject obj = JSONObject.fromObject(json);
-
-        System.out.println("username : " + obj.getString("username"));
-        System.out.println("password : " + obj.getString("password"));
-        System.out.println("name : " + obj.getString("name"));
-    }
+        JSONObject jsonObject = JSONObject.parseObject(jsonStr);
 
 
-    /**
-     * 直接构建json对象
-     */
-    private static void createJson() {
-        JSONObject obj = new JSONObject();
-        obj.put("name", "John");
-        obj.put("sex", "male");
-        obj.put("age", 22);
-        obj.put("is_student", true);
-        obj.put("hobbies", new String[]{"hiking", "swimming"});
-        System.out.println(obj.toString());
+        Integer password = jsonObject.getInteger("password");
+        int value = jsonObject.getIntValue("password");
+
+        System.out.println("--- " + password + "--- " +value);
+
+        System.out.println(jsonObject.toString());
+
+        UserJsonBO userJsonBO = JSONObject.toJavaObject(jsonObject, UserJsonBO.class);
+
+        System.out.println("--------------------");
+        System.out.println(userJsonBO.toString());
     }
 
     /**
-     * 使用hashmap构建json对象
+     * 解析json字符串
      */
-    private static void createJsonByMap() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("name", "John");
-        data.put("sex", "male");
-        data.put("age", 22);
-        data.put("is_student", true);
-        data.put("hobbies", new String[]{"hiking", "swimming"});
+    public void analysisJsonBean2() {
 
-        JSONObject obj = JSONObject.fromObject(data);
-        System.out.println(obj.toString());
+        String jsonStr = "[{\"name\":\"张三\",\"password\":\"123456\",\"username\":\"zhangsan\"}]";
+
+        JSONArray array = JSONObject.parseArray(jsonStr);
+
+        int len = array.size();
+
+        for (int i = 0; i < len; i++) {
+            JSONObject jsonObject = array.getJSONObject(i);
+
+            UserJsonBO userJsonBO = JSONObject.toJavaObject(jsonObject, UserJsonBO.class);
+
+            System.out.println("--------------------" + userJsonBO);
+            System.out.println("--------------------" + jsonObject.getString("name"));
+        }
+
+
     }
 
-    /**
-     * 将javabean转换为json对象
-     * <p>
-     * JavaBean一定要有getter方法，否则会无法访问存储的数据。
-     */
-    private static void createJsonByJavaBean() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName("张三");
-        userDTO.setPassword("123456");
+    private final String lastUpdateYearKey = "lastUpdateYear";
+    private final String modifyCountKey = "modifyCount";
 
-        JSONObject obj = JSONObject.fromObject(userDTO);
-        System.out.println(obj);
+    /**
+     * 按年份做修改次数限制业务
+     */
+    public boolean updateUser(String fixedUpdate) {
+
+        // String fixedUpdate = userJsonBO.getFixedUpdate();
+
+        JSONObject jsonObject = JSONObject.parseObject(fixedUpdate);
+
+        // 当前年份
+        final int currentYear = LocalDate.now().getYear();
+        // 系统允许一年内修改的次数
+        final int fixedUpdateNumber = 2;
+
+        // 最后一次修改的年份, 如果是新增数据, 数据库字段值应默认为0
+        final int lastUpdateYear = jsonObject.getIntValue(lastUpdateYearKey);
+        // 年份内已修改的次数
+        final int modifyCount = jsonObject.getIntValue(modifyCountKey);
+
+        // 错误的修改年份
+        if (currentYear < lastUpdateYear) {
+            throw new RuntimeException("错误的修改年份");
+        }
+
+        // 如果当前年份大于最后修改年, 允许修改并更新最后修改年和初始化修改次数
+        if (currentYear > lastUpdateYear) {
+            return updateYearCount(currentYear, 1);
+        }
+
+        // 如果当前年份等于最后修改年, 则继续判断是否超出修改次数. 如果没有则允许修改并累加修改次数
+        // 隐藏条件: currentYear == lastUpdateYear, 前面的两个判断已经排除了不等于的情况
+        if (modifyCount < fixedUpdateNumber) {
+            return updateYearCount(currentYear, modifyCount + 1);
+        }
+
+        // 超过修改次数
+        throw new RuntimeException("超过修改次数");
+    }
+
+    private boolean updateYearCount(int lastUpdateYearValue, int modifyCountValue) {
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(lastUpdateYearKey, lastUpdateYearValue);
+        jsonObject.put(modifyCountKey, modifyCountValue);
+        String fixedUpdate = jsonObject.toString();
+
+        UserJsonBO userJsonBO = new UserJsonBO();
+        userJsonBO.setFixedUpdate(fixedUpdate);
+
+        System.out.println(userJsonBO);
+
+        return true;
     }
 
 }

@@ -1,13 +1,13 @@
 package com.dudu.service.coverage.impl;
 
-import com.dudu.manager.git.repository.JGitHelper;
-import com.dudu.manager.git.entity.JGitBO;
-import com.dudu.manager.resource.CoverageProperty;
-import com.dudu.manager.system.repository.entity.ProjectDO;
-import com.dudu.manager.git.entity.DiffClassBO;
-import com.dudu.manager.asm.service.AdapterManager;
+import com.dudu.manager.resource.git.helper.JGitHelper;
+import com.dudu.manager.resource.git.entity.JGitBO;
+import com.dudu.service.coverage.entity.CoverageProperty;
+import com.dudu.manager.coverage.repository.entity.ProjectDO;
+import com.dudu.manager.resource.git.entity.DiffClassBO;
+import com.dudu.manager.resource.asm.service.AdapterManager;
 import com.dudu.manager.coverage.service.CoverageManager;
-import com.dudu.manager.git.service.GetDiffCodeBlockStrategy;
+import com.dudu.manager.resource.git.service.GetDiffCodeBlockStrategy;
 import com.dudu.service.coverage.CoverageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
