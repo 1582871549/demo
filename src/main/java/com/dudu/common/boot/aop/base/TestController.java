@@ -1,4 +1,4 @@
-package com.dudu.common.boot.aop;
+package com.dudu.common.boot.aop.base;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

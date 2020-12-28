@@ -1,4 +1,4 @@
-package com.dudu.common.boot.aop;
+package com.dudu.common.boot.aop.base;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -21,10 +21,10 @@ import java.lang.reflect.Method;
 @Component
 public class UrlAspect {
 
-    @Pointcut("@annotation(com.dudu.common.boot.aop.UrlAction)")
+    @Pointcut("@annotation(com.dudu.common.boot.aop.base.UrlAction)")
     public void annotationUrl() { }
 
-    @Pointcut("execution(* com.dudu.common.boot.aop.TestController.method(..))")
+    @Pointcut("execution(* com.dudu.common.boot.aop.base.TestController.method(..))")
     public void annotationMethod() { }
 
     @After("annotationUrl()")

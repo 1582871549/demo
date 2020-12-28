@@ -1,4 +1,4 @@
-package com.dudu.common.boot.aop;
+package com.dudu.common.boot.aop.base;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
